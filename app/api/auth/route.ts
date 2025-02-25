@@ -1,0 +1,32 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  // Only return non-sensitive configuration
+  return NextResponse.json({
+    projectName: process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME,
+    walletConfig: process.env.NEXT_PUBLIC_ONCHAINKIT_WALLET_CONFIG,
+  });
+}
+
+// This endpoint will be used for authenticated requests that need API keys
+export async function POST(request: NextRequest) {
+  try {
+    // In a real app, you would validate the request here
+    // For example, check for a valid session or API token
+
+    // For demo purposes, we're just returning the config
+    // In production, you would implement proper authentication
+    return NextResponse.json({
+      success: true,
+      config: {
+        walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID,
+        onchainKitApiKey: process.env.ONCHAINKIT_API_KEY,
+      }
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Unauthorized' },
+      { status: 401 }
+    );
+  }
+}
