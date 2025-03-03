@@ -1,7 +1,5 @@
 "use client";
-import { OnrampPurchaseCurrency } from "@coinbase/onchainkit/fund";
-import { Autocomplete, AutocompleteItem, Skeleton } from "@nextui-org/react";
-import { Key, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 
 export interface Token {
@@ -14,6 +12,28 @@ export interface Token {
 export interface Chain {
   id: string;
   name: string;
+}
+
+interface PurchaseCurrency {
+  id: string;
+  name: string;
+  networks: Network[];
+}
+
+interface Network {
+  name: string;
+  displayName: string;
+}
+
+interface SellCurrency {
+  id: string;
+  name: string;
+  networks: SellCurrencyNetwork[];
+}
+
+interface SellCurrencyNetwork {
+  name: string;
+  display_name: string;
 }
 
 export const ChainTokenSelector = () => {
@@ -32,62 +52,35 @@ export const ChainTokenSelector = () => {
     isOnrampActive,
   } = useCoinbaseRampTransaction();
 
-  const handleTokenSelectionChange = (key: Key | null) => {
-    if (key) {
-      if (isOnrampActive) {
-        const selectedPurchaseCurrency = buyOptions?.purchaseCurrencies.find(
-          (pc) => pc.id === key
-        );
+  const [tokenDropdownOpen, setTokenDropdownOpen] = useState(false);
+  const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
 
-        if (selectedPurchaseCurrency) {
-          setSelectedPurchaseCurrency(selectedPurchaseCurrency);
-          setSelectedPurchaseCurrencyNetwork(
-            selectedPurchaseCurrency.networks.find(
-              (network) => network.name.toUpperCase() === "BASE"
-            ) || selectedPurchaseCurrency.networks[0]
-          );
-        }
-      } else {
-        const selectedSellCurrency = sellOptions?.sell_currencies.find(
-          (pc) => pc.id === key
-        );
-
-        if (selectedSellCurrency) {
-          setSelectedSellCurrency(selectedSellCurrency);
-          setSelectedSellCurrencyNetwork(
-            selectedSellCurrency.networks.find(
-              (network) => network.name.toUpperCase() === "BASE"
-            ) || selectedSellCurrency.networks[0]
-          );
-        }
-      }
+  const handleTokenSelect = (currency: PurchaseCurrency | SellCurrency) => {
+    if (isOnrampActive) {
+      setSelectedPurchaseCurrency(currency as PurchaseCurrency);
+      setSelectedPurchaseCurrencyNetwork(
+        (currency as PurchaseCurrency).networks.find(
+          (network) => network.name.toUpperCase() === "BASE"
+        ) || (currency as PurchaseCurrency).networks[0]
+      );
+    } else {
+      setSelectedSellCurrency(currency as SellCurrency);
+      setSelectedSellCurrencyNetwork(
+        (currency as SellCurrency).networks.find(
+          (network) => network.name.toUpperCase() === "BASE"
+        ) || (currency as SellCurrency).networks[0]
+      );
     }
+    setTokenDropdownOpen(false);
   };
 
-  const handleNetworkSelectionChange = (key: Key | null) => {
-    if (key) {
-      if (isOnrampActive) {
-        const selectedNetwork = selectedPurchaseCurrency?.networks.find(
-          (n) => n.displayName === key
-        );
-
-        if (selectedNetwork) {
-          setSelectedPurchaseCurrencyNetwork(selectedNetwork);
-        }
-      } else {
-        // Offramp
-        const selectedNetwork = selectedSellCurrency?.networks.find(
-          (n) => n.display_name === key
-        );
-
-        if (selectedNetwork) {
-          setSelectedSellCurrencyNetwork(selectedNetwork);
-        }
-      }
+  const handleNetworkSelect = (network: Network | SellCurrencyNetwork) => {
+    if (isOnrampActive) {
+      setSelectedPurchaseCurrencyNetwork(network as Network);
     } else {
-      setSelectedPurchaseCurrencyNetwork(null);
-      setSelectedSellCurrencyNetwork(null);
+      setSelectedSellCurrencyNetwork(network as SellCurrencyNetwork);
     }
+    setNetworkDropdownOpen(false);
   };
 
   const getSelectedCurrency = () => {
@@ -96,74 +89,120 @@ export const ChainTokenSelector = () => {
       : selectedSellCurrency?.id;
   };
 
+  const getSelectedCurrencyName = () => {
+    return isOnrampActive
+      ? selectedPurchaseCurrency?.name
+      : selectedSellCurrency?.name;
+  };
+
+  const getSelectedNetworkName = () => {
+    if (isOnrampActive) {
+      return selectedPurchaseCurrencyNetwork?.displayName;
+    }
+    return selectedSellCurrencyNetwork?.display_name;
+  };
+
+  const availableCurrencies = isOnrampActive
+    ? buyOptions?.purchaseCurrencies || []
+    : sellOptions?.sell_currencies || [];
+
   const networkDisplayNames = useMemo(() => {
     if (isOnrampActive) {
       return (selectedPurchaseCurrency?.networks ?? []).map(
-        ({ displayName }) => displayName
+        (network) => network
       );
     }
 
-    return (selectedSellCurrency?.networks ?? []).map(
-      ({ display_name }) => display_name
-    );
+    return (selectedSellCurrency?.networks ?? []).map((network) => network);
   }, [isOnrampActive, selectedPurchaseCurrency, selectedSellCurrency]);
 
   return (
     <div className="flex flex-col gap-4">
       {loadingBuyOptions ? (
         <>
-          <Skeleton className="h-10 w-[200px] rounded-lg" />
-          <Skeleton className="h-10 w-[200px] rounded-lg" />
+          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
+          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
         </>
       ) : (
         <>
-          <Autocomplete
-            isClearable={false}
-            isLoading={loadingBuyOptions}
-            label={isOnrampActive ? "Buy" : "Sell"}
-            placeholder="Search for a token"
-            className="max-w-[200px]"
-            onSelectionChange={handleTokenSelectionChange}
-            selectedKey={getSelectedCurrency()}
-          >
-            {(
-              (isOnrampActive
-                ? buyOptions?.purchaseCurrencies
-                : sellOptions?.sell_currencies) || []
-            ).map((purchaseCurrency) => (
-              <AutocompleteItem
-                key={purchaseCurrency.id}
-                value={purchaseCurrency.name}
+          {/* Token Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setTokenDropdownOpen(!tokenDropdownOpen)}
+              className="flex items-center justify-between w-full max-w-[200px] px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <span>
+                {getSelectedCurrencyName() ||
+                  `Select ${isOnrampActive ? "Buy" : "Sell"} Token`}
+              </span>
+              <svg
+                className="w-5 h-5 ml-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
               >
-                {purchaseCurrency.name}
-              </AutocompleteItem>
-            ))}
-          </Autocomplete>
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
 
-          <Autocomplete
-            isClearable={false}
-            label="Network"
-            placeholder="Receiving Network"
-            className="max-w-[200px]"
-            onSelectionChange={handleNetworkSelectionChange}
-            selectedKey={
-              isOnrampActive
-                ? (
-                    selectedPurchaseCurrencyNetwork as OnrampPurchaseCurrency["networks"][0]
-                  )?.displayName
-                : selectedSellCurrencyNetwork?.display_name
-            }
-          >
-            {networkDisplayNames.map((networkDisplayName) => (
-              <AutocompleteItem
-                key={networkDisplayName}
-                value={networkDisplayName}
-                className="capitalize"
+            {tokenDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                {availableCurrencies.map((currency) => (
+                  <div
+                    key={currency.id}
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                    onClick={() => handleTokenSelect(currency)}
+                  >
+                    {currency.name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Network Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setNetworkDropdownOpen(!networkDropdownOpen)}
+              className="flex items-center justify-between w-full max-w-[200px] px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <span>{getSelectedNetworkName() || "Select Network"}</span>
+              <svg
+                className="w-5 h-5 ml-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
               >
-                {networkDisplayName}
-              </AutocompleteItem>
-            ))}
-          </Autocomplete>
+                <path
+                  fillRule="evenodd"
+                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </button>
+
+            {networkDropdownOpen && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                {networkDisplayNames.map((network) => (
+                  <div
+                    key={
+                      isOnrampActive
+                        ? network.displayName
+                        : network.display_name
+                    }
+                    className="px-3 py-2 cursor-pointer hover:bg-gray-100 capitalize"
+                    onClick={() => handleNetworkSelect(network)}
+                  >
+                    {isOnrampActive
+                      ? network.displayName
+                      : network.display_name}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </>
       )}
     </div>

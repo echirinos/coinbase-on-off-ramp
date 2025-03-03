@@ -4,12 +4,10 @@ import React from "react";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import { FundButton } from "@coinbase/onchainkit/fund";
-import { FundCard } from "@coinbase/onchainkit/fund";
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
 import { getOnrampBuyUrl } from "@coinbase/onchainkit/fund";
 import { FundCardDemo } from "../components/FundCardDemo";
-import { RegionSelector } from "../components/RegionSelector";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 
 export default function FundPage() {

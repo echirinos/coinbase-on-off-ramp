@@ -4,16 +4,12 @@ import React, { useState, useEffect } from "react";
 import { FundCard } from "@coinbase/onchainkit/fund";
 import { RegionSelector } from "./RegionSelector";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Input,
-  Autocomplete,
-  AutocompleteItem,
-} from "@nextui-org/react";
-import { Key } from "@react-types/shared";
+
+// Import the Currency interface
+interface Currency {
+  id: string;
+  name: string;
+}
 
 export function FundCardFeature() {
   const {
@@ -35,6 +31,7 @@ export function FundCardFeature() {
   ]);
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
 
   useEffect(() => {
     // Fetch CDP Project ID from server
@@ -84,16 +81,9 @@ export function FundCardFeature() {
     presetAmounts,
   ]);
 
-  const handleCurrencySelection = (value: Key | null) => {
-    if (value) {
-      if (buyOptions) {
-        const newCurrency =
-          buyOptions.paymentCurrencies.find(
-            (currency) => currency.id === value
-          ) || null;
-        setSelectedCurrency(newCurrency);
-      }
-    }
+  const handleCurrencySelect = (currency: Currency) => {
+    setSelectedCurrency(currency);
+    setCurrencyDropdownOpen(false);
   };
 
   const availableCurrencies = buyOptions?.paymentCurrencies || [];
@@ -132,77 +122,118 @@ export function FundCardFeature() {
           </div>
 
           <div className="flex flex-col gap-2 items-center p-4 w-full max-w-[800px]">
-            <Card>
-              <CardHeader>
-                <p className="text-lg">Fund card props</p>
-              </CardHeader>
-              <CardBody>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden w-full">
+              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <p className="text-lg font-medium">Fund card props</p>
+              </div>
+
+              <div className="p-4">
                 <div>
                   <RegionSelector />
                 </div>
+
                 <div className="flex pt-4 pb-4 gap-2 flex-wrap">
-                  <Autocomplete
-                    isClearable={false}
-                    label="Currency"
-                    placeholder="Search for a currency"
-                    className="w-[200px] my-auto"
-                    onSelectionChange={handleCurrencySelection}
-                    selectedKey={selectedCurrency?.id}
-                  >
-                    {availableCurrencies.map((currency) => (
-                      <AutocompleteItem key={currency.id} value={currency.id}>
-                        {currency.id}
-                      </AutocompleteItem>
-                    ))}
-                  </Autocomplete>
+                  {/* Currency Dropdown */}
+                  <div className="relative w-[200px]">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Currency
+                    </label>
+                    <button
+                      onClick={() =>
+                        setCurrencyDropdownOpen(!currencyDropdownOpen)
+                      }
+                      className="flex items-center justify-between w-full px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <span>{selectedCurrency?.id || "Select Currency"}</span>
+                      <svg
+                        className="w-5 h-5 ml-2"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
 
-                  <Input
-                    placeholder="asset"
-                    label="asset"
-                    variant="bordered"
-                    value={asset}
-                    className="w-[150px]"
-                    onChange={(e) => {
-                      setAsset(e.target.value);
-                    }}
-                  />
+                    {currencyDropdownOpen && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                        {availableCurrencies.map((currency) => (
+                          <div
+                            key={currency.id}
+                            className="px-3 py-2 cursor-pointer hover:bg-gray-100"
+                            onClick={() => handleCurrencySelect(currency)}
+                          >
+                            {currency.id}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
-                  <Input
-                    placeholder="Header Text"
-                    label="Header Text"
-                    variant="bordered"
-                    value={headerText}
-                    className="w-[200px]"
-                    onChange={(e) => {
-                      setHeaderText(e.target.value);
-                    }}
-                  />
+                  {/* Asset Input */}
+                  <div className="w-[150px]">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Asset
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="asset"
+                      value={asset}
+                      onChange={(e) => setAsset(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-                  <Input
-                    placeholder="Button Text"
-                    label="Button Text"
-                    variant="bordered"
-                    value={buttonText}
-                    className="w-[200px]"
-                    onChange={(e) => {
-                      setButtonText(e.target.value);
-                    }}
-                  />
+                  {/* Header Text Input */}
+                  <div className="w-[200px]">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Header Text
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Header Text"
+                      value={headerText}
+                      onChange={(e) => setHeaderText(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
 
-                  <Input
-                    placeholder="presetAmountInputs"
-                    label="presetAmountInputs"
-                    variant="bordered"
-                    className="w-[200px]"
-                    value={presetAmounts?.join(",")}
-                    onChange={(e) => {
-                      setPresetAmounts(e.target.value.split(","));
-                    }}
-                  />
+                  {/* Button Text Input */}
+                  <div className="w-[200px]">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Button Text
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Button Text"
+                      value={buttonText}
+                      onChange={(e) => setButtonText(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  {/* Preset Amounts Input */}
+                  <div className="w-[200px]">
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Preset Amounts
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="presetAmountInputs"
+                      value={presetAmounts.join(",")}
+                      onChange={(e) =>
+                        setPresetAmounts(e.target.value.split(","))
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
-              </CardBody>
+              </div>
 
-              <CardFooter>
+              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
                 <div className="mt-2 space-y-2 w-full">
                   <label className="text-sm font-medium">
                     Implementation Code
@@ -213,8 +244,8 @@ export function FundCardFeature() {
                     </pre>
                   </div>
                 </div>
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
