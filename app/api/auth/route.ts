@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
       config: {
         walletConnectProjectId: process.env.WALLETCONNECT_PROJECT_ID,
         onchainKitApiKey: process.env.ONCHAINKIT_API_KEY,
+        cdpProjectId: process.env.CDP_PROJECT_ID,
       }
     });
   } catch (error) {

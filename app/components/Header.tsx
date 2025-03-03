@@ -75,6 +75,13 @@ export default function Header() {
             >
               Compare
             </NavLink>
+            <NavLink
+              href="/fund"
+              isActive={pathname === "/fund"}
+              isScrolled={isScrolled}
+            >
+              Fund
+            </NavLink>
             <div className="ml-4">
               <WalletDefault />
             </div>
@@ -151,6 +158,13 @@ export default function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Compare
+            </MobileNavLink>
+            <MobileNavLink
+              href="/fund"
+              isActive={pathname === "/fund"}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Fund
             </MobileNavLink>
             <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
               <WalletDefault />
