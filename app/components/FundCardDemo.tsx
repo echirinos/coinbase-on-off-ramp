@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FundCard, FundCardPropsReact } from "@coinbase/onchainkit/fund";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { RegionSelector } from "./RegionSelector";
+import { useAccount } from "wagmi";
 
 // Import the Currency interface
 interface Currency {
@@ -19,11 +20,41 @@ export const FundCardDemo = () => {
     buyOptions,
   } = useCoinbaseRampTransaction();
 
+  const { address, isConnected } = useAccount();
+  const [cdpProjectId, setCdpProjectId] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const [asset, setAsset] = useState("BTC");
   const [presetAmountInputs, setPresetAmountInputs] = useState<
     FundCardPropsReact["presetAmountInputs"]
   >(["10", "20", "30"]);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+
+  useEffect(() => {
+    // Fetch CDP Project ID from server
+    const fetchCdpProjectId = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/auth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.config.cdpProjectId) {
+          setCdpProjectId(data.config.cdpProjectId);
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching CDP Project ID:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchCdpProjectId();
+  }, []);
 
   const handleCurrencySelect = (currency: Currency) => {
     setSelectedCurrency(currency);
@@ -35,14 +66,29 @@ export const FundCardDemo = () => {
   return (
     <div className="flex flex-col items-center justify-center flex-wrap gap-4">
       <div className="flex justify-center items-center w-[500px] gap-4 flex-col">
-        <FundCard
-          key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
-          assetSymbol={asset}
-          country={selectedCountry?.id || "US"}
-          currency={selectedCurrency?.id || "USD"}
-          subdivision={selectedSubdivision || undefined}
-          presetAmountInputs={presetAmountInputs}
-        />
+        {isLoading ? (
+          <div className="text-center p-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-300">
+              Loading Fund Card...
+            </p>
+          </div>
+        ) : !isConnected ? (
+          <div className="text-center p-8">
+            <p className="text-gray-600 dark:text-gray-300">
+              Please connect your wallet to use the Fund Card
+            </p>
+          </div>
+        ) : (
+          <FundCard
+            key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
+            assetSymbol={asset}
+            country={selectedCountry?.id || "US"}
+            currency={selectedCurrency?.id || "USD"}
+            subdivision={selectedSubdivision || undefined}
+            presetAmountInputs={presetAmountInputs}
+          />
+        )}
       </div>
 
       <div className="flex flex-col gap-2 items-center p-4">

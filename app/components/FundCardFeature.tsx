@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { FundCard } from "@coinbase/onchainkit/fund";
 import { RegionSelector } from "./RegionSelector";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import { useAccount } from "wagmi";
 
 // Import the Currency interface
 interface Currency {
@@ -20,6 +21,7 @@ export function FundCardFeature() {
     buyOptions,
   } = useCoinbaseRampTransaction();
 
+  const { address, isConnected } = useAccount();
   const [previewConfig, setPreviewConfig] = useState("");
   const [asset, setAsset] = useState("BTC");
   const [headerText, setHeaderText] = useState("Fund Project");
@@ -107,6 +109,12 @@ export function FundCardFeature() {
               <div className="text-center text-gray-500">
                 <p>Loading Fund Card...</p>
               </div>
+            ) : !isConnected ? (
+              <div className="text-center p-8">
+                <p className="text-gray-600 dark:text-gray-300">
+                  Please connect your wallet to use the Fund Card
+                </p>
+              </div>
             ) : (
               <FundCard
                 key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
@@ -188,7 +196,7 @@ export function FundCardFeature() {
                   </div>
 
                   {/* Header Text Input */}
-                  <div className="w-[200px]">
+                  <div className="w-[150px]">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Header Text
                     </label>
@@ -202,7 +210,7 @@ export function FundCardFeature() {
                   </div>
 
                   {/* Button Text Input */}
-                  <div className="w-[200px]">
+                  <div className="w-[150px]">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Button Text
                     </label>
@@ -216,13 +224,13 @@ export function FundCardFeature() {
                   </div>
 
                   {/* Preset Amounts Input */}
-                  <div className="w-[200px]">
+                  <div className="w-[150px]">
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                       Preset Amounts
                     </label>
                     <input
                       type="text"
-                      placeholder="presetAmountInputs"
+                      placeholder="Preset Amounts"
                       value={presetAmounts.join(",")}
                       onChange={(e) =>
                         setPresetAmounts(e.target.value.split(","))
@@ -234,16 +242,9 @@ export function FundCardFeature() {
               </div>
 
               <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                <div className="mt-2 space-y-2 w-full">
-                  <label className="text-sm font-medium">
-                    Implementation Code
-                  </label>
-                  <div className="rounded-md overflow-hidden bg-gray-900 p-4">
-                    <pre className="text-xs text-white overflow-x-auto">
-                      {previewConfig}
-                    </pre>
-                  </div>
-                </div>
+                <pre className="text-xs overflow-auto bg-gray-100 dark:bg-gray-900 p-4 rounded">
+                  {previewConfig}
+                </pre>
               </div>
             </div>
           </div>
