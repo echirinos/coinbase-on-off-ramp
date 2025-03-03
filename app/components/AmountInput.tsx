@@ -1,151 +1,80 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import { useState } from 'react';
+import { useCoinbaseRampTransaction } from '../contexts/CoinbaseRampTransactionContext';
 
 export const AmountInput = () => {
   const {
-    rampTransaction,
-    setRampTransaction,
-    selectedPaymentMethod,
-    loadingBuyOptions,
+    isOnrampActive,
     selectedCurrency,
     selectedPaymentMethodLimit,
+    amount,
+    setAmount,
   } = useCoinbaseRampTransaction();
 
-  const inputError = useMemo(() => {
-    if (rampTransaction?.amount && selectedPaymentMethod) {
-      return (
-        Number(rampTransaction.amount) < Number(selectedPaymentMethodLimit?.min)
-      );
-    }
+  const [isFocused, setIsFocused] = useState(false);
 
-    return false;
-  }, [
-    rampTransaction?.amount,
-    selectedPaymentMethod,
-    selectedPaymentMethodLimit,
-  ]);
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
 
-  const getCurrencySymbol = (currencyId?: string) => {
-    if (!currencyId) return "$";
-
-    switch (currencyId.toUpperCase()) {
-      case "USD":
-        return "$";
-      case "EUR":
-        return "€";
-      case "GBP":
-        return "£";
-      default:
-        return "$";
+    // Only allow numbers and a single decimal point
+    if (value === '' || /^[0-9]*\.?[0-9]*$/.test(value)) {
+      setAmount(value);
     }
   };
 
-  const formatCurrency = (value: string, symbol: string) => {
-    return `${symbol}${value}`;
+  const getCurrencySymbol = () => {
+    if (isOnrampActive && selectedCurrency) {
+      return selectedCurrency.id;
+    }
+    return 'ETH';
   };
-
-  const handleAmountChange = useCallback(
-    (value: string) => {
-      // Only allow numeric input with a single decimal point
-      if (/^[0-9]*\.?[0-9]*$/.test(value)) {
-        if (Number(value) > Number(selectedPaymentMethodLimit?.max)) {
-          setRampTransaction({
-            ...rampTransaction,
-            amount: selectedPaymentMethodLimit?.max,
-          });
-        } else {
-          setRampTransaction({
-            ...rampTransaction,
-            amount: value,
-          });
-        }
-      }
-    },
-    [rampTransaction, setRampTransaction, selectedPaymentMethodLimit]
-  );
 
   return (
-    <div className="amount-input h-full flex items-center flex-col justify-between mb-8">
-      {!loadingBuyOptions ? (
-        <>
-          <div className="grow">
-            <div className="flex flex-col justify-center w-full h-full gap-4">
-              <div className="text-5xl flex items-center m-auto">
-                <div className="flex items-center justify-center">
-                  <input
-                    value={`${getCurrencySymbol(selectedCurrency?.id)}${
-                      rampTransaction?.amount || "0"
-                    }`}
-                    type="text"
-                    pattern="[0-9]*"
-                    onChange={(e) =>
-                      handleAmountChange(
-                        e.target.value.replace(
-                          getCurrencySymbol(selectedCurrency?.id),
-                          ""
-                        )
-                      )
-                    }
-                    className="text-center max-w-[300px] bg-transparent pl-4 pr-4 outline-none border-none"
-                    style={{
-                      WebkitAppearance: "none",
-                      MozAppearance: "textfield",
-                    }}
-                  />
-                </div>
-              </div>
-              {inputError && (
-                <div className="mx-auto mb-4 text-red-600 text-xs">
-                  Amount must be greater than minimum
-                </div>
-              )}
-              <div className="flex mx-auto mb-4 w-[250px] justify-around">
-                <span>
-                  Min:{" "}
-                  {formatCurrency(
-                    selectedPaymentMethodLimit?.min || "0",
-                    getCurrencySymbol(selectedCurrency?.id)
-                  )}
-                </span>
-                <span>
-                  Max:{" "}
-                  {formatCurrency(
-                    selectedPaymentMethodLimit?.max || "0",
-                    getCurrencySymbol(selectedCurrency?.id)
-                  )}
-                </span>
-              </div>
-            </div>
+    <div className="w-full max-w-md mx-auto">
+      <div className="mb-2 flex justify-between items-center">
+        <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
+          Amount
+        </label>
+        {selectedPaymentMethodLimit && (
+          <div className="text-xs text-gray-500">
+            <span>Min: {selectedPaymentMethodLimit.min} {getCurrencySymbol()}</span>
+            <span className="mx-2">|</span>
+            <span>Max: {selectedPaymentMethodLimit.max} {getCurrencySymbol()}</span>
           </div>
-          <div className="flex h-[50px] gap-4">
-            {selectedCurrency?.id?.toUpperCase() === "USD" &&
-              ["10", "25", "50"].map((amount) => (
-                <button
-                  key={amount}
-                  onClick={() => handleAmountChange(amount)}
-                  className="px-4 py-2 text-sm bg-gray-700 text-white rounded-md hover:bg-gray-600 transition-colors cursor-pointer"
-                >
-                  ${amount}
-                </button>
-              ))}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="grow">
-            <div className="w-full h-16 bg-gray-200 animate-pulse rounded-lg"></div>
-          </div>
-          <div className="flex h-[50px] gap-4">
-            {[0, 1, 2].map((index) => (
-              <div
-                key={index}
-                className="w-16 h-8 bg-gray-200 animate-pulse rounded-md"
-              ></div>
-            ))}
-          </div>
-        </>
+        )}
+      </div>
+
+      <div className={`relative rounded-md shadow-sm ${isFocused ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-300'}`}>
+        <input
+          type="text"
+          name="amount"
+          id="amount"
+          className="block w-full rounded-md border-0 py-3 pl-4 pr-12 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6"
+          placeholder="0.00"
+          value={amount}
+          onChange={handleAmountChange}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+        />
+        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+          <span className="text-gray-500 sm:text-sm">{getCurrencySymbol()}</span>
+        </div>
+      </div>
+
+      {selectedPaymentMethodLimit && amount && parseFloat(amount) > 0 && (
+        <div className="mt-2">
+          {parseFloat(amount) < selectedPaymentMethodLimit.min && (
+            <p className="text-sm text-red-600">
+              Amount is below the minimum of {selectedPaymentMethodLimit.min} {getCurrencySymbol()}
+            </p>
+          )}
+          {parseFloat(amount) > selectedPaymentMethodLimit.max && (
+            <p className="text-sm text-red-600">
+              Amount is above the maximum of {selectedPaymentMethodLimit.max} {getCurrencySymbol()}
+            </p>
+          )}
+        </div>
       )}
     </div>
   );

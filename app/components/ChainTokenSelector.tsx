@@ -1,160 +1,169 @@
 "use client";
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useCoinbaseRampTransaction } from '../contexts/CoinbaseRampTransactionContext';
 
-interface Network {
-  id: string;
-  name: string;
-}
-
-interface Currency {
+export interface Token {
   id: string;
   name: string;
   symbol: string;
-  networks: Network[];
+  chainId: number;
+}
+
+export interface Chain {
+  id: string;
+  name: string;
 }
 
 export const ChainTokenSelector = () => {
   const {
-    isOnrampActive,
-    buyOptions,
     selectedPurchaseCurrency,
     setSelectedPurchaseCurrency,
+    selectedSellCurrency,
+    setSelectedSellCurrency,
     selectedPurchaseCurrencyNetwork,
     setSelectedPurchaseCurrencyNetwork,
-    rampTransaction,
-    setRampTransaction,
+    selectedSellCurrencyNetwork,
+    setSelectedSellCurrencyNetwork,
+    buyOptions,
+    sellOptions,
     loadingBuyOptions,
+    isOnrampActive,
   } = useCoinbaseRampTransaction();
 
-  const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
   const [tokenDropdownOpen, setTokenDropdownOpen] = useState(false);
+  const [networkDropdownOpen, setNetworkDropdownOpen] = useState(false);
 
-  const toggleNetworkDropdown = () => {
-    setNetworkDropdownOpen(!networkDropdownOpen);
-    if (tokenDropdownOpen) setTokenDropdownOpen(false);
+  const handleTokenSelect = (purchaseCurrency: any) => {
+    if (isOnrampActive) {
+      setSelectedPurchaseCurrency(purchaseCurrency);
+
+      // If the currency has networks, select the first one or BASE if available
+      if (purchaseCurrency.networks && purchaseCurrency.networks.length > 0) {
+        const baseNetwork = purchaseCurrency.networks.find(
+          (network: any) => network.name.toUpperCase() === 'BASE'
+        );
+        setSelectedPurchaseCurrencyNetwork(baseNetwork || purchaseCurrency.networks[0]);
+      }
+    } else {
+      setSelectedSellCurrency(purchaseCurrency);
+
+      // If the currency has networks, select the first one or BASE if available
+      if (purchaseCurrency.networks && purchaseCurrency.networks.length > 0) {
+        const baseNetwork = purchaseCurrency.networks.find(
+          (network: any) => network.name.toUpperCase() === 'BASE'
+        );
+        setSelectedSellCurrencyNetwork(baseNetwork || purchaseCurrency.networks[0]);
+      }
+    }
+    setTokenDropdownOpen(false);
   };
 
-  const toggleTokenDropdown = () => {
-    setTokenDropdownOpen(!tokenDropdownOpen);
-    if (networkDropdownOpen) setNetworkDropdownOpen(false);
-  };
-
-  const handleNetworkSelect = (network: Network) => {
-    setSelectedPurchaseCurrencyNetwork(network);
+  const handleNetworkSelect = (network: any) => {
+    if (isOnrampActive) {
+      setSelectedPurchaseCurrencyNetwork(network);
+    } else {
+      setSelectedSellCurrencyNetwork(network);
+    }
     setNetworkDropdownOpen(false);
   };
 
-  const handleTokenSelect = (currency: Currency) => {
-    setSelectedPurchaseCurrency(currency);
-
-    // If the selected currency has networks and the current network isn't in them,
-    // select the first available network
-    if (currency.networks && currency.networks.length > 0) {
-      const currentNetworkIsValid = currency.networks.some(
-        network => network.id === selectedPurchaseCurrencyNetwork?.id
-      );
-
-      if (!currentNetworkIsValid) {
-        setSelectedPurchaseCurrencyNetwork(currency.networks[0]);
-      }
-    }
-
-    setTokenDropdownOpen(false);
-
-    // Update the ramp transaction with the new currency
-    if (rampTransaction) {
-      setRampTransaction({
-        ...rampTransaction,
-        asset: currency.symbol,
-      });
-    }
+  const getSelectedCurrency = () => {
+    return isOnrampActive
+      ? selectedPurchaseCurrency?.id
+      : selectedSellCurrency?.id;
   };
 
-  // Get available currencies from buy options
-  const availableCurrencies = isOnrampActive && buyOptions
-    ? buyOptions.purchaseCurrencies
-    : [];
+  const getSelectedNetwork = () => {
+    if (isOnrampActive && selectedPurchaseCurrencyNetwork) {
+      return selectedPurchaseCurrencyNetwork.displayName;
+    } else if (!isOnrampActive && selectedSellCurrencyNetwork) {
+      return selectedSellCurrencyNetwork.display_name;
+    }
+    return "Select Network";
+  };
 
-  // Get available networks for the selected currency
-  const availableNetworks = selectedPurchaseCurrency?.networks || [];
-
-  if (loadingBuyOptions) {
-    return (
-      <div className="flex flex-col gap-2 animate-pulse">
-        <div className="h-10 w-full bg-gray-200 rounded"></div>
-        <div className="h-10 w-full bg-gray-200 rounded"></div>
-      </div>
-    );
-  }
+  const getAvailableNetworks = useMemo(() => {
+    if (isOnrampActive && selectedPurchaseCurrency) {
+      return selectedPurchaseCurrency.networks || [];
+    } else if (!isOnrampActive && selectedSellCurrency) {
+      return selectedSellCurrency.networks || [];
+    }
+    return [];
+  }, [isOnrampActive, selectedPurchaseCurrency, selectedSellCurrency]);
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Token Selector */}
-      <div className="relative">
-        <button
-          onClick={toggleTokenDropdown}
-          className="w-full flex items-center justify-between p-2 border border-gray-300 rounded-md bg-white"
-        >
-          <span>
-            {selectedPurchaseCurrency
-              ? `${selectedPurchaseCurrency.symbol} - ${selectedPurchaseCurrency.name}`
-              : 'Select Token'}
-          </span>
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
+      {loadingBuyOptions ? (
+        <>
+          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
+          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
+        </>
+      ) : (
+        <>
+          <div className="relative">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {isOnrampActive ? 'Buy' : 'Sell'}
+            </label>
+            <button
+              type="button"
+              className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onClick={() => setTokenDropdownOpen(!tokenDropdownOpen)}
+            >
+              {getSelectedCurrency() || `Select ${isOnrampActive ? 'Buy' : 'Sell'} Token`}
+              <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
 
-        {tokenDropdownOpen && (
-          <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-            {availableCurrencies.map((currency) => (
-              <div
-                key={currency.id}
-                className="p-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleTokenSelect(currency)}
-              >
-                <div className="flex items-center">
-                  <span className="font-medium">{currency.symbol}</span>
-                  <span className="ml-2 text-gray-500 text-sm">{currency.name}</span>
-                </div>
+            {tokenDropdownOpen && (
+              <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                {(
+                  (isOnrampActive
+                    ? buyOptions?.purchaseCurrencies
+                    : sellOptions?.sell_currencies) || []
+                ).map((currency) => (
+                  <div
+                    key={currency.id}
+                    className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100"
+                    onClick={() => handleTokenSelect(currency)}
+                  >
+                    {currency.name}
+                  </div>
+                ))}
               </div>
-            ))}
+            )}
           </div>
-        )}
-      </div>
 
-      {/* Network Selector - Only show if the selected currency has networks */}
-      {selectedPurchaseCurrency && availableNetworks.length > 0 && (
-        <div className="relative">
-          <button
-            onClick={toggleNetworkDropdown}
-            className="w-full flex items-center justify-between p-2 border border-gray-300 rounded-md bg-white"
-          >
-            <span>
-              {selectedPurchaseCurrencyNetwork
-                ? selectedPurchaseCurrencyNetwork.name
-                : 'Select Network'}
-            </span>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+          {(isOnrampActive ? selectedPurchaseCurrency : selectedSellCurrency) && (
+            <div className="relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Network</label>
+              <button
+                type="button"
+                className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={() => setNetworkDropdownOpen(!networkDropdownOpen)}
+              >
+                {getSelectedNetwork()}
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
 
-          {networkDropdownOpen && (
-            <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-              {availableNetworks.map((network) => (
-                <div
-                  key={network.id}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleNetworkSelect(network)}
-                >
-                  {network.name}
+              {networkDropdownOpen && (
+                <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                  {getAvailableNetworks.map((network) => (
+                    <div
+                      key={isOnrampActive ? network.displayName : network.display_name}
+                      className="cursor-pointer select-none relative py-2 pl-3 pr-9 hover:bg-gray-100 capitalize"
+                      onClick={() => handleNetworkSelect(network)}
+                    >
+                      {isOnrampActive ? network.displayName : network.display_name}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );

@@ -1,16 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from "react";
-import { WalletConnector } from "./WalletConnector";
+import Image from "next/image";
+import { memo, useState } from "react";
+import OrderHistoryIcon from "../assets/orderHistory.svg";
+import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { AmountInput } from "./AmountInput";
 import { ChainTokenSelector } from "./ChainTokenSelector";
 import { CurrencySelector } from "./CurrencySelector";
 import { OrderHistory } from "./OrderHistory";
 import { RampTransactionSummary } from "./RampTransactionSummary";
-import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
-import { RegionSelector } from './RegionSelector';
+import { RegionSelector } from "./RegionSelector";
+import { WalletConnector } from "./WalletConnector";
 
-export const CustomIntegrationDemo = () => {
+export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
   const [showOrderHistory, setShowOrderHistory] = useState(false);
   const { authenticated } = useCoinbaseRampTransaction();
 
@@ -19,18 +21,17 @@ export const CustomIntegrationDemo = () => {
       <div className="flex gap-4 justify-center py-4">
         <WalletConnector />
         {authenticated && (
-          <button
+          <Image
             onClick={() => setShowOrderHistory(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-            Order History
-          </button>
+            className="cursor-pointer hover:opacity-50 active:opacity-30"
+            src={OrderHistoryIcon}
+            width={24}
+            height={24}
+            alt="Order History"
+            aria-label="Order History"
+          />
         )}
       </div>
-
       <div className="flex flex-col gap-4 justify-center items-center">
         <RegionSelector />
 
@@ -51,27 +52,50 @@ export const CustomIntegrationDemo = () => {
 
       {/* Order History Modal */}
       {showOrderHistory && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] overflow-auto">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-xl font-semibold">Order History</h2>
-              <button
-                onClick={() => setShowOrderHistory(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+            >
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
-            <div className="p-4">
-              <OrderHistory />
+
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
+              &#8203;
+            </span>
+
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                      Order History
+                    </h3>
+                    <div className="mt-2 h-[600px] overflow-y-auto">
+                      <OrderHistory />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button
+                  type="button"
+                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                  onClick={() => setShowOrderHistory(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
     </>
   );
-};
+});
 
 export default CustomIntegrationDemo;
