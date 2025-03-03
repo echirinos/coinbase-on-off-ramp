@@ -1,7 +1,6 @@
 "use client";
 import { useState } from 'react';
 import { useCoinbaseRampTransaction } from '../contexts/CoinbaseRampTransactionContext';
-import ChevronDownIcon from '@heroicons/react/24/outline/ChevronDownIcon';
 
 interface Network {
   id: string;
@@ -102,7 +101,9 @@ export const ChainTokenSelector = () => {
               ? `${selectedPurchaseCurrency.symbol} - ${selectedPurchaseCurrency.name}`
               : 'Select Token'}
           </span>
-          <ChevronDownIcon className="h-5 w-5" />
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </button>
 
         {tokenDropdownOpen && (
@@ -135,7 +136,9 @@ export const ChainTokenSelector = () => {
                 ? selectedPurchaseCurrencyNetwork.name
                 : 'Select Network'}
             </span>
-            <ChevronDownIcon className="h-5 w-5" />
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
 
           {networkDropdownOpen && (
