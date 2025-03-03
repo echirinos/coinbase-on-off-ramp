@@ -5,28 +5,22 @@ import { FundButton, getOnrampBuyUrl } from "@coinbase/onchainkit/fund";
 import { useAccount } from "wagmi";
 
 export function FundButtonFeature() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [appearance, setAppearance] = useState("default");
   const [previewConfig, setPreviewConfig] = useState("");
   const [chainId, setChainId] = useState("1");
-  const [asset, setAsset] = useState("BTC");
-  const [amount, setAmount] = useState("0.001");
-  const [isPayWithAnyCrypto, setIsPayWithAnyCrypto] = useState(true);
+  const [asset, setAsset] = useState("ETH");
+  const [amount, setAmount] = useState("0.01");
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [customUrl, setCustomUrl] = useState("");
   const [fiatCurrency, setFiatCurrency] = useState("USD");
   const [isLoading, setIsLoading] = useState(true);
-  const [buttonText, setButtonText] = useState("Fund BTC");
+  const [buttonText, setButtonText] = useState("Fund");
   const [hideIcon, setHideIcon] = useState(false);
-  const [openIn, setOpenIn] = useState<"popup" | "tab">("popup");
   const { address, isConnected } = useAccount();
 
   // List of supported assets with their default amounts
   const supportedAssets = [
-    { symbol: "BTC", name: "Bitcoin", defaultAmount: "0.001" },
     { symbol: "ETH", name: "Ethereum", defaultAmount: "0.01" },
     { symbol: "USDC", name: "USD Coin", defaultAmount: "10" },
-    { symbol: "USDT", name: "Tether", defaultAmount: "10" },
     { symbol: "MATIC", name: "Polygon", defaultAmount: "10" },
     { symbol: "AVAX", name: "Avalanche", defaultAmount: "1" },
     { symbol: "ARB", name: "Arbitrum", defaultAmount: "10" },
@@ -61,11 +55,6 @@ export function FundButtonFeature() {
   }, []);
 
   useEffect(() => {
-    // Update button text when asset changes
-    setButtonText(`Fund ${asset}`);
-  }, [asset]);
-
-  useEffect(() => {
     // Update preview config and custom URL when parameters change
     if (cdpProjectId && address) {
       try {
@@ -74,8 +63,7 @@ export function FundButtonFeature() {
           projectId: cdpProjectId,
           addresses: { [address]: [chainId] },
           assets: [asset],
-          presetCryptoAmount: parseFloat(amount) || 0.001,
-          // Note: payWithAnyCrypto is not used in the URL generation
+          presetCryptoAmount: parseFloat(amount) || 0.01,
         });
 
         setCustomUrl(onrampBuyUrl);
@@ -83,7 +71,7 @@ export function FundButtonFeature() {
         // Update preview config
         setPreviewConfig(`<FundButton
   fundingUrl="${onrampBuyUrl}"
-  openIn="${openIn}"
+  openIn="popup"
   text="${buttonText}"
   fiatCurrency="${fiatCurrency}"
   hideIcon={${hideIcon}}
@@ -101,7 +89,6 @@ export function FundButtonFeature() {
     fiatCurrency,
     buttonText,
     hideIcon,
-    openIn,
   ]);
 
   // Handle asset selection and update default amount
@@ -140,58 +127,26 @@ export function FundButtonFeature() {
               <div className="space-y-6">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <label htmlFor="chain-id" className="text-sm font-medium">
-                      Chain
-                    </label>
-                    <select
-                      id="chain-id"
-                      value={chainId}
-                      onChange={(e) => setChainId(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <option value="1">Ethereum</option>
-                      <option value="137">Polygon</option>
-                      <option value="42161">Arbitrum</option>
-                      <option value="10">Optimism</option>
-                      <option value="43114">Avalanche</option>
-                      <option value="8453">Base</option>
-                      <option value="56">BNB Chain</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
                     <label htmlFor="asset" className="text-sm font-medium">
                       Asset
                     </label>
-                    <select
-                      id="asset"
-                      value={asset}
-                      onChange={(e) => handleAssetChange(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
+                    <div className="flex flex-wrap gap-2">
                       {supportedAssets.map((supportedAsset) => (
-                        <option
+                        <button
                           key={supportedAsset.symbol}
-                          value={supportedAsset.symbol}
+                          onClick={() =>
+                            handleAssetChange(supportedAsset.symbol)
+                          }
+                          className={`px-4 py-2 rounded-md ${
+                            asset === supportedAsset.symbol
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                          }`}
                         >
-                          {supportedAsset.name} ({supportedAsset.symbol})
-                        </option>
+                          {supportedAsset.symbol}
+                        </button>
                       ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="amount" className="text-sm font-medium">
-                      Amount
-                    </label>
-                    <input
-                      id="amount"
-                      type="text"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.001"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -229,41 +184,6 @@ export function FundButtonFeature() {
                       onChange={(e) => setButtonText(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                     />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="open-in" className="text-sm font-medium">
-                      Open In
-                    </label>
-                    <select
-                      id="open-in"
-                      value={openIn}
-                      onChange={(e) =>
-                        setOpenIn(e.target.value as "popup" | "tab")
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <option value="popup">Popup</option>
-                      <option value="tab">New Tab</option>
-                    </select>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="pay-with-any-crypto"
-                      checked={isPayWithAnyCrypto}
-                      onChange={() =>
-                        setIsPayWithAnyCrypto(!isPayWithAnyCrypto)
-                      }
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label
-                      htmlFor="pay-with-any-crypto"
-                      className="text-sm font-medium"
-                    >
-                      Allow payment with any crypto
-                    </label>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -309,7 +229,7 @@ export function FundButtonFeature() {
                   <div className="flex flex-col items-center space-y-4">
                     <FundButton
                       fundingUrl={customUrl}
-                      openIn={openIn}
+                      openIn="popup"
                       text={buttonText}
                       fiatCurrency={fiatCurrency}
                       hideIcon={hideIcon}
@@ -326,12 +246,31 @@ export function FundButtonFeature() {
               </div>
 
               <div className="mt-6">
-                <h4 className="text-sm font-medium mb-2">
-                  Implementation Code
-                </h4>
-                <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-md text-xs overflow-x-auto">
-                  {previewConfig}
-                </pre>
+                <h4 className="text-sm font-medium mb-2">Fund button props</h4>
+                <div className="flex flex-wrap gap-4 mb-4">
+                  <div className="bg-gray-100 dark:bg-gray-900 p-4 rounded-md">
+                    <div className="text-xs text-gray-500 mb-1">text</div>
+                    <div className="font-medium">{buttonText}</div>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-900 p-4 rounded-md">
+                    <div className="text-xs text-gray-500 mb-1">
+                      fiatCurrency
+                    </div>
+                    <div className="font-medium">{fiatCurrency}</div>
+                  </div>
+                  <div className="bg-gray-100 dark:bg-gray-900 p-4 rounded-md">
+                    <div className="text-xs text-gray-500 mb-1">hideIcon</div>
+                    <div className="font-medium">{hideIcon.toString()}</div>
+                  </div>
+                </div>
+                <a
+                  href="https://onchainkit.xyz/fund/fund-button"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:underline text-sm"
+                >
+                  See full documentation here
+                </a>
               </div>
             </div>
           </div>
