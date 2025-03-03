@@ -16,7 +16,8 @@ export default function FundPage() {
   const { address } = useAccount();
   const [customUrl, setCustomUrl] = useState("");
   const [fiatCurrency, setFiatCurrency] = useState("USD");
-  const [asset, setAsset] = useState("BTC");
+  const [asset, setAsset] = useState("BTC"); // For FundCard
+  const [buttonAsset, setButtonAsset] = useState("ETH"); // For FundButton
   const [presetAmountInputs, setPresetAmountInputs] = useState<string[]>([
     "10",
     "20",
@@ -59,13 +60,16 @@ export default function FundPage() {
       const onrampBuyUrl = getOnrampBuyUrl({
         projectId: cdpProjectId,
         addresses: { [address]: ["1"] }, // Ethereum mainnet
-        assets: [asset],
-        presetCryptoAmount: 0.001, // Smaller default amount for BTC
+        assets: [buttonAsset], // Use ETH for FundButton
+        presetCryptoAmount: buttonAsset === "ETH" ? 0.01 : 0.001, // Adjust amount based on asset
       });
 
       setCustomUrl(onrampBuyUrl);
     }
-  }, [cdpProjectId, address, asset]);
+  }, [cdpProjectId, address, buttonAsset]);
+
+  // List of supported assets for the FundButton
+  const supportedButtonAssets = ["ETH", "USDC", "MATIC", "AVAX", "ARB"];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -109,12 +113,32 @@ export default function FundPage() {
                       <div className="text-center">
                         <p className="mb-6 text-gray-600 dark:text-gray-300">
                           Click the button below to fund your wallet with{" "}
-                          {asset}
+                          {buttonAsset}
                         </p>
+                        <div className="mb-4">
+                          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            Select Asset for Fund Button
+                          </label>
+                          <div className="flex flex-wrap gap-2 justify-center">
+                            {supportedButtonAssets.map((supportedAsset) => (
+                              <button
+                                key={supportedAsset}
+                                onClick={() => setButtonAsset(supportedAsset)}
+                                className={`px-4 py-2 rounded-md ${
+                                  buttonAsset === supportedAsset
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200"
+                                }`}
+                              >
+                                {supportedAsset}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                         <FundButton
                           fundingUrl={customUrl}
                           openIn="popup"
-                          text={`Fund ${asset}`}
+                          text={`Fund ${buttonAsset}`}
                           fiatCurrency={fiatCurrency}
                         />
                       </div>
