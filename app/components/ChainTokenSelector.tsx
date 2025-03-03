@@ -116,6 +116,24 @@ export const ChainTokenSelector = () => {
     return (selectedSellCurrency?.networks ?? []).map((network) => network);
   }, [isOnrampActive, selectedPurchaseCurrency, selectedSellCurrency]);
 
+  // Helper function to get the appropriate key for a network
+  const getNetworkKey = (network: Network | SellCurrencyNetwork): string => {
+    if (isOnrampActive) {
+      return (network as Network).displayName;
+    }
+    return (network as SellCurrencyNetwork).display_name;
+  };
+
+  // Helper function to get the display name for a network
+  const getNetworkDisplayName = (
+    network: Network | SellCurrencyNetwork
+  ): string => {
+    if (isOnrampActive) {
+      return (network as Network).displayName;
+    }
+    return (network as SellCurrencyNetwork).display_name;
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {loadingBuyOptions ? (
@@ -187,17 +205,11 @@ export const ChainTokenSelector = () => {
               <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                 {networkDisplayNames.map((network) => (
                   <div
-                    key={
-                      isOnrampActive
-                        ? network.displayName
-                        : network.display_name
-                    }
+                    key={getNetworkKey(network)}
                     className="px-3 py-2 cursor-pointer hover:bg-gray-100 capitalize"
                     onClick={() => handleNetworkSelect(network)}
                   >
-                    {isOnrampActive
-                      ? network.displayName
-                      : network.display_name}
+                    {getNetworkDisplayName(network)}
                   </div>
                 ))}
               </div>
