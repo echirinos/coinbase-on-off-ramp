@@ -9,8 +9,8 @@ export function FundButtonFeature() {
   const [appearance, setAppearance] = useState("default");
   const [previewConfig, setPreviewConfig] = useState("");
   const [chainId, setChainId] = useState("1");
-  const [asset, setAsset] = useState("ETH");
-  const [amount, setAmount] = useState("0.01");
+  const [asset, setAsset] = useState("BTC");
+  const [amount, setAmount] = useState("0.001");
   const [isPayWithAnyCrypto, setIsPayWithAnyCrypto] = useState(true);
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [customUrl, setCustomUrl] = useState("");
@@ -169,6 +169,7 @@ export function FundButtonFeature() {
                       onChange={(e) => setAsset(e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                     >
+                      <option value="BTC">BTC</option>
                       <option value="ETH">ETH</option>
                       <option value="USDC">USDC</option>
                       <option value="USDT">USDT</option>
@@ -185,7 +186,7 @@ export function FundButtonFeature() {
                       type="text"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      placeholder="0.01"
+                      placeholder="0.001"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
                     />
                   </div>

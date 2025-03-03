@@ -16,7 +16,7 @@ export default function FundPage() {
   const [customUrl, setCustomUrl] = useState("");
   const [fiatCurrency, setFiatCurrency] = useState("USD");
   const [country, setCountry] = useState("US");
-  const [asset, setAsset] = useState("ETH");
+  const [asset, setAsset] = useState("BTC");
   const [presetAmountInputs, setPresetAmountInputs] = useState<string[]>([
     "10",
     "20",
@@ -57,7 +57,7 @@ export default function FundPage() {
         projectId: cdpProjectId,
         addresses: { [address]: ["1"] }, // Ethereum mainnet
         assets: [asset],
-        presetCryptoAmount: 0.01,
+        presetCryptoAmount: 0.001, // Smaller default amount for BTC
       });
 
       setCustomUrl(onrampBuyUrl);
