@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 
 // Define interfaces for type safety
@@ -20,9 +20,6 @@ export const RegionSelector = () => {
     loadingBuyConfig,
   } = useCoinbaseRampTransaction();
 
-  const [countryDropdownOpen, setCountryDropdownOpen] = useState(false);
-  const [subdivisionDropdownOpen, setSubdivisionDropdownOpen] = useState(false);
-
   const subdivisions = useMemo(() => {
     if (selectedCountry) {
       return selectedCountry.subdivisions;
@@ -30,122 +27,67 @@ export const RegionSelector = () => {
     return [];
   }, [selectedCountry]);
 
-  const handleCountrySelect = (country: Country) => {
-    setSelectedCountry(country);
-    setCountryDropdownOpen(false);
+  const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const countryId = e.target.value;
+    const country = countries.find((country) => country.id === countryId);
+    if (country) {
+      setSelectedCountry(country);
+    }
   };
 
-  const handleSubdivisionSelect = (subdivision: string) => {
+  const handleSubdivisionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const subdivision = e.target.value;
     setSelectedSubdivision(subdivision);
-    setSubdivisionDropdownOpen(false);
   };
 
   return (
     <div className="flex flex-row gap-4 m-auto">
       {loadingBuyConfig ? (
         <>
-          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
-          <div className="h-10 w-[150px] rounded-lg bg-gray-200 animate-pulse"></div>
+          <div className="h-10 w-[200px] bg-gray-200 animate-pulse rounded-lg"></div>
+          <div className="h-10 w-[150px] bg-gray-200 animate-pulse rounded-lg"></div>
         </>
       ) : (
         <div className="flex flex-col md:flex-row gap-4 md:gap-2">
-          {/* Country Dropdown */}
           <div className="relative">
-            <button
-              onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
-              className="flex items-center justify-between w-full max-w-[200px] px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <select
+              className="block appearance-none w-full max-w-[200px] bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              value={selectedCountry?.id || ''}
+              onChange={handleCountryChange}
             >
-              {selectedCountry ? (
-                <div className="flex items-center">
-                  {selectedCountry && (
-                    <Image
-                      src={`https://flagcdn.com/${selectedCountry.id.toLowerCase()}.svg`}
-                      alt={selectedCountry.id}
-                      width={24}
-                      height={24}
-                      className="mr-2"
-                    />
-                  )}
-                  <span>{selectedCountry.name}</span>
-                </div>
-              ) : (
-                <span>Select Country</span>
-              )}
-              <svg
-                className="w-5 h-5 ml-2"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
+              <option value="" disabled>Select Country</option>
+              {countries.map(({ id, name }) => (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
               </svg>
-            </button>
-
-            {countryDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                {countries.map((country) => (
-                  <div
-                    key={country.id}
-                    className="flex items-center px-3 py-2 cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleCountrySelect(country)}
-                  >
-                    <Image
-                      src={`https://flagcdn.com/${country.id.toLowerCase()}.svg`}
-                      alt={country.id}
-                      width={24}
-                      height={24}
-                      className="mr-2"
-                    />
-                    <span>{country.name}</span>
-                  </div>
-                ))}
-              </div>
-            )}
+            </div>
           </div>
 
-          {/* Subdivision Dropdown */}
           {subdivisions.length > 0 && (
             <div className="relative">
-              <button
-                onClick={() =>
-                  setSubdivisionDropdownOpen(!subdivisionDropdownOpen)
-                }
-                className="flex items-center justify-between w-full max-w-[200px] px-3 py-2 text-left border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              <select
+                className="block appearance-none w-full max-w-[200px] bg-white border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                value={selectedSubdivision || ''}
+                onChange={handleSubdivisionChange}
               >
-                {selectedSubdivision ? (
-                  <span>{selectedSubdivision}</span>
-                ) : (
-                  <span>Select Subdivision</span>
-                )}
-                <svg
-                  className="w-5 h-5 ml-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clipRule="evenodd"
-                  />
+                <option value="" disabled>Select Subdivision</option>
+                {subdivisions.map((subdivision) => (
+                  <option key={subdivision} value={subdivision}>
+                    {subdivision}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                 </svg>
-              </button>
-
-              {subdivisionDropdownOpen && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                  {subdivisions.map((subdivision) => (
-                    <div
-                      key={subdivision}
-                      className="px-3 py-2 cursor-pointer hover:bg-gray-100"
-                      onClick={() => handleSubdivisionSelect(subdivision)}
-                    >
-                      {subdivision}
-                    </div>
-                  ))}
-                </div>
-              )}
+              </div>
             </div>
           )}
         </div>

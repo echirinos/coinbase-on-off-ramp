@@ -7,6 +7,7 @@ import { useState } from "react";
 import { FundCardDemo } from "../components/FundCardDemo";
 import { FundButtonFeature } from "../components/FundButtonFeature";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import { CustomIntegrationDemo } from "../components/CustomIntegrationDemo";
 
 export default function FundPage() {
   const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +56,24 @@ export default function FundPage() {
                   <FundCardDemo />
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Custom Integration Section */}
+        <section className="py-16 bg-white dark:bg-gray-900">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold mb-4">Custom Integration</h2>
+                <p className="text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  Build your own custom integration with full control over the
+                  user experience. This example demonstrates how to create a
+                  complete on/off-ramp solution using individual components.
+                </p>
+              </div>
+
+              <CustomIntegrationDemo />
             </div>
           </div>
         </section>
