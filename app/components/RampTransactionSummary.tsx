@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
-import { WalletConnector } from './WalletConnector';
+import { WalletConnector } from "./WalletConnector";
 
 export const RampTransactionSummary = () => {
   const {
@@ -23,11 +23,13 @@ export const RampTransactionSummary = () => {
 
     try {
       // Simulate transaction processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      alert('Transaction initiated! This is a demo, no actual transaction will occur.');
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      alert(
+        "Transaction initiated! This is a demo, no actual transaction will occur."
+      );
     } catch (error) {
-      console.error('Transaction error:', error);
-      alert('Transaction failed. Please try again.');
+      console.error("Transaction error:", error);
+      alert("Transaction failed. Please try again.");
     } finally {
       setIsProcessing(false);
     }
@@ -55,36 +57,54 @@ export const RampTransactionSummary = () => {
         <div className="p-4 bg-gray-50 rounded-md">
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Asset:</span>
-            <span className="font-medium">{selectedPurchaseCurrency?.symbol || 'Not selected'}</span>
+            <span className="font-medium">
+              {selectedPurchaseCurrency?.symbol || "Not selected"}
+            </span>
           </div>
 
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Network:</span>
-            <span className="font-medium">{selectedPurchaseCurrencyNetwork?.name || 'Not selected'}</span>
+            <span className="font-medium">
+              {selectedPurchaseCurrencyNetwork?.name || "Not selected"}
+            </span>
           </div>
 
           <div className="flex justify-between mb-2">
             <span className="text-gray-600">Amount:</span>
-            <span className="font-medium">{rampTransaction?.amount || '0'}</span>
+            <span className="font-medium">
+              {rampTransaction?.amount || "0"}
+            </span>
           </div>
 
           <div className="flex justify-between">
             <span className="text-gray-600">Payment Method:</span>
-            <span className="font-medium">{rampTransaction?.paymentMethod || 'Not selected'}</span>
+            <span className="font-medium">
+              {rampTransaction?.paymentMethod || "Not selected"}
+            </span>
           </div>
         </div>
 
         {authenticated ? (
           <button
             onClick={handleTransaction}
-            disabled={isProcessing || !rampTransaction?.amount || !selectedPurchaseCurrency}
+            disabled={
+              isProcessing ||
+              !rampTransaction?.amount ||
+              !selectedPurchaseCurrency
+            }
             className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isProcessing ? 'Processing...' : isOnrampActive ? 'Buy Now' : 'Sell Now'}
+            {isProcessing
+              ? "Processing..."
+              : isOnrampActive
+              ? "Buy Now"
+              : "Sell Now"}
           </button>
         ) : (
           <div className="text-center">
-            <p className="mb-3 text-gray-600">Connect your wallet to continue</p>
+            <p className="mb-3 text-gray-600">
+              Connect your wallet to continue
+            </p>
             <WalletConnector />
           </div>
         )}

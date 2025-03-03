@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useAccount, useConnect, useSignMessage } from 'wagmi';
-import { useCoinbaseRampTransaction } from '../contexts/CoinbaseRampTransactionContext';
-import { setSession } from '../queries';
+import { useEffect, useState } from "react";
+import { useAccount, useConnect, useSignMessage } from "wagmi";
+import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import { setSession } from "../queries";
 import {
   ConnectWallet,
   Wallet,
   WalletDropdown,
   WalletDropdownDisconnect,
-} from '@coinbase/onchainkit/wallet';
-import { Address, Avatar, Name, Identity } from '@coinbase/onchainkit/identity';
-import { color } from '@coinbase/onchainkit/theme';
+} from "@coinbase/onchainkit/wallet";
+import { Address, Avatar, Name, Identity } from "@coinbase/onchainkit/identity";
+import { color } from "@coinbase/onchainkit/theme";
 
 interface IWalletConnectorProps {
   hideAddress?: boolean;
@@ -61,7 +61,7 @@ export const WalletConnector = ({
 
     try {
       setIsSigningIn(true);
-      console.info('Logging in');
+      console.info("Logging in");
 
       // Create a simple message instead of using SIWE
       const message = `Sign this message to authenticate with Coinbase Ramp\nAddress: ${address}\nDomain: ${window.location.host}\nURI: ${window.location.origin}\nVersion: 1`;
@@ -76,15 +76,15 @@ export const WalletConnector = ({
           address,
           domain: window.location.host,
           uri: window.location.origin,
-          version: '1',
-          statement: 'Sign in with Ethereum to Coinbase Ramp.'
+          version: "1",
+          statement: "Sign in with Ethereum to Coinbase Ramp.",
         },
-        signature
+        signature,
       });
 
       setAuthenticated(true);
     } catch (err) {
-      console.error('Error occurred when authenticating user', err);
+      console.error("Error occurred when authenticating user", err);
     } finally {
       setIsSigningIn(false);
     }
@@ -93,7 +93,7 @@ export const WalletConnector = ({
   const handleDisconnect = () => {
     // Clear the session cookie
     document.cookie = `coinbase-ramp-demo-app-auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict${
-      process.env.NODE_ENV === 'production' ? '; Secure' : ''
+      process.env.NODE_ENV === "production" ? "; Secure" : ""
     }`;
     setAuthenticated(false);
   };
@@ -118,7 +118,7 @@ export const WalletConnector = ({
         disabled={isSigningIn}
         className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
       >
-        {isSigningIn ? 'Signing In...' : 'Sign In'}
+        {isSigningIn ? "Signing In..." : "Sign In"}
       </button>
     );
   }
