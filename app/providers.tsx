@@ -3,6 +3,8 @@
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import { mainnet, optimism, arbitrum, base } from "wagmi/chains";
 import { ReactNode, useEffect, useState } from "react";
+import { CoinbaseRampTransactionProvider } from "./contexts/CoinbaseRampTransactionContext";
+import { NextUIProvider } from "@nextui-org/react";
 
 export function Providers({ children }: { children: ReactNode }) {
   const chains = [mainnet, optimism, base, arbitrum];
@@ -43,20 +45,24 @@ export function Providers({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <OnchainKitProvider
-      chain={mainnet}
-      projectId={config.projectId}
-      apiKey={config.apiKey}
-      config={{
-        appearance: {
-          name:
-            process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME ||
-            "Coinbase Ramp Demo",
-          theme: "blue",
-        },
-      }}
-    >
-      {children}
-    </OnchainKitProvider>
+    <NextUIProvider>
+      <CoinbaseRampTransactionProvider>
+        <OnchainKitProvider
+          chain={mainnet}
+          projectId={config.projectId}
+          apiKey={config.apiKey}
+          config={{
+            appearance: {
+              name:
+                process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME ||
+                "Coinbase Ramp Demo",
+              theme: "blue",
+            },
+          }}
+        >
+          {children}
+        </OnchainKitProvider>
+      </CoinbaseRampTransactionProvider>
+    </NextUIProvider>
   );
 }

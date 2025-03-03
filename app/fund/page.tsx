@@ -8,6 +8,9 @@ import { FundCard } from "@coinbase/onchainkit/fund";
 import { useAccount } from "wagmi";
 import { useState, useEffect } from "react";
 import { getOnrampBuyUrl } from "@coinbase/onchainkit/fund";
+import { FundCardDemo } from "../components/FundCardDemo";
+import { RegionSelector } from "../components/RegionSelector";
+import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 
 export default function FundPage() {
   const [cdpProjectId, setCdpProjectId] = useState("");
@@ -15,13 +18,15 @@ export default function FundPage() {
   const { address } = useAccount();
   const [customUrl, setCustomUrl] = useState("");
   const [fiatCurrency, setFiatCurrency] = useState("USD");
-  const [country, setCountry] = useState("US");
   const [asset, setAsset] = useState("BTC");
   const [presetAmountInputs, setPresetAmountInputs] = useState<string[]>([
     "10",
     "20",
     "50",
   ]);
+
+  const { selectedCountry, selectedSubdivision, selectedCurrency } =
+    useCoinbaseRampTransaction();
 
   useEffect(() => {
     // Fetch CDP Project ID from server
@@ -158,14 +163,7 @@ export default function FundPage() {
                       </p>
                     </div>
                   ) : (
-                    <FundCard
-                      assetSymbol={asset}
-                      country={country}
-                      currency={fiatCurrency}
-                      headerText="Fund Your Wallet"
-                      buttonText="Purchase"
-                      presetAmountInputs={presetAmountInputs as any}
-                    />
+                    <FundCardDemo />
                   )}
                 </div>
               </div>

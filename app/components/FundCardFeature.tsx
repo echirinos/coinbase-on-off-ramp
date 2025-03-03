@@ -2,15 +2,30 @@
 
 import React, { useState, useEffect } from "react";
 import { FundCard } from "@coinbase/onchainkit/fund";
+import { RegionSelector } from "./RegionSelector";
+import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  Input,
+  Autocomplete,
+  AutocompleteItem,
+} from "@nextui-org/react";
+import { Key } from "@react-types/shared";
 
 export function FundCardFeature() {
-  const [darkMode, setDarkMode] = useState(false);
-  const [appearance, setAppearance] = useState("default");
+  const {
+    selectedCountry,
+    selectedSubdivision,
+    selectedCurrency,
+    setSelectedCurrency,
+    buyOptions,
+  } = useCoinbaseRampTransaction();
+
   const [previewConfig, setPreviewConfig] = useState("");
-  const [chainId, setChainId] = useState("1");
   const [asset, setAsset] = useState("BTC");
-  const [country, setCountry] = useState("US");
-  const [currency, setCurrency] = useState("USD");
   const [headerText, setHeaderText] = useState("Fund Project");
   const [buttonText, setButtonText] = useState("Purchase");
   const [presetAmounts, setPresetAmounts] = useState<string[]>([
@@ -52,13 +67,36 @@ export function FundCardFeature() {
     // Update preview config when parameters change
     setPreviewConfig(`<FundCard
   assetSymbol="${asset}"
-  country="${country}"
-  currency="${currency}"
+  country="${selectedCountry?.id || "US"}"
+  currency="${selectedCurrency?.id || "USD"}"
+  subdivision="${selectedSubdivision || ""}"
   headerText="${headerText}"
   buttonText="${buttonText}"
   presetAmountInputs={['${presetAmounts.join("', '")}'] as const}
 />`);
-  }, [asset, country, currency, headerText, buttonText, presetAmounts]);
+  }, [
+    asset,
+    selectedCountry,
+    selectedCurrency,
+    selectedSubdivision,
+    headerText,
+    buttonText,
+    presetAmounts,
+  ]);
+
+  const handleCurrencySelection = (value: Key | null) => {
+    if (value) {
+      if (buyOptions) {
+        const newCurrency =
+          buyOptions.paymentCurrencies.find(
+            (currency) => currency.id === value
+          ) || null;
+        setSelectedCurrency(newCurrency);
+      }
+    }
+  };
+
+  const availableCurrencies = buyOptions?.paymentCurrencies || [];
 
   return (
     <div className="py-16 bg-gradient-to-b from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
@@ -73,162 +111,110 @@ export function FundCardFeature() {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Configuration Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-1">
-                Fund Card Configuration
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Customize how your Fund Card appears and functions
-              </p>
-
-              <div className="space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label htmlFor="asset-card" className="text-sm font-medium">
-                      Asset
-                    </label>
-                    <select
-                      id="asset-card"
-                      value={asset}
-                      onChange={(e) => setAsset(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <option value="BTC">BTC</option>
-                      <option value="ETH">ETH</option>
-                      <option value="USDC">USDC</option>
-                      <option value="USDT">USDT</option>
-                      <option value="DAI">DAI</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="country" className="text-sm font-medium">
-                      Country
-                    </label>
-                    <select
-                      id="country"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <option value="US">United States</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="CA">Canada</option>
-                      <option value="AU">Australia</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="currency" className="text-sm font-medium">
-                      Currency
-                    </label>
-                    <select
-                      id="currency"
-                      value={currency}
-                      onChange={(e) => setCurrency(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    >
-                      <option value="USD">USD</option>
-                      <option value="GBP">GBP</option>
-                      <option value="EUR">EUR</option>
-                      <option value="CAD">CAD</option>
-                      <option value="AUD">AUD</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="header-text"
-                      className="text-sm font-medium"
-                    >
-                      Header Text
-                    </label>
-                    <input
-                      id="header-text"
-                      type="text"
-                      value={headerText}
-                      onChange={(e) => setHeaderText(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="button-text"
-                      className="text-sm font-medium"
-                    >
-                      Button Text
-                    </label>
-                    <input
-                      id="button-text"
-                      type="text"
-                      value={buttonText}
-                      onChange={(e) => setButtonText(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label
-                      htmlFor="preset-amounts"
-                      className="text-sm font-medium"
-                    >
-                      Preset Amounts (comma separated)
-                    </label>
-                    <input
-                      id="preset-amounts"
-                      type="text"
-                      value={presetAmounts.join(", ")}
-                      onChange={(e) =>
-                        setPresetAmounts(e.target.value.split(", "))
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
-                    />
-                  </div>
-                </div>
+        <div className="flex flex-col items-center justify-center flex-wrap gap-4">
+          <div className="flex justify-center items-center w-full max-w-[500px] gap-4 flex-col">
+            {isLoading ? (
+              <div className="text-center text-gray-500">
+                <p>Loading Fund Card...</p>
               </div>
-            </div>
+            ) : (
+              <FundCard
+                key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
+                assetSymbol={asset}
+                country={selectedCountry?.id || "US"}
+                currency={selectedCurrency?.id || "USD"}
+                subdivision={selectedSubdivision || undefined}
+                headerText={headerText}
+                buttonText={buttonText}
+                presetAmountInputs={presetAmounts as any}
+              />
+            )}
           </div>
 
-          {/* Preview Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div className="p-6">
-              <h3 className="text-xl font-bold mb-1">Fund Card Preview</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                See how your Fund Card will look
-              </p>
-
-              <div className="rounded-md flex items-center justify-center min-h-[400px]">
-                {isLoading ? (
-                  <div className="text-center text-gray-500">
-                    <p>Loading Fund Card...</p>
-                  </div>
-                ) : (
-                  <FundCard
-                    assetSymbol={asset}
-                    country={country}
-                    currency={currency}
-                    headerText={headerText}
-                    buttonText={buttonText}
-                    presetAmountInputs={presetAmounts as any}
-                  />
-                )}
-              </div>
-
-              <div className="mt-6 space-y-2">
-                <label className="text-sm font-medium">
-                  Implementation Code
-                </label>
-                <div className="rounded-md overflow-hidden bg-gray-900 p-4">
-                  <pre className="text-xs text-white overflow-x-auto">
-                    {previewConfig}
-                  </pre>
+          <div className="flex flex-col gap-2 items-center p-4 w-full max-w-[800px]">
+            <Card>
+              <CardHeader>
+                <p className="text-lg">Fund card props</p>
+              </CardHeader>
+              <CardBody>
+                <div>
+                  <RegionSelector />
                 </div>
-              </div>
-            </div>
+                <div className="flex pt-4 pb-4 gap-2 flex-wrap">
+                  <Autocomplete
+                    isClearable={false}
+                    label="Currency"
+                    placeholder="Search for a currency"
+                    className="w-[200px] my-auto"
+                    onSelectionChange={handleCurrencySelection}
+                    selectedKey={selectedCurrency?.id}
+                  >
+                    {availableCurrencies.map((currency) => (
+                      <AutocompleteItem key={currency.id} value={currency.id}>
+                        {currency.id}
+                      </AutocompleteItem>
+                    ))}
+                  </Autocomplete>
+
+                  <Input
+                    placeholder="asset"
+                    label="asset"
+                    variant="bordered"
+                    value={asset}
+                    className="w-[150px]"
+                    onChange={(e) => {
+                      setAsset(e.target.value);
+                    }}
+                  />
+
+                  <Input
+                    placeholder="Header Text"
+                    label="Header Text"
+                    variant="bordered"
+                    value={headerText}
+                    className="w-[200px]"
+                    onChange={(e) => {
+                      setHeaderText(e.target.value);
+                    }}
+                  />
+
+                  <Input
+                    placeholder="Button Text"
+                    label="Button Text"
+                    variant="bordered"
+                    value={buttonText}
+                    className="w-[200px]"
+                    onChange={(e) => {
+                      setButtonText(e.target.value);
+                    }}
+                  />
+
+                  <Input
+                    placeholder="presetAmountInputs"
+                    label="presetAmountInputs"
+                    variant="bordered"
+                    className="w-[200px]"
+                    value={presetAmounts?.join(",")}
+                    onChange={(e) => {
+                      setPresetAmounts(e.target.value.split(","));
+                    }}
+                  />
+                </div>
+              </CardBody>
+
+              <CardFooter>
+                <div className="mt-2 space-y-2 w-full">
+                  <label className="text-sm font-medium">
+                    Implementation Code
+                  </label>
+                  <div className="rounded-md overflow-hidden bg-gray-900 p-4">
+                    <pre className="text-xs text-white overflow-x-auto">
+                      {previewConfig}
+                    </pre>
+                  </div>
+                </div>
+              </CardFooter>
+            </Card>
           </div>
         </div>
       </div>
