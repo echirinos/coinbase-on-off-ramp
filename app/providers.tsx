@@ -9,6 +9,7 @@ export function Providers({ children }: { children: ReactNode }) {
   const [config, setConfig] = useState({
     projectId: "",
     apiKey: "",
+    cdpProjectId: "",
   });
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export function Providers({ children }: { children: ReactNode }) {
             setConfig({
               projectId: data.config.walletConnectProjectId || "",
               apiKey: data.config.onchainKitApiKey || "",
+              cdpProjectId: data.config.cdpProjectId || "",
             });
           }
         }

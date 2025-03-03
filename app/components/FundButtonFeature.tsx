@@ -1,28 +1,8 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CopyBlock, dracula } from "react-code-blocks";
-import Image from "next/image";
+import { FundButton, getOnrampBuyUrl } from "@coinbase/onchainkit/fund";
+import { useAccount } from "wagmi";
 
 export function FundButtonFeature() {
   const [darkMode, setDarkMode] = useState(false);
@@ -33,6 +13,8 @@ export function FundButtonFeature() {
   const [amount, setAmount] = useState("0.01");
   const [isPayWithAnyCrypto, setIsPayWithAnyCrypto] = useState(true);
   const [cdpProjectId, setCdpProjectId] = useState("");
+  const [customUrl, setCustomUrl] = useState("");
+  const { address } = useAccount();
 
   useEffect(() => {
     // Fetch CDP Project ID from server
@@ -59,30 +41,32 @@ export function FundButtonFeature() {
   }, []);
 
   useEffect(() => {
-    // Update preview config when parameters change
-    if (cdpProjectId) {
-      const config = {
+    // Update preview config and custom URL when parameters change
+    if (cdpProjectId && address) {
+      // Generate custom onramp URL
+      const onrampBuyUrl = getOnrampBuyUrl({
         projectId: cdpProjectId,
-        darkMode,
-        appearance,
-        chainId,
-        asset,
-        amount,
-        payWithAnyCrypto: isPayWithAnyCrypto,
-      };
+        addresses: { [address]: [chainId] },
+        assets: [asset],
+        presetCryptoAmount: parseFloat(amount),
+        darkMode: darkMode,
+        appearance: appearance,
+      });
 
+      setCustomUrl(onrampBuyUrl);
+
+      // Update preview config
       setPreviewConfig(`<FundButton
   projectId="${cdpProjectId}"
-  darkMode={${darkMode}}
-  appearance="${appearance}"
-  chainId="${chainId}"
-  asset="${asset}"
-  amount="${amount}"
-  payWithAnyCrypto={${isPayWithAnyCrypto}}
+  fundingUrl="${onrampBuyUrl}"
+  openIn="popup"
+  text="Fund ${asset}"
+  hideIcon={false}
 />`);
     }
   }, [
     cdpProjectId,
+    address,
     darkMode,
     appearance,
     chainId,
@@ -105,151 +89,176 @@ export function FundButtonFeature() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Fund Button Configuration</CardTitle>
-              <CardDescription>
+          {/* Configuration Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-1">
+                Fund Button Configuration
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 Customize how the Fund Button appears and functions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="dark-mode">Dark Mode</Label>
-                  <Switch
-                    id="dark-mode"
-                    checked={darkMode}
-                    onCheckedChange={setDarkMode}
-                  />
-                </div>
+              </p>
 
-                <div className="space-y-2">
-                  <Label htmlFor="appearance">Appearance</Label>
-                  <Select
-                    defaultValue={appearance}
-                    onValueChange={setAppearance}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select appearance" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="default">Default</SelectItem>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="flat">Flat</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="dark-mode" className="text-sm font-medium">
+                      Dark Mode
+                    </label>
+                    <div className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white bg-gray-200 dark:bg-gray-700">
+                      <span
+                        className={`${
+                          darkMode
+                            ? "translate-x-6 bg-blue-600"
+                            : "translate-x-1 bg-white"
+                        } inline-block h-4 w-4 transform rounded-full transition-transform`}
+                      />
+                      <input
+                        type="checkbox"
+                        id="dark-mode"
+                        className="sr-only"
+                        checked={darkMode}
+                        onChange={() => setDarkMode(!darkMode)}
+                      />
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="chain-id">Chain</Label>
-                  <Select defaultValue={chainId} onValueChange={setChainId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select chain" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">Ethereum</SelectItem>
-                      <SelectItem value="137">Polygon</SelectItem>
-                      <SelectItem value="42161">Arbitrum</SelectItem>
-                      <SelectItem value="10">Optimism</SelectItem>
-                      <SelectItem value="43114">Avalanche</SelectItem>
-                      <SelectItem value="56">BNB Chain</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <label htmlFor="appearance" className="text-sm font-medium">
+                      Appearance
+                    </label>
+                    <select
+                      id="appearance"
+                      value={appearance}
+                      onChange={(e) => setAppearance(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                      <option value="default">Default</option>
+                      <option value="light">Light</option>
+                      <option value="dark">Dark</option>
+                      <option value="flat">Flat</option>
+                    </select>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="asset">Asset</Label>
-                  <Select defaultValue={asset} onValueChange={setAsset}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select asset" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ETH">ETH</SelectItem>
-                      <SelectItem value="USDC">USDC</SelectItem>
-                      <SelectItem value="USDT">USDT</SelectItem>
-                      <SelectItem value="DAI">DAI</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div className="space-y-2">
+                    <label htmlFor="chain-id" className="text-sm font-medium">
+                      Chain
+                    </label>
+                    <select
+                      id="chain-id"
+                      value={chainId}
+                      onChange={(e) => setChainId(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                      <option value="1">Ethereum</option>
+                      <option value="137">Polygon</option>
+                      <option value="42161">Arbitrum</option>
+                      <option value="10">Optimism</option>
+                      <option value="43114">Avalanche</option>
+                      <option value="56">BNB Chain</option>
+                    </select>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
-                  <Input
-                    id="amount"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    placeholder="0.01"
-                  />
-                </div>
+                  <div className="space-y-2">
+                    <label htmlFor="asset" className="text-sm font-medium">
+                      Asset
+                    </label>
+                    <select
+                      id="asset"
+                      value={asset}
+                      onChange={(e) => setAsset(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                      <option value="ETH">ETH</option>
+                      <option value="USDC">USDC</option>
+                      <option value="USDT">USDT</option>
+                      <option value="DAI">DAI</option>
+                    </select>
+                  </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="pay-with-any-crypto"
-                    checked={isPayWithAnyCrypto}
-                    onCheckedChange={setIsPayWithAnyCrypto}
-                  />
-                  <label
-                    htmlFor="pay-with-any-crypto"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Allow payment with any crypto
-                  </label>
+                  <div className="space-y-2">
+                    <label htmlFor="amount" className="text-sm font-medium">
+                      Amount
+                    </label>
+                    <input
+                      id="amount"
+                      type="text"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.01"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="pay-with-any-crypto"
+                      checked={isPayWithAnyCrypto}
+                      onChange={() =>
+                        setIsPayWithAnyCrypto(!isPayWithAnyCrypto)
+                      }
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                    <label
+                      htmlFor="pay-with-any-crypto"
+                      className="text-sm font-medium"
+                    >
+                      Allow payment with any crypto
+                    </label>
+                  </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Fund Button Preview</CardTitle>
-              <CardDescription>
+          {/* Preview Card */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-xl font-bold mb-1">Fund Button Preview</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                 See how your Fund Button will look
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+              </p>
+
               <div
                 className={`p-6 rounded-md flex items-center justify-center min-h-[200px] ${
                   darkMode ? "bg-gray-900" : "bg-white border border-gray-200"
                 }`}
               >
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="w-full max-w-[240px] h-12 relative">
-                    <div
-                      className={`w-full h-full rounded-md flex items-center justify-center font-medium ${
-                        darkMode
-                          ? "bg-blue-600 text-white"
-                          : "bg-blue-500 text-white"
-                      }`}
-                    >
-                      Fund {asset}
+                  {address ? (
+                    customUrl && cdpProjectId ? (
+                      <FundButton
+                        projectId={cdpProjectId}
+                        fundingUrl={customUrl}
+                        openIn="popup"
+                        text={`Fund ${asset}`}
+                      />
+                    ) : (
+                      <div className="text-center text-gray-500">
+                        <p>Loading Fund Button...</p>
+                      </div>
+                    )
+                  ) : (
+                    <div className="text-center text-gray-500">
+                      <p>Connect your wallet to see the Fund Button</p>
                     </div>
-                  </div>
-                  <div className="text-xs text-gray-500 flex items-center dark:text-gray-400">
-                    <span>Powered by</span>
-                    <span className="ml-1 font-semibold">Coinbase</span>
-                  </div>
+                  )}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Implementation Code</Label>
-                <div className="rounded-md overflow-hidden">
-                  <CopyBlock
-                    text={previewConfig}
-                    language="jsx"
-                    showLineNumbers={false}
-                    theme={dracula}
-                    wrapLines
-                  />
+              <div className="mt-6 space-y-2">
+                <label className="text-sm font-medium">
+                  Implementation Code
+                </label>
+                <div className="rounded-md overflow-hidden bg-gray-900 p-4">
+                  <pre className="text-xs text-white overflow-x-auto">
+                    {previewConfig}
+                  </pre>
                 </div>
               </div>
-            </CardContent>
-            <CardFooter className="flex justify-between">
-              <Button variant="outline">Copy Code</Button>
-              <Button>Try Demo</Button>
-            </CardFooter>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>

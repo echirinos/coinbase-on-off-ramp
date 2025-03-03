@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-export default function Footer() {
+export function Footer() {
   return (
     <footer className="bg-gray-900 text-white">
       <div className="container mx-auto px-4 py-12">
@@ -213,3 +213,6 @@ export default function Footer() {
     </footer>
   );
 }
+
+// For backward compatibility
+export default Footer;

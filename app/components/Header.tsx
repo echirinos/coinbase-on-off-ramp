@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { WalletDefault } from "@coinbase/onchainkit/wallet";
 
-export default function Header() {
+export function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -230,3 +230,6 @@ function MobileNavLink({
     </Link>
   );
 }
+
+// For backward compatibility
+export default Header;
