@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { SiweMessage } from 'siwe';
 import { useAccount, useConnect, useSignMessage } from 'wagmi';
 import { useCoinbaseRampTransaction } from '../contexts/CoinbaseRampTransactionContext';
 import { setSession } from '../queries';
@@ -64,19 +63,25 @@ export const WalletConnector = ({
       setIsSigningIn(true);
       console.info('Logging in');
 
-      const message = new SiweMessage({
-        domain: window.location.host,
-        address: address,
-        statement: 'Sign in with Ethereum to Coinbase Ramp.',
-        uri: window.location.origin,
-        version: '1',
-      });
+      // Create a simple message instead of using SIWE
+      const message = `Sign this message to authenticate with Coinbase Ramp\nAddress: ${address}\nDomain: ${window.location.host}\nURI: ${window.location.origin}\nVersion: 1`;
 
       const signature = await signMessageAsync({
-        message: message.prepareMessage(),
+        message: message,
       });
 
-      await setSession({ message, signature });
+      // Mock session setup
+      await setSession({
+        message: {
+          address,
+          domain: window.location.host,
+          uri: window.location.origin,
+          version: '1',
+          statement: 'Sign in with Ethereum to Coinbase Ramp.'
+        },
+        signature
+      });
+
       setAuthenticated(true);
     } catch (err) {
       console.error('Error occurred when authenticating user', err);
