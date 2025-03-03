@@ -14,6 +14,7 @@ export function FundButtonFeature() {
   const [isPayWithAnyCrypto, setIsPayWithAnyCrypto] = useState(true);
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [customUrl, setCustomUrl] = useState("");
+  const [fiatCurrency, setFiatCurrency] = useState("USD");
   const { address } = useAccount();
 
   useEffect(() => {
@@ -49,18 +50,16 @@ export function FundButtonFeature() {
         addresses: { [address]: [chainId] },
         assets: [asset],
         presetCryptoAmount: parseFloat(amount),
-        darkMode: darkMode,
-        appearance: appearance,
       });
 
       setCustomUrl(onrampBuyUrl);
 
       // Update preview config
       setPreviewConfig(`<FundButton
-  projectId="${cdpProjectId}"
   fundingUrl="${onrampBuyUrl}"
   openIn="popup"
   text="Fund ${asset}"
+  fiatCurrency="${fiatCurrency}"
   hideIcon={false}
 />`);
     }
@@ -73,6 +72,7 @@ export function FundButtonFeature() {
     asset,
     amount,
     isPayWithAnyCrypto,
+    fiatCurrency,
   ]);
 
   return (
@@ -190,6 +190,27 @@ export function FundButtonFeature() {
                     />
                   </div>
 
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="fiat-currency"
+                      className="text-sm font-medium"
+                    >
+                      Fiat Currency
+                    </label>
+                    <select
+                      id="fiat-currency"
+                      value={fiatCurrency}
+                      onChange={(e) => setFiatCurrency(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600"
+                    >
+                      <option value="USD">USD</option>
+                      <option value="EUR">EUR</option>
+                      <option value="GBP">GBP</option>
+                      <option value="CAD">CAD</option>
+                      <option value="AUD">AUD</option>
+                    </select>
+                  </div>
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -229,10 +250,10 @@ export function FundButtonFeature() {
                   {address ? (
                     customUrl && cdpProjectId ? (
                       <FundButton
-                        projectId={cdpProjectId}
                         fundingUrl={customUrl}
                         openIn="popup"
                         text={`Fund ${asset}`}
+                        fiatCurrency={fiatCurrency}
                       />
                     ) : (
                       <div className="text-center text-gray-500">

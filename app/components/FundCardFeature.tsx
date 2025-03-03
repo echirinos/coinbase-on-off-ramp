@@ -51,7 +51,6 @@ export function FundCardFeature() {
   useEffect(() => {
     // Update preview config when parameters change
     setPreviewConfig(`<FundCard
-  projectId="${cdpProjectId}"
   assetSymbol="${asset}"
   country="${country}"
   currency="${currency}"
@@ -59,15 +58,7 @@ export function FundCardFeature() {
   buttonText="${buttonText}"
   presetAmountInputs={['${presetAmounts.join("', '")}'] as const}
 />`);
-  }, [
-    cdpProjectId,
-    asset,
-    country,
-    currency,
-    headerText,
-    buttonText,
-    presetAmounts,
-  ]);
+  }, [asset, country, currency, headerText, buttonText, presetAmounts]);
 
   return (
     <div className="py-16 bg-gradient-to-b from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
@@ -214,9 +205,8 @@ export function FundCardFeature() {
                   <div className="text-center text-gray-500">
                     <p>Loading Fund Card...</p>
                   </div>
-                ) : cdpProjectId ? (
+                ) : (
                   <FundCard
-                    projectId={cdpProjectId}
                     assetSymbol={asset}
                     country={country}
                     currency={currency}
@@ -224,13 +214,6 @@ export function FundCardFeature() {
                     buttonText={buttonText}
                     presetAmountInputs={presetAmounts as any}
                   />
-                ) : (
-                  <div className="text-center text-gray-500">
-                    <p>
-                      Could not load CDP Project ID. Please check your
-                      configuration.
-                    </p>
-                  </div>
                 )}
               </div>
 

@@ -14,6 +14,14 @@ export default function FundPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useAccount();
   const [customUrl, setCustomUrl] = useState("");
+  const [fiatCurrency, setFiatCurrency] = useState("USD");
+  const [country, setCountry] = useState("US");
+  const [asset, setAsset] = useState("ETH");
+  const [presetAmountInputs, setPresetAmountInputs] = useState<string[]>([
+    "10",
+    "20",
+    "50",
+  ]);
 
   useEffect(() => {
     // Fetch CDP Project ID from server
@@ -48,13 +56,13 @@ export default function FundPage() {
       const onrampBuyUrl = getOnrampBuyUrl({
         projectId: cdpProjectId,
         addresses: { [address]: ["1"] }, // Ethereum mainnet
-        assets: ["ETH"],
+        assets: [asset],
         presetCryptoAmount: 0.01,
       });
 
       setCustomUrl(onrampBuyUrl);
     }
-  }, [cdpProjectId, address]);
+  }, [cdpProjectId, address, asset]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -94,16 +102,17 @@ export default function FundPage() {
                       </p>
                     </div>
                   ) : address ? (
-                    customUrl && cdpProjectId ? (
+                    customUrl ? (
                       <div className="text-center">
                         <p className="mb-6 text-gray-600 dark:text-gray-300">
-                          Click the button below to fund your wallet with ETH
+                          Click the button below to fund your wallet with{" "}
+                          {asset}
                         </p>
                         <FundButton
-                          projectId={cdpProjectId}
                           fundingUrl={customUrl}
                           openIn="popup"
-                          text="Fund ETH"
+                          text={`Fund ${asset}`}
+                          fiatCurrency={fiatCurrency}
                         />
                       </div>
                     ) : (
@@ -148,23 +157,15 @@ export default function FundPage() {
                         Loading Fund Card...
                       </p>
                     </div>
-                  ) : cdpProjectId ? (
+                  ) : (
                     <FundCard
-                      projectId={cdpProjectId}
-                      assetSymbol="ETH"
-                      country="US"
-                      currency="USD"
+                      assetSymbol={asset}
+                      country={country}
+                      currency={fiatCurrency}
                       headerText="Fund Your Wallet"
                       buttonText="Purchase"
-                      presetAmountInputs={["10", "20", "50"] as const}
+                      presetAmountInputs={presetAmountInputs as any}
                     />
-                  ) : (
-                    <div className="text-center p-8">
-                      <p className="text-gray-600 dark:text-gray-300">
-                        Could not load CDP Project ID. Please check your
-                        configuration.
-                      </p>
-                    </div>
                   )}
                 </div>
               </div>
