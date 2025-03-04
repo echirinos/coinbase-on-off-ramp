@@ -94,10 +94,14 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                       // Update country in rampTransaction
                       setRampTransaction({
                         ...rampTransaction,
-                        country: e.target.value as OnrampConfigCountry,
+                        country: {
+                          id: e.target.value,
+                          subdivisions: [],
+                          paymentMethods: [],
+                        },
                       });
                     }}
-                    value={rampTransaction?.country || "US"}
+                    value={rampTransaction?.country?.id || "US"}
                   >
                     <option value="US">United States of America</option>
                     <option value="GB">United Kingdom</option>
