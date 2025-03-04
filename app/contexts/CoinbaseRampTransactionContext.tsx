@@ -12,6 +12,10 @@ interface Country {
   id: string;
   name: string;
   subdivisions: string[];
+  paymentMethods?: Array<{
+    id: string;
+    name?: string;
+  }>;
 }
 
 interface Currency {
@@ -89,14 +93,39 @@ const sampleCountries: Country[] = [
     id: "US",
     name: "United States",
     subdivisions: ["California", "New York", "Texas"],
+    paymentMethods: [
+      { id: "credit_card", name: "Credit Card" },
+      { id: "debit_card", name: "Debit Card" },
+      { id: "bank_transfer", name: "Bank Transfer" },
+    ],
   },
   {
     id: "CA",
     name: "Canada",
     subdivisions: ["Ontario", "Quebec", "British Columbia"],
+    paymentMethods: [
+      { id: "credit_card", name: "Credit Card" },
+      { id: "debit_card", name: "Debit Card" },
+    ],
   },
-  { id: "GB", name: "United Kingdom", subdivisions: [] },
-  { id: "DE", name: "Germany", subdivisions: [] },
+  {
+    id: "GB",
+    name: "United Kingdom",
+    subdivisions: [],
+    paymentMethods: [
+      { id: "credit_card", name: "Credit Card" },
+      { id: "bank_transfer", name: "Bank Transfer" },
+    ],
+  },
+  {
+    id: "DE",
+    name: "Germany",
+    subdivisions: [],
+    paymentMethods: [
+      { id: "credit_card", name: "Credit Card" },
+      { id: "sepa", name: "SEPA Transfer" },
+    ],
+  },
 ];
 
 const sampleCurrencies: Currency[] = [
