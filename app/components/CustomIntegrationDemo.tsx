@@ -10,6 +10,8 @@ import { RampTransactionSummary } from "./RampTransactionSummary";
 import { RegionSelector } from "./RegionSelector";
 import { WalletConnector } from "./WalletConnector";
 import { useAccount } from "wagmi";
+import { RampTransaction } from "../types/RampTransaction";
+import { OnrampConfigCountry } from "@coinbase/onchainkit/fund";
 
 export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
   const [showOrderHistory, setShowOrderHistory] = useState(false);
@@ -92,23 +94,23 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                       // Update country in rampTransaction
                       setRampTransaction({
                         ...rampTransaction,
-                        country: e.target.value,
+                        country: e.target.value as OnrampConfigCountry,
                       });
                     }}
                     value={rampTransaction?.country || "US"}
                   >
-                    <option>United States of America</option>
-                    <option>United Kingdom</option>
-                    <option>Canada</option>
-                    <option>Australia</option>
-                    <option>Germany</option>
-                    <option>France</option>
-                    <option>Spain</option>
-                    <option>Italy</option>
-                    <option>Netherlands</option>
-                    <option>Switzerland</option>
-                    <option>Singapore</option>
-                    <option>Japan</option>
+                    <option value="US">United States of America</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                    <option value="FR">France</option>
+                    <option value="ES">Spain</option>
+                    <option value="IT">Italy</option>
+                    <option value="NL">Netherlands</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="SG">Singapore</option>
+                    <option value="JP">Japan</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
