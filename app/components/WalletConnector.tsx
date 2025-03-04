@@ -17,11 +17,13 @@ import { color } from "@coinbase/onchainkit/theme";
 interface IWalletConnectorProps {
   hideAddress?: boolean;
   hideEns?: boolean;
+  buttonStyle?: string;
 }
 
 export const WalletConnector = ({
   hideAddress = false,
   hideEns = false,
+  buttonStyle = "px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors",
 }: IWalletConnectorProps) => {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
@@ -34,6 +36,13 @@ export const WalletConnector = ({
     authenticated,
     setAuthenticated,
   } = useCoinbaseRampTransaction();
+
+  // Auto sign-in when wallet is connected
+  useEffect(() => {
+    if (isConnected && address && !authenticated && !isSigningIn) {
+      handleSignIn();
+    }
+  }, [isConnected, address, authenticated]);
 
   useEffect(() => {
     if (authenticated && address && rampTransaction?.wallet !== address) {
@@ -103,24 +112,8 @@ export const WalletConnector = ({
   // If not connected, show connect button
   if (!isConnected) {
     return (
-      <button
-        onClick={handleConnect}
-        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-      >
+      <button onClick={handleConnect} className={buttonStyle}>
         Connect Wallet
-      </button>
-    );
-  }
-
-  // If connected but not authenticated, show sign in button
-  if (!authenticated) {
-    return (
-      <button
-        onClick={handleSignIn}
-        disabled={isSigningIn}
-        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
-      >
-        {isSigningIn ? "Signing In..." : "Sign In"}
       </button>
     );
   }

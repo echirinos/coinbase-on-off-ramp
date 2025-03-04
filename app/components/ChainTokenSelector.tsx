@@ -101,21 +101,18 @@ export const ChainTokenSelector = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="w-full">
       {loadingBuyOptions ? (
         <>
-          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
-          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
+          <div className="h-10 w-full rounded-lg bg-gray-200 animate-pulse mb-4"></div>
+          <div className="h-10 w-full rounded-lg bg-gray-200 animate-pulse"></div>
         </>
       ) : (
         <>
-          <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {isOnrampActive ? "Buy" : "Sell"}
-            </label>
+          <div className="relative mb-4">
             <button
               type="button"
-              className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
               onClick={() => setTokenDropdownOpen(!tokenDropdownOpen)}
             >
               {getSelectedCurrency() ||
@@ -158,12 +155,9 @@ export const ChainTokenSelector = () => {
             ? selectedPurchaseCurrency
             : selectedSellCurrency) && (
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Network
-              </label>
               <button
                 type="button"
-                className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                 onClick={() => setNetworkDropdownOpen(!networkDropdownOpen)}
               >
                 {getSelectedNetwork()}

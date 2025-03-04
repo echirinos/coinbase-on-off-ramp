@@ -45,21 +45,20 @@ export const RegionSelector = () => {
   };
 
   return (
-    <div className="flex flex-row gap-4 m-auto">
+    <div className="w-full max-w-3xl mx-auto bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+      <h3 className="text-lg font-medium mb-4">Region</h3>
+
       {loadingBuyConfig ? (
-        <>
-          <div className="h-10 w-[200px] rounded-lg bg-gray-200 animate-pulse"></div>
-          <div className="h-10 w-[150px] rounded-lg bg-gray-200 animate-pulse"></div>
-        </>
+        <div className="flex gap-4">
+          <div className="h-10 w-full rounded-lg bg-gray-200 animate-pulse"></div>
+          <div className="h-10 w-full rounded-lg bg-gray-200 animate-pulse"></div>
+        </div>
       ) : (
-        <div className="flex flex-col md:flex-row gap-4 md:gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Country
-            </label>
             <button
               type="button"
-              className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
               onClick={() => setCountryDropdownOpen(!countryDropdownOpen)}
             >
               <div className="flex items-center">
@@ -117,12 +116,9 @@ export const RegionSelector = () => {
 
           {subdivisions.length > 0 && (
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Subdivision
-              </label>
               <button
                 type="button"
-                className="w-[200px] flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full flex justify-between items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500"
                 onClick={() =>
                   setSubdivisionDropdownOpen(!subdivisionDropdownOpen)
                 }
@@ -163,3 +159,5 @@ export const RegionSelector = () => {
     </div>
   );
 };
+
+export default RegionSelector;

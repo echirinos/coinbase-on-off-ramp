@@ -37,7 +37,7 @@ export const RampTransactionSummary = () => {
 
   if (loadingBuyOptions) {
     return (
-      <div className="w-full p-6 border border-gray-200 rounded-lg shadow-md animate-pulse">
+      <div className="w-full p-6 border border-gray-200 rounded-lg shadow-sm bg-white animate-pulse">
         <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
         <div className="space-y-3">
           <div className="h-4 bg-gray-200 rounded w-full"></div>
@@ -50,8 +50,8 @@ export const RampTransactionSummary = () => {
   }
 
   return (
-    <div className="w-full p-6 border border-gray-200 rounded-lg shadow-md">
-      <h3 className="text-xl font-semibold mb-4">Transaction Summary</h3>
+    <div className="w-full p-6 border border-gray-200 rounded-lg shadow-sm bg-white">
+      <h3 className="text-lg font-medium mb-4">Transaction Summary</h3>
 
       <div className="space-y-4">
         <div className="p-4 bg-gray-50 rounded-md">
@@ -92,7 +92,7 @@ export const RampTransactionSummary = () => {
               !rampTransaction?.amount ||
               !selectedPurchaseCurrency
             }
-            className="w-full py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isProcessing
               ? "Processing..."
@@ -105,7 +105,7 @@ export const RampTransactionSummary = () => {
             <p className="mb-3 text-gray-600">
               Connect your wallet to continue
             </p>
-            <WalletConnector />
+            <WalletConnector buttonStyle="w-full py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors" />
           </div>
         )}
       </div>

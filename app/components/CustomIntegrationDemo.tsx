@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { memo, useState } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { AmountInput } from "./AmountInput";
@@ -18,7 +17,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
   return (
     <>
       <div className="flex gap-4 justify-center py-4">
-        <WalletConnector />
+        <WalletConnector buttonStyle="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors" />
         {authenticated && (
           <button
             onClick={() => setShowOrderHistory(true)}
@@ -43,19 +42,36 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
           </button>
         )}
       </div>
-      <div className="flex flex-col gap-4 justify-center items-center">
-        <RegionSelector />
 
-        <div className="flex flex-col md:flex-row justify-around min-h-[750px] max-w-screen md:w-[1000px] m-auto gap-4 md:gap-0">
-          <div className="flex flex-col gap-4 grow">
-            <AmountInput />
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-around">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="mb-6">
+          <RegionSelector />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Left column - Amount Input */}
+          <div className="md:col-span-1">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-medium mb-3">Amount</h3>
+              <AmountInput />
+            </div>
+          </div>
+
+          {/* Middle column - Chain & Currency */}
+          <div className="md:col-span-1">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-6">
+              <h3 className="text-lg font-medium mb-3">Asset</h3>
               <ChainTokenSelector />
+            </div>
+
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+              <h3 className="text-lg font-medium mb-3">Currency</h3>
               <CurrencySelector />
             </div>
           </div>
 
-          <div className="flex justify-center items-center w-full md:w-[400px] my-8 md:my-0">
+          {/* Right column - Transaction Summary */}
+          <div className="md:col-span-1">
             <RampTransactionSummary />
           </div>
         </div>
