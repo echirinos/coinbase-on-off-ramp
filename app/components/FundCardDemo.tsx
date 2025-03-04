@@ -4,6 +4,7 @@ import { FundCard, FundCardPropsReact } from "@coinbase/onchainkit/fund";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { RegionSelector } from "./RegionSelector";
 import { useAccount } from "wagmi";
+import { RampTransaction } from "../types/RampTransaction";
 
 // Import the Currency interface
 interface Currency {
@@ -18,34 +19,27 @@ export const FundCardDemo = () => {
     selectedCurrency,
     setSelectedCurrency,
     buyOptions,
+    setRampTransaction,
   } = useCoinbaseRampTransaction();
 
   const { address, isConnected } = useAccount();
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [asset, setAsset] = useState("BTC");
+  const [asset, setAsset] = useState("USDC");
   const [presetAmountInputs, setPresetAmountInputs] = useState<
     FundCardPropsReact["presetAmountInputs"]
-  >(["10", "20", "30"]);
+  >(["10", "25", "50"]);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+  const [transactionInProgress, setTransactionInProgress] = useState(false);
+  const [transactionError, setTransactionError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch CDP Project ID from server
     const fetchCdpProjectId = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("/api/auth", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        const data = await response.json();
-
-        if (data.success && data.config.cdpProjectId) {
-          setCdpProjectId(data.config.cdpProjectId);
-        }
+        // For demo purposes, we'll just set a dummy CDP Project ID
+        setCdpProjectId("demo-project-id");
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching CDP Project ID:", error);
@@ -56,9 +50,36 @@ export const FundCardDemo = () => {
     fetchCdpProjectId();
   }, []);
 
+  useEffect(() => {
+    // Update the ramp transaction with the wallet address when connected
+    if (isConnected && address) {
+      setRampTransaction({
+        wallet: address,
+        chainToken: asset,
+        currency: selectedCurrency?.id || "USD",
+      });
+    }
+  }, [isConnected, address, asset, selectedCurrency, setRampTransaction]);
+
   const handleCurrencySelect = (currency: Currency) => {
     setSelectedCurrency(currency);
     setCurrencyDropdownOpen(false);
+  };
+
+  const handleTransactionSuccess = (data: any) => {
+    console.log("Transaction successful:", data);
+    setTransactionInProgress(false);
+    setTransactionError(null);
+    alert("Transaction initiated successfully!");
+  };
+
+  const handleTransactionError = (error: any) => {
+    console.error("Transaction error:", error);
+    setTransactionInProgress(false);
+    setTransactionError(
+      error.message || "Transaction failed. Please try again."
+    );
+    alert("Transaction failed. Please try again.");
   };
 
   const availableCurrencies = buyOptions?.paymentCurrencies || [];
@@ -80,14 +101,23 @@ export const FundCardDemo = () => {
             </p>
           </div>
         ) : (
-          <FundCard
-            key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
-            assetSymbol={asset}
-            country={selectedCountry?.id || "US"}
-            currency={selectedCurrency?.id || "USD"}
-            subdivision={selectedSubdivision || undefined}
-            presetAmountInputs={presetAmountInputs}
-          />
+          <>
+            {transactionError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4 w-full">
+                <span className="block sm:inline">{transactionError}</span>
+              </div>
+            )}
+            <FundCard
+              key={`${asset}-${selectedCountry?.id}-${selectedCurrency?.id}-${selectedSubdivision}`}
+              assetSymbol={asset}
+              country={selectedCountry?.id || "US"}
+              currency={selectedCurrency?.id || "USD"}
+              subdivision={selectedSubdivision || undefined}
+              presetAmountInputs={presetAmountInputs}
+              onSuccess={handleTransactionSuccess}
+              onError={handleTransactionError}
+            />
+          </>
         )}
       </div>
 
