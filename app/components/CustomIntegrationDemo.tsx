@@ -254,13 +254,11 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                 <div className="relative">
                   <select
                     className="w-full p-3 bg-black text-white border border-gray-700 rounded-md appearance-none"
-                    onChange={(e) =>
-                      setRampTransaction({
-                        ...rampTransaction,
-                        network: e.target.value,
-                      })
-                    }
-                    value={rampTransaction?.network || "Base"}
+                    onChange={(e) => {
+                      // We don't update rampTransaction here since network is not in the type
+                      // Just keep the UI state
+                    }}
+                    value={rampTransaction?.chainToken || "Base"}
                   >
                     <option value="Base">Base</option>
                     <option value="Ethereum">Ethereum</option>
@@ -346,7 +344,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Network:</span>
-                  <span>{rampTransaction?.network || "Base"}</span>
+                  <span>{rampTransaction?.chainToken || "Base"}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Pay With:</span>
