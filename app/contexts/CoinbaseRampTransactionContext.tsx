@@ -81,6 +81,7 @@ interface CoinbaseRampTransactionContextType {
   setSelectedPaymentMethod: (method: any) => void;
   authenticated?: boolean;
   setAuthenticated?: (authenticated: boolean) => void;
+  partnerUserId?: string;
 }
 
 const CoinbaseRampTransactionContext = createContext<
@@ -211,6 +212,7 @@ export const CoinbaseRampTransactionProvider = ({
   const [isOnrampActive, setIsOnrampActive] = useState(true);
   const [rampTransaction, setRampTransaction] = useState<RampTransaction>({});
   const [authenticated, setAuthenticated] = useState(false);
+  const partnerUserId = "demo-user-123"; // Sample partner user ID
 
   // Simulate loading data
   useEffect(() => {
@@ -259,6 +261,7 @@ export const CoinbaseRampTransactionProvider = ({
         setSelectedPaymentMethod,
         authenticated,
         setAuthenticated,
+        partnerUserId,
       }}
     >
       {children}
