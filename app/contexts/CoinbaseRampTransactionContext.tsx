@@ -6,6 +6,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { RampTransaction } from "../types/RampTransaction";
 
 interface Country {
   id: string;
@@ -71,6 +72,11 @@ interface CoinbaseRampTransactionContextType {
   setSelectedSellCurrencyNetwork: (network: SellCurrencyNetwork | null) => void;
   isOnrampActive: boolean;
   setIsOnrampActive: (isActive: boolean) => void;
+  rampTransaction?: RampTransaction;
+  setRampTransaction: (transaction: RampTransaction) => void;
+  setSelectedPaymentMethod: (method: any) => void;
+  authenticated?: boolean;
+  setAuthenticated?: (authenticated: boolean) => void;
 }
 
 const CoinbaseRampTransactionContext = createContext<
@@ -174,6 +180,8 @@ export const CoinbaseRampTransactionProvider = ({
       display_name: sampleNetworks[0].displayName,
     });
   const [isOnrampActive, setIsOnrampActive] = useState(true);
+  const [rampTransaction, setRampTransaction] = useState<RampTransaction>({});
+  const [authenticated, setAuthenticated] = useState(false);
 
   // Simulate loading data
   useEffect(() => {
@@ -188,6 +196,10 @@ export const CoinbaseRampTransactionProvider = ({
 
     return () => clearTimeout(timer);
   }, []);
+
+  const setSelectedPaymentMethod = (method: any) => {
+    // Implementation for setting payment method
+  };
 
   return (
     <CoinbaseRampTransactionContext.Provider
@@ -213,6 +225,11 @@ export const CoinbaseRampTransactionProvider = ({
         setSelectedSellCurrencyNetwork,
         isOnrampActive,
         setIsOnrampActive,
+        rampTransaction,
+        setRampTransaction,
+        setSelectedPaymentMethod,
+        authenticated,
+        setAuthenticated,
       }}
     >
       {children}
