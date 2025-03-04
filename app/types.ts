@@ -134,3 +134,12 @@ export type TxSuccessSummaryPayload = {
   purchaseCurrency: string;
   deliveryTargetAddress: Address;
 };
+
+export interface Order {
+  created_at: string;
+  type: string;
+  asset: string;
+  amount: string;
+  status: 'completed' | 'pending' | 'failed';
+  id: string;
+}

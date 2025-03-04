@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { getOrdersByPartnerUserId } from "../queries";
+import { Order } from "../types";
 
 export const OrderHistory = () => {
   const { partnerUserId } = useCoinbaseRampTransaction();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
