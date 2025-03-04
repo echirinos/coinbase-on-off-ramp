@@ -11,7 +11,6 @@ interface Currency {
 export const CurrencySelector = () => {
   const {
     isOnrampActive,
-    isOfframpActive,
     sellOptions,
     buyOptions,
     setRampTransaction,
@@ -34,7 +33,7 @@ export const CurrencySelector = () => {
         ...rampTransaction,
         currency: currency?.id,
       });
-    } else if (isOfframpActive && sellOptions) {
+    } else if (sellOptions) {
       setSelectedCurrency(currency);
       setRampTransaction({
         ...rampTransaction,
@@ -59,7 +58,7 @@ export const CurrencySelector = () => {
     return (
       (isOnrampActive
         ? buyOptions?.paymentCurrencies
-        : sellOptions?.cashout_currencies) || []
+        : sellOptions?.sell_currencies) || []
     );
   };
 
