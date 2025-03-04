@@ -34,7 +34,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
   const handleCheckout = () => {
     if (
       !authenticated ||
-      !rampTransaction.amount ||
+      !rampTransaction?.amount ||
       parseFloat(rampTransaction.amount) <= 0
     ) {
       alert("Please connect your wallet and enter a valid amount");
@@ -184,7 +184,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                         chainToken: e.target.value,
                       })
                     }
-                    value={rampTransaction.chainToken || "USDC"}
+                    value={rampTransaction?.chainToken || "USDC"}
                   >
                     <option value="USDC">USDC</option>
                     <option value="ETH">ETH</option>
@@ -220,7 +220,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                         currency: e.target.value,
                       })
                     }
-                    value={rampTransaction.currency || "USD"}
+                    value={rampTransaction?.currency || "USD"}
                   >
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
@@ -260,7 +260,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                         network: e.target.value,
                       })
                     }
-                    value={rampTransaction.network || "Base"}
+                    value={rampTransaction?.network || "Base"}
                   >
                     <option value="Base">Base</option>
                     <option value="Ethereum">Ethereum</option>
@@ -296,7 +296,7 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                         paymentMethod: e.target.value,
                       })
                     }
-                    value={rampTransaction.paymentMethod || "CARD"}
+                    value={rampTransaction?.paymentMethod || "CARD"}
                   >
                     <option value="CARD">CARD</option>
                     <option value="BANK">BANK</option>
@@ -327,10 +327,10 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
               <h3 className="text-xl font-medium mb-4">Transaction Summary</h3>
               <div className="mb-4">
                 <p className="text-blue-400 text-xl mb-2">
-                  Buy ${amount} of {rampTransaction.chainToken || "USDC"}
+                  Buy ${amount} of {rampTransaction?.chainToken || "USDC"}
                 </p>
                 <p className="text-gray-400 flex justify-between">
-                  <span>{rampTransaction.chainToken || "USDC"} Price</span>
+                  <span>{rampTransaction?.chainToken || "USDC"} Price</span>
                   <span>-</span>
                 </p>
               </div>
@@ -346,11 +346,11 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Network:</span>
-                  <span>{rampTransaction.network || "Base"}</span>
+                  <span>{rampTransaction?.network || "Base"}</span>
                 </div>
                 <div className="flex justify-between mb-2">
                   <span className="text-gray-400">Pay With:</span>
-                  <span>{rampTransaction.paymentMethod || "CARD"}</span>
+                  <span>{rampTransaction?.paymentMethod || "CARD"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">To:</span>
