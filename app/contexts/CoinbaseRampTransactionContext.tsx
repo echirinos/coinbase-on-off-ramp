@@ -31,6 +31,7 @@ interface Network {
 interface PurchaseCurrency {
   id: string;
   name: string;
+  symbol: string;
   networks: Network[];
 }
 
@@ -59,7 +60,7 @@ interface CoinbaseRampTransactionContextType {
   selectedCountry: Country | null;
   setSelectedCountry: (country: Country) => void;
   selectedSubdivision: string | null;
-  setSelectedSubdivision: (subdivision: string) => void;
+  setSelectedSubdivision: (subdivision: string | null) => void;
   selectedCurrency: Currency | null;
   setSelectedCurrency: (currency: Currency | null) => void;
   buyOptions: BuyOptions | null;
@@ -79,8 +80,8 @@ interface CoinbaseRampTransactionContextType {
   rampTransaction?: RampTransaction;
   setRampTransaction: (transaction: RampTransaction) => void;
   setSelectedPaymentMethod: (method: any) => void;
-  authenticated?: boolean;
-  setAuthenticated?: (authenticated: boolean) => void;
+  authenticated: boolean;
+  setAuthenticated: (authenticated: boolean) => void;
   partnerUserId?: string;
 }
 
@@ -142,9 +143,9 @@ const sampleNetworks: Network[] = [
 ];
 
 const samplePurchaseCurrencies: PurchaseCurrency[] = [
-  { id: "BTC", name: "Bitcoin", networks: sampleNetworks },
-  { id: "ETH", name: "Ethereum", networks: sampleNetworks },
-  { id: "USDC", name: "USD Coin", networks: sampleNetworks },
+  { id: "BTC", name: "Bitcoin", symbol: "₿", networks: sampleNetworks },
+  { id: "ETH", name: "Ethereum", symbol: "Ξ", networks: sampleNetworks },
+  { id: "USDC", name: "USD Coin", symbol: "$", networks: sampleNetworks },
 ];
 
 const sampleSellCurrencies: SellCurrency[] = [
