@@ -86,8 +86,29 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                   <span className="text-sm">country</span>
                 </div>
                 <div className="relative">
-                  <select className="w-full p-3 bg-black text-white border border-gray-700 rounded-md appearance-none">
+                  <select
+                    className="w-full p-3 bg-black text-white border border-gray-700 rounded-md appearance-none"
+                    onChange={(e) => {
+                      // Update country in rampTransaction
+                      setRampTransaction({
+                        ...rampTransaction,
+                        country: e.target.value,
+                      });
+                    }}
+                    value={rampTransaction?.country || "US"}
+                  >
                     <option>United States of America</option>
+                    <option>United Kingdom</option>
+                    <option>Canada</option>
+                    <option>Australia</option>
+                    <option>Germany</option>
+                    <option>France</option>
+                    <option>Spain</option>
+                    <option>Italy</option>
+                    <option>Netherlands</option>
+                    <option>Switzerland</option>
+                    <option>Singapore</option>
+                    <option>Japan</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -111,8 +132,26 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                   <span className="text-sm">subdivision</span>
                 </div>
                 <div className="relative">
-                  <select className="w-full p-3 bg-black text-white border border-gray-700 rounded-md appearance-none">
+                  <select
+                    className="w-full p-3 bg-black text-white border border-gray-700 rounded-md appearance-none"
+                    onChange={(e) => {
+                      // Update subdivision in UI state
+                    }}
+                  >
                     <option>CA</option>
+                    <option>NY</option>
+                    <option>TX</option>
+                    <option>FL</option>
+                    <option>IL</option>
+                    <option>PA</option>
+                    <option>OH</option>
+                    <option>GA</option>
+                    <option>NC</option>
+                    <option>MI</option>
+                    <option>NJ</option>
+                    <option>VA</option>
+                    <option>WA</option>
+                    <option>MA</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -189,6 +228,13 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                     <option value="USDC">USDC</option>
                     <option value="ETH">ETH</option>
                     <option value="BTC">BTC</option>
+                    <option value="SOL">SOL</option>
+                    <option value="MATIC">MATIC</option>
+                    <option value="AVAX">AVAX</option>
+                    <option value="LINK">LINK</option>
+                    <option value="UNI">UNI</option>
+                    <option value="AAVE">AAVE</option>
+                    <option value="DAI">DAI</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -225,6 +271,11 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
                     <option value="GBP">GBP</option>
+                    <option value="CAD">CAD</option>
+                    <option value="AUD">AUD</option>
+                    <option value="JPY">JPY</option>
+                    <option value="CHF">CHF</option>
+                    <option value="SGD">SGD</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -263,6 +314,11 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                     <option value="Base">Base</option>
                     <option value="Ethereum">Ethereum</option>
                     <option value="Optimism">Optimism</option>
+                    <option value="Arbitrum">Arbitrum</option>
+                    <option value="Polygon">Polygon</option>
+                    <option value="Avalanche">Avalanche</option>
+                    <option value="Solana">Solana</option>
+                    <option value="BNB Chain">BNB Chain</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
@@ -298,6 +354,14 @@ export const CustomIntegrationDemo = memo(function CustomIntegrationDemo() {
                   >
                     <option value="CARD">CARD</option>
                     <option value="BANK">BANK</option>
+                    <option value="APPLE_PAY">APPLE PAY</option>
+                    <option value="GOOGLE_PAY">GOOGLE PAY</option>
+                    <option value="PAYPAL">PAYPAL</option>
+                    <option value="COINBASE">COINBASE</option>
+                    <option value="ACH">ACH</option>
+                    <option value="SEPA">SEPA</option>
+                    <option value="IDEAL">IDEAL</option>
+                    <option value="SOFORT">SOFORT</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
