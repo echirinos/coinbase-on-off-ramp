@@ -48,8 +48,8 @@ The Custom Integration demo showcases a fully customizable UI that gives you com
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/yourusername/on-off-ramp-demo.git
-   cd on-off-ramp-demo
+   git clone https://github.com/echirinos/coinbase-on-off-ramp.git
+   cd coinbase-on-off-ramp
    ```
 
 2. Install dependencies
@@ -77,7 +77,7 @@ The Custom Integration demo showcases a fully customizable UI that gives you com
 
 This project can be easily deployed on Vercel:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyourusername%2Fon-off-ramp-demo)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fechirinos%2Fcoinbase-on-off-ramp)
 
 ## Recent Updates
 
