@@ -9,15 +9,15 @@ export default function CompareFeature() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 dark:text-white">
-              Onramp vs Offramp
+              Onramp vs Offramp vs Fund
             </h2>
             <p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto">
-              Compare the features of Coinbase Onramp and Offramp to understand
-              how they can enhance your application.
+              Compare the features of Coinbase Onramp, Offramp, and Fund to
+              understand how they can enhance your application.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
             <div className="md:col-span-1">
               <div className="h-full bg-gradient-to-br from-green-500 to-green-700 text-white rounded-lg p-6 shadow-lg">
                 <h3 className="text-2xl font-bold mb-4">Onramp</h3>
@@ -51,11 +51,27 @@ export default function CompareFeature() {
             </div>
 
             <div className="md:col-span-1">
+              <div className="h-full bg-gradient-to-br from-amber-500 to-amber-700 text-white rounded-lg p-6 shadow-lg">
+                <h3 className="text-2xl font-bold mb-4">Fund</h3>
+                <p className="mb-6">
+                  Enable users to fund your project with crypto using pre-built
+                  components.
+                </p>
+                <Link
+                  href="/fund"
+                  className="inline-block bg-white text-amber-700 font-bold py-2 px-4 rounded hover:bg-gray-100 transition-colors"
+                >
+                  Try Fund
+                </Link>
+              </div>
+            </div>
+
+            <div className="md:col-span-1">
               <div className="h-full bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-lg p-6 shadow-lg">
                 <h3 className="text-2xl font-bold mb-4">Combined</h3>
                 <p className="mb-6">
-                  Provide a complete solution with both Onramp and Offramp for a
-                  seamless user experience.
+                  Provide a complete solution with all features for a seamless
+                  user experience.
                 </p>
                 <Link
                   href="#combined-flow"
@@ -80,79 +96,101 @@ export default function CompareFeature() {
                   <th className="p-4 text-center font-bold text-blue-700 dark:text-blue-400 border border-gray-200 dark:border-gray-700">
                     Offramp
                   </th>
+                  <th className="p-4 text-center font-bold text-amber-700 dark:text-amber-400 border border-gray-200 dark:border-gray-700">
+                    Fund
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Direction"
                   onramp="Fiat → Crypto"
                   offramp="Crypto → Fiat"
+                  fund="Fiat → Crypto"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Primary Use Case"
                   onramp="Bringing users onchain"
                   offramp="Cashing out crypto"
+                  fund="Funding projects/dApps"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Payment Methods"
                   onramp="Debit/Credit Cards, Bank Transfers, Apple Pay, Coinbase Account"
                   offramp="Bank Account (ACH), PayPal, Coinbase Account"
+                  fund="Debit/Credit Cards, Bank Transfers, Apple Pay, Coinbase Account"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Guest Checkout"
                   onramp="Yes (US only)"
                   offramp="No (Coinbase account required)"
+                  fund="Yes (US only)"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Supported Countries"
                   onramp="90+ countries"
                   offramp="Available in most Coinbase-supported countries"
+                  fund="90+ countries"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Transaction Limits"
                   onramp="Varies by payment method and country"
                   offramp="Varies by cashout method and country"
+                  fund="Varies by payment method and country"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Implementation"
                   onramp="URL generation or React components"
                   offramp="URL generation with redirect handling"
+                  fund="Pre-built React components (Fund Button, Fund Card)"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Transaction Flow"
                   onramp="Select asset → Pay → Receive crypto"
                   offramp="Select asset → Confirm → Send crypto → Receive fiat"
+                  fund="Select amount → Pay → Fund project"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Transaction Status API"
                   onramp="Yes"
                   offramp="Yes"
+                  fund="Yes"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="SDK Support"
                   onramp="OnchainKit, REST API"
                   offramp="REST API"
+                  fund="OnchainKit, REST API"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Price Protection"
                   onramp="Price locked at time of quote"
                   offramp="Transaction cancelled if price drops below minimum"
+                  fund="Price locked at time of quote"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Network Support"
                   onramp="Multiple networks per asset (L2 support)"
                   offramp="Multiple networks per asset (L2 support)"
+                  fund="Multiple networks per asset (L2 support)"
                 />
-                <FeatureRow
+                <FeatureRowWithFund
                   feature="Fee Structure"
                   onramp="Spread + Coinbase fee + Network fee (0% for USDC)"
                   offramp="Spread + Coinbase fee"
+                  fund="Spread + Coinbase fee + Network fee (0% for USDC)"
+                />
+                <FeatureRowWithFund
+                  feature="UI Components"
+                  onramp="Custom or pre-built"
+                  offramp="Custom only"
+                  fund="Pre-built (Fund Button, Fund Card)"
                 />
               </tbody>
             </table>
           </div>
 
-          <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
               <h3 className="text-xl font-bold mb-4 dark:text-white">
                 When to Use Onramp
@@ -224,6 +262,38 @@ export default function CompareFeature() {
                 </li>
               </ul>
             </div>
+
+            <div className="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+              <h3 className="text-xl font-bold mb-4 dark:text-white">
+                When to Use Fund
+              </h3>
+              <ul className="space-y-2 text-gray-700 dark:text-gray-300">
+                <li className="flex items-start">
+                  <span className="text-amber-500 mr-2">✓</span>
+                  <span>
+                    When you need to collect crypto payments for your project
+                  </span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-amber-500 mr-2">✓</span>
+                  <span>For dApps that need a simple funding mechanism</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-amber-500 mr-2">✓</span>
+                  <span>When you want to use pre-built UI components</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-amber-500 mr-2">✓</span>
+                  <span>For crowdfunding or donation platforms</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-amber-500 mr-2">✓</span>
+                  <span>
+                    When you need a quick implementation with minimal code
+                  </span>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div
@@ -231,12 +301,12 @@ export default function CompareFeature() {
             className="mt-12 bg-purple-50 dark:bg-purple-900/30 p-6 rounded-lg"
           >
             <h3 className="text-xl font-bold mb-6 dark:text-white text-center">
-              Combined Onramp & Offramp Flow
+              Combined Integration Flow
             </h3>
             <p className="text-gray-700 dark:text-gray-300 mb-6 text-center">
-              Implementing both Onramp and Offramp provides a complete solution
-              for your users, allowing them to move seamlessly between fiat and
-              crypto.
+              Implementing Onramp, Offramp, and Fund features provides a
+              complete solution for your users, allowing them to move seamlessly
+              between fiat and crypto while supporting your project.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -477,6 +547,35 @@ export default function CompareFeature() {
   );
 }
 
+function FeatureRowWithFund({
+  feature,
+  onramp,
+  offramp,
+  fund,
+}: {
+  feature: string;
+  onramp: string;
+  offramp: string;
+  fund: string;
+}) {
+  return (
+    <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+      <td className="p-4 font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
+        {feature}
+      </td>
+      <td className="p-4 text-center text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+        {onramp}
+      </td>
+      <td className="p-4 text-center text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
+        {offramp}
+      </td>
+      <td className="p-4 text-center text-gray-700 dark:text-gray-300">
+        {fund}
+      </td>
+    </tr>
+  );
+}
+
 function FeatureRow({
   feature,
   onramp,
@@ -487,14 +586,14 @@ function FeatureRow({
   offramp: string;
 }) {
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700">
-      <td className="p-4 border border-gray-200 dark:border-gray-700 font-medium text-gray-700 dark:text-gray-300">
+    <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
+      <td className="p-4 font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
         {feature}
       </td>
-      <td className="p-4 border border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+      <td className="p-4 text-center text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
         {onramp}
       </td>
-      <td className="p-4 border border-gray-200 dark:border-gray-700 text-center text-gray-600 dark:text-gray-400">
+      <td className="p-4 text-center text-gray-700 dark:text-gray-300">
         {offramp}
       </td>
     </tr>

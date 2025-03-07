@@ -62,40 +62,45 @@ export default function ComparePage() {
                   Frequently Asked Questions
                 </h2>
                 <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Everything you need to know about Coinbase Onramp and Offramp
-                  integration
+                  Everything you need to know about Coinbase Onramp, Offramp,
+                  and Fund integration
                 </p>
               </div>
 
               <div className="space-y-6">
                 <FaqItem
-                  question="What's the main difference between Onramp and Offramp?"
-                  answer="Onramp converts fiat currency (like USD) to cryptocurrency, while Offramp does the opposite, converting cryptocurrency back to fiat. Onramp brings users into the crypto ecosystem, while Offramp provides an exit path."
+                  question="What's the main difference between Onramp, Offramp, and Fund?"
+                  answer="Onramp converts fiat currency to cryptocurrency, Offramp converts cryptocurrency back to fiat, and Fund provides pre-built components specifically designed for funding projects with crypto. Onramp and Fund bring users into the crypto ecosystem, while Offramp provides an exit path."
                 />
 
                 <FaqItem
-                  question="Can I implement both in my application?"
-                  answer="Yes, you can implement both Onramp and Offramp to provide a complete solution for your users. This gives them the ability to both purchase crypto and cash out when needed, all within your application."
+                  question="Can I implement all three in my application?"
+                  answer="Yes, you can implement Onramp, Offramp, and Fund to provide a complete solution for your users. This gives them the ability to purchase crypto, fund your project, and cash out when needed, all within your application."
                 />
 
                 <FaqItem
                   question="Which one should I implement first?"
-                  answer="It depends on your application's needs. If your primary goal is to help users acquire crypto, start with Onramp. If your users already have crypto and need a way to cash out, start with Offramp. Many applications benefit from implementing both."
+                  answer="It depends on your application's needs. If your primary goal is to help users acquire crypto, start with Onramp. If you need to collect payments for your project, start with Fund. If your users already have crypto and need a way to cash out, start with Offramp."
+                />
+
+                <FaqItem
+                  question="What's the difference between Fund and Onramp?"
+                  answer="While both Fund and Onramp allow users to convert fiat to crypto, Fund is specifically designed for collecting payments with pre-built UI components (Fund Button and Fund Card). Onramp is more general-purpose and can be implemented with custom UI or pre-built components."
                 />
 
                 <FaqItem
                   question="Are there different integration requirements?"
-                  answer="Yes. Onramp can be integrated using OnchainKit React components or by generating URLs. Offramp requires URL generation and handling the redirect flow. Both use similar API patterns but have different implementation details."
+                  answer="Yes. Onramp can be integrated using OnchainKit React components or by generating URLs. Offramp requires URL generation and handling the redirect flow. Fund provides pre-built React components through OnchainKit. All three use similar API patterns but have different implementation details."
                 />
 
                 <FaqItem
-                  question="Do both require a Coinbase account?"
-                  answer="Onramp offers a Guest checkout option in the US, allowing users without a Coinbase account to purchase crypto with a debit card or Apple Pay. Offramp requires users to have a Coinbase account to receive fiat currency."
+                  question="Do all three require a Coinbase account?"
+                  answer="Onramp and Fund offer a Guest checkout option in the US, allowing users without a Coinbase account to purchase crypto with a debit card or Apple Pay. Offramp requires users to have a Coinbase account to receive fiat currency."
                 />
 
                 <FaqItem
-                  question="How do I track transaction status for both?"
-                  answer="Both Onramp and Offramp provide Transaction Status APIs that allow you to track the status of transactions. You can use the partnerUserId parameter to link transactions to specific users in your application."
+                  question="How do I track transaction status for all three?"
+                  answer="Onramp, Offramp, and Fund all provide Transaction Status APIs that allow you to track the status of transactions. You can use the partnerUserId parameter to link transactions to specific users in your application."
                 />
               </div>
             </div>
