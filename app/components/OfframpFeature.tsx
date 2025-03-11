@@ -283,7 +283,7 @@ export default function OfframpFeature() {
                       : "bg-gray-600 text-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  Connect Wallet to Continue
+                  {isConnected ? "Start Offramp" : "Connect Wallet to Continue"}
                 </button>
               ) : (
                 <button

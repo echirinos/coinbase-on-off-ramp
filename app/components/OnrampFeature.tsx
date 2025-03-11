@@ -298,7 +298,7 @@ export default function OnrampFeature() {
                       : "bg-gray-600 text-gray-300 cursor-not-allowed"
                   }`}
                 >
-                  Connect Wallet to Continue
+                  {isConnected ? "Start Onramp" : "Connect Wallet to Continue"}
                 </button>
               ) : (
                 <button

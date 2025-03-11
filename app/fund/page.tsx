@@ -532,14 +532,6 @@ export default function FundPage() {
                 >
                   Fund Card Docs
                 </Link>
-                <Link
-                  href="https://docs.base.org/builderkits/onchainkit"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-all shadow-md hover:shadow-lg"
-                >
-                  OnchainKit Docs
-                </Link>
               </div>
             </div>
           </div>
