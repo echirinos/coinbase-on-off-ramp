@@ -28,6 +28,11 @@ export function Providers({ children }: { children: ReactNode }) {
         if (response.ok) {
           const data = await response.json();
           if (data.success) {
+            console.log("Config fetched successfully:", {
+              projectId: data.config.walletConnectProjectId ? "Set" : "Not set",
+              apiKey: data.config.onchainKitApiKey ? "Set" : "Not set",
+              cdpProjectId: data.config.cdpProjectId ? "Set" : "Not set",
+            });
             setConfig({
               projectId: data.config.walletConnectProjectId || "",
               apiKey: data.config.onchainKitApiKey || "",
@@ -42,6 +47,12 @@ export function Providers({ children }: { children: ReactNode }) {
 
     fetchConfig();
   }, []);
+
+  console.log("OnchainKitProvider config:", {
+    chain: "base",
+    projectId: config.cdpProjectId ? "Set" : "Not set",
+    apiKey: config.apiKey ? "Set" : "Not set",
+  });
 
   return (
     <CoinbaseRampTransactionProvider>

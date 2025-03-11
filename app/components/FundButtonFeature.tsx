@@ -82,15 +82,18 @@ export function FundButtonFeature() {
 
   // Generate custom onramp URL based on selected options
   const getCustomOnrampUrl = () => {
+    console.log("getCustomOnrampUrl called with:", { address, cdpProjectId });
     if (!address || !cdpProjectId) return undefined;
 
-    return getOnrampBuyUrl({
+    const url = getOnrampBuyUrl({
       projectId: cdpProjectId,
       addresses: { [address]: ["base"] },
       assets: [selectedAsset],
       presetFiatAmount: 20,
       fiatCurrency: "USD",
     });
+    console.log("Generated onramp URL:", url);
+    return url;
   };
 
   return (
