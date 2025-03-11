@@ -46,8 +46,8 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <CoinbaseRampTransactionProvider>
       <OnchainKitProvider
-        chain={mainnet}
-        projectId={config.projectId}
+        chain={base}
+        projectId={config.cdpProjectId}
         apiKey={config.apiKey}
         config={{
           appearance: {

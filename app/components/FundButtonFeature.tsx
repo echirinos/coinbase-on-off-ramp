@@ -1,7 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { FundButton } from "@coinbase/onchainkit/fund";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
+import { useAccount } from "wagmi";
+import { getOnrampBuyUrl } from "@coinbase/onchainkit/fund";
 
 // Custom ChevronDown component instead of importing from lucide-react
 const ChevronDown = () => (
@@ -25,6 +28,10 @@ export function FundButtonFeature() {
   const [selectedAsset, setSelectedAsset] = useState("ETH");
   const [isAssetDropdownOpen, setIsAssetDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [hideIcon, setHideIcon] = useState(false);
+  const [hideText, setHideText] = useState(false);
+  const [openIn, setOpenIn] = useState<"popup" | "tab">("popup");
+  const { address } = useAccount();
 
   const supportedAssets = [
     { symbol: "ETH", name: "Ethereum" },
@@ -50,6 +57,19 @@ export function FundButtonFeature() {
 
   const handleButtonTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setButtonText(e.target.value);
+  };
+
+  // Generate custom onramp URL based on selected options
+  const getCustomOnrampUrl = () => {
+    if (!address) return undefined;
+
+    return getOnrampBuyUrl({
+      projectId: process.env.CDP_PROJECT_ID || "",
+      addresses: { [address]: ["base"] },
+      assets: [selectedAsset],
+      presetFiatAmount: 20,
+      fiatCurrency: "USD",
+    });
   };
 
   return (
@@ -112,6 +132,60 @@ export function FundButtonFeature() {
                 className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
+            <div className="space-y-2">
+              <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                Display Options
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setHideIcon(!hideIcon)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    hideIcon
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                >
+                  {hideIcon ? "Icon Hidden" : "Hide Icon"}
+                </button>
+                <button
+                  onClick={() => setHideText(!hideText)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    hideText
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                >
+                  {hideText ? "Text Hidden" : "Hide Text"}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                Open In
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setOpenIn("popup")}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    openIn === "popup"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                >
+                  Popup
+                </button>
+                <button
+                  onClick={() => setOpenIn("tab")}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    openIn === "tab"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                >
+                  New Tab
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -125,10 +199,14 @@ export function FundButtonFeature() {
             </div>
           ) : (
             <div className="text-center">
-              <button className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4">
-                {buttonText}
-              </button>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <FundButton
+                text={hideText ? undefined : buttonText}
+                hideIcon={hideIcon}
+                hideText={hideText}
+                openIn={openIn}
+                fundingUrl={getCustomOnrampUrl()}
+              />
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
                 A simple button that opens the Coinbase Fund flow
               </p>
               <p className="text-amber-600 dark:text-amber-400 text-xs mt-2">
