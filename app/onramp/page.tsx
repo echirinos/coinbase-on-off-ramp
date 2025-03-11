@@ -112,7 +112,7 @@ export default function OnrampPage() {
         <OnrampFeature />
 
         {/* FAQ Section */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-900">
+        <section className="py-16 bg-white dark:bg-gray-900">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
               <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
@@ -163,9 +163,9 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-4">
       <button
-        className="flex justify-between items-center w-full p-4 text-left bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        className="flex justify-between items-center w-full p-5 text-left bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="font-medium text-gray-900 dark:text-white">
@@ -188,11 +188,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
           ></path>
         </svg>
       </button>
-      {isOpen && (
-        <div className="p-4 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
-          {answer}
-        </div>
-      )}
+      {isOpen && <div className="p-5 bg-gray-700 text-white">{answer}</div>}
     </div>
   );
 }
