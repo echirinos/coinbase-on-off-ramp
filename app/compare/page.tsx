@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
-import CompareFeature from "../components/CompareFeature";
 
 export default function ComparePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -50,7 +48,9 @@ export default function ComparePage() {
               </h1>
 
               <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Choose the right solution for your application by comparing features and capabilities of Coinbase's Onramp, Offramp, and Fund products.
+                Choose the right solution for your application by comparing
+                features and capabilities of Coinbase's Onramp, Offramp, and
+                Fund products.
               </p>
 
               <Link
@@ -73,10 +73,18 @@ export default function ComparePage() {
                 <table className="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                   <thead>
                     <tr className="bg-gray-50 dark:bg-gray-700">
-                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Feature</th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">Onramp</th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wider">Offramp</th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Fund</th>
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                        Feature
+                      </th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                        Onramp
+                      </th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                        Offramp
+                      </th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                        Fund
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -139,7 +147,9 @@ export default function ComparePage() {
         <section className="py-16 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-10 text-center dark:text-white">Frequently Asked Questions</h2>
+              <h2 className="text-3xl font-bold mb-10 text-center dark:text-white">
+                Frequently Asked Questions
+              </h2>
 
               <div className="space-y-4">
                 <FaqItem
@@ -178,7 +188,8 @@ export default function ComparePage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
                 >
-                  Explore Onramp/Offramp Documentation <span className="ml-2">→</span>
+                  Explore Onramp/Offramp Documentation{" "}
+                  <span className="ml-2">→</span>
                 </Link>
                 <div className="mt-4">
                   <Link
@@ -187,7 +198,8 @@ export default function ComparePage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
                   >
-                    Explore OnchainKit Documentation <span className="ml-2">→</span>
+                    Explore OnchainKit Documentation{" "}
+                    <span className="ml-2">→</span>
                   </Link>
                 </div>
               </div>
@@ -195,26 +207,44 @@ export default function ComparePage() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }
 
-function FaqItem({ question, answer, isOpen, onClick }: { question: string; answer: string; isOpen: boolean; onClick: () => void }) {
+function FaqItem({
+  question,
+  answer,
+  isOpen,
+  onClick,
+}: {
+  question: string;
+  answer: string;
+  isOpen: boolean;
+  onClick: () => void;
+}) {
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
       <button
         className="flex justify-between items-center w-full px-6 py-4 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none"
         onClick={onClick}
       >
-        <span className="font-medium text-gray-900 dark:text-white">{question}</span>
+        <span className="font-medium text-gray-900 dark:text-white">
+          {question}
+        </span>
         <svg
-          className={`w-5 h-5 text-gray-500 transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-gray-500 transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
       {isOpen && (
@@ -226,13 +256,31 @@ function FaqItem({ question, answer, isOpen, onClick }: { question: string; answ
   );
 }
 
-function FeatureRowWithFund({ feature, onramp, offramp, fund }: { feature: string; onramp: string; offramp: string; fund: string }) {
+function FeatureRowWithFund({
+  feature,
+  onramp,
+  offramp,
+  fund,
+}: {
+  feature: string;
+  onramp: string;
+  offramp: string;
+  fund: string;
+}) {
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-750">
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{feature}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{onramp}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{offramp}</td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{fund}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+        {feature}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+        {onramp}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+        {offramp}
+      </td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+        {fund}
+      </td>
     </tr>
   );
 }

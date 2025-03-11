@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
 import Hero from "./components/Hero";
 
 export default function Home() {
@@ -269,8 +268,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 }
@@ -289,36 +286,24 @@ function FeatureCard({
   linkText: string;
 }) {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-6 transition-all hover:shadow-lg border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 flex flex-col h-full">
-      <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg inline-block mb-4">
-        {icon}
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 flex flex-col h-full">
+      <div className="p-6 flex-grow">
+        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4">
+          {icon}
+        </div>
+        <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
+          {title}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300 mb-4">{description}</p>
       </div>
-      <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-        {title}
-      </h3>
-      <p className="text-gray-600 dark:text-gray-300 mb-6 flex-grow">
-        {description}
-      </p>
-      <Link
-        href={link}
-        className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-      >
-        <span>{linkText}</span>
-        <svg
-          className="ml-2 w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+      <div className="px-6 pb-6">
+        <Link
+          href={link}
+          className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M14 5l7 7m0 0l-7 7m7-7H3"
-          ></path>
-        </svg>
-      </Link>
+          {linkText} <span className="ml-2">→</span>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -337,11 +322,19 @@ function StepCard({
   return (
     <div
       className={`flex items-center ${
-        direction === "right" ? "flex-row-reverse" : ""
+        direction === "left" ? "flex-row" : "flex-row-reverse"
       }`}
     >
-      <div className={`w-5/12 ${direction === "right" ? "text-right" : ""}`}>
-        <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 transition-all hover:shadow-xl hover:border-blue-200 dark:hover:border-blue-800">
+      <div
+        className={`w-1/2 ${
+          direction === "left" ? "pr-12 text-right" : "pl-12 text-left"
+        }`}
+      >
+        <div
+          className={`bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 ${
+            direction === "left" ? "ml-auto" : "mr-auto"
+          } max-w-md`}
+        >
           <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
             {title}
           </h3>
@@ -349,13 +342,13 @@ function StepCard({
         </div>
       </div>
 
-      <div className="w-2/12 flex justify-center">
-        <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold z-10 shadow-lg">
+      <div className="relative z-10">
+        <div className="w-12 h-12 bg-blue-600 dark:bg-blue-700 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
           {number}
         </div>
       </div>
 
-      <div className="w-5/12"></div>
+      <div className="w-1/2"></div>
     </div>
   );
 }
@@ -372,29 +365,19 @@ function CTACard({
   linkText: string;
 }) {
   return (
-    <div className="bg-white/10 backdrop-blur-sm p-6 rounded-xl border border-white/20 text-center transition-all hover:bg-white/15">
-      <h3 className="text-xl font-bold mb-3 text-white">{title}</h3>
-      <p className="mb-6 text-blue-100">{description}</p>
-      <Link
-        href={link}
-        className="inline-flex items-center bg-white text-blue-700 font-medium py-2 px-6 rounded-lg hover:bg-gray-100 transition-colors"
-      >
-        <span>{linkText}</span>
-        <svg
-          className="ml-2 w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+    <div className="bg-white/10 backdrop-blur-sm rounded-xl overflow-hidden hover:bg-white/20 transition-all duration-300 flex flex-col h-full">
+      <div className="p-6 flex-grow">
+        <h3 className="text-xl font-bold mb-2 text-white">{title}</h3>
+        <p className="text-blue-100 mb-4">{description}</p>
+      </div>
+      <div className="px-6 pb-6">
+        <Link
+          href={link}
+          className="inline-flex items-center text-white hover:text-blue-100 font-medium"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M14 5l7 7m0 0l-7 7m7-7H3"
-          ></path>
-        </svg>
-      </Link>
+          {linkText} <span className="ml-2">→</span>
+        </Link>
+      </div>
     </div>
   );
 }

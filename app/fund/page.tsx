@@ -3,7 +3,6 @@
 import React from "react";
 import Link from "next/link";
 import { Header } from "../components/Header";
-import { Footer } from "../components/Footer";
 import { useState } from "react";
 import { FundCardDemo } from "../components/FundCardDemo";
 import { FundButtonFeature } from "../components/FundButtonFeature";
@@ -254,7 +253,6 @@ export default function FundPage() {
           </div>
         </section>
       </main>
-      <Footer />
     </div>
   );
 }
