@@ -228,7 +228,7 @@ export default function OfframpFeature() {
                   Estimated value: {selectedAsset}{" "}
                   {(
                     parseFloat(amount) /
-                      assets.find((a) => a.symbol === selectedAsset)?.price || 1
+                    (assets.find((a) => a.symbol === selectedAsset)?.price || 1)
                   ).toFixed(6)}
                 </p>
               </div>
