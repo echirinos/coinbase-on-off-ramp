@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import OnrampFeature from "../components/OnrampFeature";
@@ -77,11 +78,11 @@ export default function OnrampPage() {
             <div className="absolute top-20 left-10 w-[500px] h-[500px] bg-green-400 dark:bg-green-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
           </div>
 
-          <div className="container mx-auto px-4 py-24 relative z-10">
+          <div className="container mx-auto px-4 pt-28 pb-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 mb-6">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 mb-6">
                 <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                <span className="text-green-700 dark:text-green-300 text-sm font-medium">
+                <span className="text-green-700 dark:text-green-300 text-sm font-medium whitespace-nowrap">
                   Powered by Coinbase Developer Platform
                 </span>
               </div>
@@ -90,54 +91,64 @@ export default function OnrampPage() {
                 Coinbase Onramp
               </h1>
 
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed">
                 The easiest way to bring users onchain with a simple
                 fiat-to-crypto experience
               </p>
+
+              <Link
+                href="https://docs.cloud.coinbase.com/cdp/docs/coinbase-onramp-overview"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium mb-10"
+              >
+                View Documentation <span className="ml-2">→</span>
+              </Link>
             </div>
           </div>
         </section>
 
+        {/* Onramp Feature Component */}
         <OnrampFeature />
 
-        <section className="py-24 bg-gray-50 dark:bg-gray-800/50">
+        {/* FAQ Section */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center px-3 py-1 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-green-500 mr-2"></span>
-                  <span className="text-green-700 dark:text-green-300 text-sm font-medium">
-                    Common Questions
-                  </span>
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Frequently Asked Questions
-                </h2>
-                <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Everything you need to know about Coinbase Onramp integration
-                </p>
-              </div>
-
-              <div className="space-y-6">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
+                Frequently Asked Questions
+              </h2>
+              <div className="space-y-4">
+                <FaqItem
+                  question="What is Coinbase Onramp?"
+                  answer="Coinbase Onramp is a service that allows users to purchase crypto with fiat currency directly within your application. It provides a seamless experience for users to convert their traditional currency to cryptocurrency."
+                />
+                <FaqItem
+                  question="Which countries are supported?"
+                  answer="Coinbase Onramp is available in 90+ countries worldwide. The specific payment methods available may vary by region."
+                />
                 <FaqItem
                   question="What payment methods are supported?"
-                  answer="Coinbase Onramp supports various payment methods including debit cards, bank transfers (ACH), Apple Pay, and Coinbase accounts. Available methods may vary by region."
+                  answer="Coinbase Onramp supports various payment methods including debit/credit cards, bank transfers (ACH), Apple Pay, and more depending on your region."
                 />
-
                 <FaqItem
-                  question="How do I integrate Coinbase Onramp?"
-                  answer="Integration is simple with our SDK components like FundButton and FundCard, or by generating custom URLs. Check out our documentation for detailed implementation guides."
+                  question="How long do transactions take?"
+                  answer="Transaction times vary based on the payment method. Card payments are typically faster (minutes), while bank transfers may take 1-3 business days."
                 />
-
                 <FaqItem
-                  question="What cryptocurrencies can users purchase?"
-                  answer="Users can purchase a wide range of cryptocurrencies including ETH, BTC, USDC, SOL, and many more. The available assets may vary by region and payment method."
+                  question="Are there any fees?"
+                  answer="Yes, Coinbase charges a fee for each transaction. The fee structure varies based on payment method, region, and transaction amount."
                 />
-
-                <FaqItem
-                  question="Is KYC required for users?"
-                  answer="Yes, users will need to complete Coinbase's KYC process to use the Onramp service, ensuring compliance with regulatory requirements."
-                />
+              </div>
+              <div className="mt-8 text-center">
+                <Link
+                  href="https://docs.cloud.coinbase.com/cdp/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                >
+                  View CDP Documentation →
+                </Link>
               </div>
             </div>
           </div>
@@ -149,32 +160,39 @@ export default function OnrampPage() {
 }
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 hover:border-green-200 dark:hover:border-green-800 transition-all hover:shadow-lg">
-      <div className="flex items-start">
-        <div className="flex-shrink-0 mt-1">
-          <svg
-            className="w-5 h-5 text-green-500"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            ></path>
-          </svg>
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <button
+        className="flex justify-between items-center w-full p-4 text-left bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium text-gray-900 dark:text-white">
+          {question}
+        </span>
+        <svg
+          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+          {answer}
         </div>
-        <div className="ml-3 flex-1">
-          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-            {question}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-            {answer}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

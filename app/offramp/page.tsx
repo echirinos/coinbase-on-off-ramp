@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import OfframpFeature from "../components/OfframpFeature";
@@ -77,11 +78,11 @@ export default function OfframpPage() {
             <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-blue-400 dark:bg-blue-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
           </div>
 
-          <div className="container mx-auto px-4 py-24 relative z-10">
+          <div className="container mx-auto px-4 pt-28 pb-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-6">
                 <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
+                <span className="text-blue-700 dark:text-blue-300 text-sm font-medium whitespace-nowrap">
                   Powered by Coinbase Developer Platform
                 </span>
               </div>
@@ -90,65 +91,64 @@ export default function OfframpPage() {
                 Coinbase Offramp
               </h1>
 
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-4 max-w-3xl mx-auto leading-relaxed">
                 Convert crypto back to fiat with Coinbase Offramp - the easiest
-                way to cash out. Seamlessly move from crypto to fiat with just a
-                few clicks.
+                way to cash out.
               </p>
+
+              <Link
+                href="https://docs.cloud.coinbase.com/cdp/docs/coinbase-offramp-overview"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium mb-10"
+              >
+                View Documentation <span className="ml-2">→</span>
+              </Link>
             </div>
           </div>
         </section>
 
+        {/* Offramp Feature Component */}
         <OfframpFeature />
 
-        <section className="py-24 bg-gray-50 dark:bg-gray-800/50">
+        {/* FAQ Section */}
+        <section className="py-16 bg-gray-50 dark:bg-gray-900">
           <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 mb-4">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
-                  <span className="text-blue-700 dark:text-blue-300 text-sm font-medium">
-                    Common Questions
-                  </span>
-                </div>
-                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                  Frequently Asked Questions
-                </h2>
-                <p className="mt-4 text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                  Everything you need to know about Coinbase Offramp integration
-                </p>
-              </div>
-
-              <div className="space-y-6">
+            <div className="max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
+                Frequently Asked Questions
+              </h2>
+              <div className="space-y-4">
                 <FaqItem
                   question="What is Coinbase Offramp?"
-                  answer="Coinbase Offramp is a service that allows users to convert cryptocurrency to fiat currency (like USD) directly within your application. It provides a seamless way for users to cash out their crypto holdings without leaving your platform."
+                  answer="Coinbase Offramp is a service that allows users to convert their cryptocurrency back to fiat currency directly within your application. It provides a seamless experience for users to cash out their crypto assets."
                 />
-
                 <FaqItem
-                  question="Do users need a Coinbase account?"
-                  answer="Yes, users need a Coinbase account to use Offramp. This is required to process the conversion from crypto to fiat and to deposit the funds into their account or bank."
+                  question="Which countries are supported?"
+                  answer="Coinbase Offramp is available in select countries worldwide. The specific cashout methods available may vary by region."
                 />
-
                 <FaqItem
-                  question="Which cashout methods are supported?"
-                  answer="Coinbase Offramp supports various cashout methods including bank accounts (ACH in the US), PayPal (in supported countries), and Coinbase fiat wallets. The available methods vary by country."
+                  question="What cashout methods are supported?"
+                  answer="Coinbase Offramp supports various cashout methods including bank transfers (ACH), PayPal, and direct transfers to Coinbase accounts, depending on your region."
                 />
-
                 <FaqItem
-                  question="Which cryptocurrencies can users sell?"
-                  answer="Coinbase Offramp supports a wide range of cryptocurrencies including ETH, BTC, USDC, SOL, and many more. The available assets can be filtered based on your application's needs."
+                  question="How long do transactions take?"
+                  answer="Transaction times vary based on the cashout method. Transfers to Coinbase accounts are typically instant, while bank transfers may take 1-3 business days."
                 />
-
                 <FaqItem
-                  question="How do I integrate Coinbase Offramp?"
-                  answer="You can integrate Coinbase Offramp by generating Offramp URLs with the appropriate parameters and handling the redirect flow. Our demo showcases this approach with detailed implementation examples."
+                  question="Are there any fees?"
+                  answer="Yes, Coinbase charges a fee for each transaction. The fee structure varies based on cashout method, region, and transaction amount."
                 />
-
-                <FaqItem
-                  question="What happens if the price changes during the transaction?"
-                  answer="If after the onchain send, the price of the asset falls below the 'Receive at least' amount in a user's transaction, Coinbase will cancel the transaction and deposit the full crypto amount in the user's Coinbase account."
-                />
+              </div>
+              <div className="mt-8 text-center">
+                <Link
+                  href="https://docs.cloud.coinbase.com/cdp/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                >
+                  View CDP Documentation →
+                </Link>
               </div>
             </div>
           </div>
@@ -160,32 +160,39 @@ export default function OfframpPage() {
 }
 
 function FaqItem({ question, answer }: { question: string; answer: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="bg-white dark:bg-gray-700 p-6 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 hover:border-blue-200 dark:hover:border-blue-800 transition-all hover:shadow-lg">
-      <div className="flex items-start">
-        <div className="flex-shrink-0 mt-1">
-          <svg
-            className="w-5 h-5 text-blue-500"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              fillRule="evenodd"
-              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-              clipRule="evenodd"
-            ></path>
-          </svg>
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+      <button
+        className="flex justify-between items-center w-full p-4 text-left bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="font-medium text-gray-900 dark:text-white">
+          {question}
+        </span>
+        <svg
+          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M19 9l-7 7-7-7"
+          ></path>
+        </svg>
+      </button>
+      {isOpen && (
+        <div className="p-4 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300">
+          {answer}
         </div>
-        <div className="ml-3 flex-1">
-          <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white">
-            {question}
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-            {answer}
-          </p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }
