@@ -91,7 +91,6 @@ export function SimpleFundCard() {
         headerText="Purchase Ethereum"
         buttonText="Purchase"
         presetAmountInputs={["10", "20", "50"]}
-        cdpProjectId={cdpProjectId}
       />
     </div>
   );
