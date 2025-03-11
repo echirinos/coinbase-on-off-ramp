@@ -48,25 +48,86 @@ export default function Hero() {
               The seamless bridge between fiat and crypto for your applications
             </p>
 
-            <div className="flex flex-col md:flex-row justify-center gap-4 mb-16">
-              <Link
-                href="/onramp"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-lg hover:shadow-xl text-lg"
-              >
-                Try Onramp
-              </Link>
-              <Link
-                href="/offramp"
-                className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg text-lg"
-              >
-                Try Offramp
-              </Link>
-              <Link
-                href="/compare"
-                className="bg-white dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg text-lg"
-              >
-                Compare Features
-              </Link>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    Onramp
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Convert fiat to crypto and bring users onchain with Coinbase
+                    Onramp.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    href="/onramp"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium inline-flex items-center border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    Explore Onramp <span className="ml-2">→</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    Offramp
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Convert crypto back to fiat with Coinbase Offramp - the
+                    easiest way to cash out.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    href="/offramp"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium inline-flex items-center border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    Explore Offramp <span className="ml-2">→</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    Fund
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    Enable users to fund your project with crypto using
+                    Coinbase's Fund Button and Fund Card components.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    href="/fund"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium inline-flex items-center border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    Explore Fund <span className="ml-2">→</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md hover:shadow-lg transition-all border border-gray-100 dark:border-gray-700 flex flex-col h-full">
+                <div className="flex-grow">
+                  <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-white">
+                    Compare
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    See how our features work together and choose the right
+                    solution for your needs.
+                  </p>
+                </div>
+                <div className="mt-6">
+                  <Link
+                    href="/compare"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium inline-flex items-center border border-blue-300 dark:border-blue-600 rounded-lg px-4 py-2 transition-all hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                  >
+                    Explore Compare <span className="ml-2">→</span>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -256,72 +317,6 @@ export default function Hero() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Feature cards with modern design */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <FeatureCard
-              title="Easy Onboarding"
-              description="Bring users onchain with a simple fiat-to-crypto experience that integrates seamlessly with your application."
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              }
-            />
-
-            <FeatureCard
-              title="Cash Out Crypto"
-              description="Allow users to convert crypto back to fiat seamlessly with multiple cashout options and competitive rates."
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                  />
-                </svg>
-              }
-            />
-
-            <FeatureCard
-              title="Global Support"
-              description="Available in 90+ countries with multiple payment methods to reach users worldwide."
-              icon={
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-blue-500"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              }
-            />
           </div>
         </div>
       </div>
