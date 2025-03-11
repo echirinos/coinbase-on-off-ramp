@@ -2,7 +2,23 @@
 
 import React, { useState, useEffect } from "react";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
-import { ChevronDown } from "lucide-react";
+
+// Custom ChevronDown component instead of importing from lucide-react
+const ChevronDown = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
 
 export function FundButtonFeature() {
   const [buttonText, setButtonText] = useState("Fund Project");
@@ -61,7 +77,7 @@ export function FundButtonFeature() {
                   className="flex items-center justify-between w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <span>{selectedAsset}</span>
-                  <ChevronDown className="h-5 w-5 text-gray-400" />
+                  <ChevronDown />
                 </button>
                 {isAssetDropdownOpen && (
                   <div className="absolute z-10 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
