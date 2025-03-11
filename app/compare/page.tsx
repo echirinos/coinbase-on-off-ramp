@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 import CompareFeature from "../components/CompareFeature";
 
 export default function ComparePage() {
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const toggleFaq = (index: number) => {
+    if (openFaq === index) {
+      setOpenFaq(null);
+    } else {
+      setOpenFaq(index);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -15,7 +25,7 @@ export default function ComparePage() {
         <section className="relative overflow-hidden">
           {/* Modern gradient background */}
           <div className="absolute inset-0 bg-[#fafafa] dark:bg-[#111] z-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-blue-50 dark:from-purple-900/30 dark:via-[#131313] dark:to-blue-900/30 opacity-80"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-50 dark:from-indigo-900/30 dark:via-[#131313] dark:to-indigo-900/30 opacity-80"></div>
 
             {/* Subtle grid pattern */}
             <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiNmMWYxZjEiIGQ9Ik0zNiAxOGgtMnYyaDJ6TTQwIDE4aC0ydjJoMnpNNDQgMThoLTJ2Mmgyek0zNCAxNmgtMnYyaDJ6TTM4IDE2aC0ydjJoMnpNNDIgMTZoLTJ2Mmgyek0zMCAxNmgtMnYyaDJ6TTI2IDE2aC0ydjJoMnpNMjIgMTZoLTJ2Mmgyek0xOCAxNmgtMnYyaDJ6TDE0IDE2aC0ydjJoMnpNMTAgMTZIOHYyaDJ6TTYgMTZINHYyaDJ6Ii8+PC9nPjwvc3ZnPg==')] opacity-[0.15] dark:opacity-[0.05]"></div>
@@ -23,33 +33,31 @@ export default function ComparePage() {
 
           {/* Subtle gradient orb */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-1/2 transform -translate-x-1/2 w-[600px] h-[600px] bg-purple-400 dark:bg-purple-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
+            <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-indigo-400 dark:bg-indigo-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
           </div>
 
           <div className="container mx-auto px-4 pt-28 pb-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-800 mb-6">
-                <span className="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
-                <span className="text-purple-700 dark:text-purple-300 text-sm font-medium whitespace-nowrap">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 mb-6">
+                <span className="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
+                <span className="text-indigo-700 dark:text-indigo-300 text-sm font-medium whitespace-nowrap">
                   Powered by Coinbase Developer Platform
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 dark:from-purple-400 dark:via-blue-400 dark:to-purple-400 tracking-tight">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 tracking-tight">
                 Compare Onramp, Offramp & Fund
               </h1>
 
               <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-                Understand the differences and use cases for Coinbase Onramp,
-                Offramp, and Fund solutions. See how they work together to
-                provide a complete crypto experience.
+                Choose the right solution for your application by comparing features and capabilities of Coinbase's Onramp, Offramp, and Fund products.
               </p>
 
               <Link
-                href="https://docs.cloud.coinbase.com/cdp/docs"
+                href="https://docs.cdp.coinbase.com/onramp/docs/welcome"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium mb-10"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium mb-10"
               >
                 View Documentation <span className="ml-2">→</span>
               </Link>
@@ -57,112 +65,68 @@ export default function ComparePage() {
           </div>
         </section>
 
-        {/* Comparison Table Section */}
+        {/* Feature Comparison Section */}
         <section className="py-16 bg-white dark:bg-gray-900">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
               <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
                   <thead>
-                    <tr className="bg-gray-100 dark:bg-gray-800">
-                      <th className="p-4 text-left font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">
-                        Feature
-                      </th>
-                      <th className="p-4 text-center font-bold text-green-700 dark:text-green-400 border border-gray-200 dark:border-gray-700">
-                        Onramp
-                      </th>
-                      <th className="p-4 text-center font-bold text-blue-700 dark:text-blue-400 border border-gray-200 dark:border-gray-700">
-                        Offramp
-                      </th>
-                      <th className="p-4 text-center font-bold text-amber-700 dark:text-amber-400 border border-gray-200 dark:border-gray-700">
-                        Fund
-                      </th>
+                    <tr className="bg-gray-50 dark:bg-gray-700">
+                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Feature</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">Onramp</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wider">Offramp</th>
+                      <th className="px-6 py-4 text-center text-sm font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">Fund</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <FeatureRowWithFund
-                      feature="Direction"
-                      onramp="Fiat → Crypto"
-                      offramp="Crypto → Fiat"
-                      fund="Fiat → Crypto"
-                    />
+                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     <FeatureRowWithFund
                       feature="Primary Use Case"
-                      onramp="Bringing users onchain"
-                      offramp="Cashing out crypto"
-                      fund="Funding projects/dApps"
+                      onramp="Convert fiat to crypto"
+                      offramp="Convert crypto to fiat"
+                      fund="Fund dApps and projects with crypto"
+                    />
+                    <FeatureRowWithFund
+                      feature="Integration Complexity"
+                      onramp="Low"
+                      offramp="Low"
+                      fund="Very Low"
+                    />
+                    <FeatureRowWithFund
+                      feature="User Experience"
+                      onramp="Embedded in your app"
+                      offramp="Embedded in your app"
+                      fund="Button or card in your app"
                     />
                     <FeatureRowWithFund
                       feature="Payment Methods"
-                      onramp="Debit/Credit Cards, Bank Transfers, Apple Pay, Coinbase Account"
-                      offramp="Bank Account (ACH), PayPal, Coinbase Account"
-                      fund="Debit/Credit Cards, Bank Transfers, Apple Pay, Coinbase Account"
+                      onramp="Credit/debit cards, bank transfers"
+                      offramp="Bank transfers"
+                      fund="Crypto wallets"
                     />
                     <FeatureRowWithFund
-                      feature="Guest Checkout"
-                      onramp="Yes (US only)"
-                      offramp="No (Coinbase account required)"
-                      fund="Yes (US only)"
+                      feature="Supported Assets"
+                      onramp="25+ cryptocurrencies"
+                      offramp="25+ cryptocurrencies"
+                      fund="ETH, USDC, MATIC, AVAX, ARB, OP"
                     />
                     <FeatureRowWithFund
-                      feature="Supported Countries"
-                      onramp="90+ countries"
-                      offramp="Available in most Coinbase-supported countries"
-                      fund="90+ countries"
+                      feature="Geographic Availability"
+                      onramp="100+ countries"
+                      offramp="30+ countries"
+                      fund="Global"
                     />
                     <FeatureRowWithFund
-                      feature="Transaction Limits"
-                      onramp="Varies by payment method and country"
-                      offramp="Varies by cashout method and country"
-                      fund="Varies by payment method and country"
-                    />
-                    <FeatureRowWithFund
-                      feature="Implementation"
-                      onramp="URL generation or React components"
-                      offramp="URL generation with redirect handling"
-                      fund="Pre-built React components (Fund Button, Fund Card)"
-                    />
-                    <FeatureRowWithFund
-                      feature="Transaction Flow"
-                      onramp="Select asset → Pay → Receive crypto"
-                      offramp="Select asset → Confirm → Send crypto → Receive fiat"
-                      fund="Select amount → Pay → Fund project"
-                    />
-                    <FeatureRowWithFund
-                      feature="Transaction Status API"
+                      feature="KYC Requirements"
                       onramp="Yes"
                       offramp="Yes"
-                      fund="Yes"
+                      fund="No"
                     />
                     <FeatureRowWithFund
-                      feature="SDK Support"
-                      onramp="OnchainKit, REST API"
-                      offramp="REST API"
-                      fund="OnchainKit, REST API"
-                    />
-                    <FeatureRowWithFund
-                      feature="Price Protection"
-                      onramp="Price locked at time of quote"
-                      offramp="Transaction cancelled if price drops below minimum"
-                      fund="Price locked at time of quote"
-                    />
-                    <FeatureRowWithFund
-                      feature="Network Support"
-                      onramp="Multiple networks per asset (L2 support)"
-                      offramp="Multiple networks per asset (L2 support)"
-                      fund="Multiple networks per asset (L2 support)"
-                    />
-                    <FeatureRowWithFund
-                      feature="Fee Structure"
-                      onramp="Spread + Coinbase fee + Network fee (0% for USDC)"
-                      offramp="Spread + Coinbase fee"
-                      fund="Spread + Coinbase fee + Network fee (0% for USDC)"
-                    />
-                    <FeatureRowWithFund
-                      feature="UI Components"
-                      onramp="Custom or pre-built"
-                      offramp="Custom only"
-                      fund="Pre-built (Fund Button, Fund Card)"
+                      feature="Wallet Connection"
+                      onramp="Optional"
+                      offramp="Required"
+                      fund="Required"
                     />
                   </tbody>
                 </table>
@@ -172,47 +136,60 @@ export default function ComparePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 bg-white dark:bg-gray-900">
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-white">
-                Frequently Asked Questions
-              </h2>
+              <h2 className="text-3xl font-bold mb-10 text-center dark:text-white">Frequently Asked Questions</h2>
+
               <div className="space-y-4">
                 <FaqItem
-                  question="What's the main difference between Onramp, Offramp, and Fund?"
-                  answer="Onramp converts fiat currency to cryptocurrency, Offramp converts cryptocurrency back to fiat, and Fund provides pre-built components specifically designed for funding projects with crypto. Onramp and Fund bring users into the crypto ecosystem, while Offramp provides an exit path."
+                  question="What's the difference between Onramp, Offramp, and Fund?"
+                  answer="Onramp allows users to convert fiat currency to cryptocurrency, Offramp enables users to convert cryptocurrency back to fiat, and Fund provides a simple way for users to fund dApps and projects with cryptocurrency directly from their wallet."
+                  isOpen={openFaq === 0}
+                  onClick={() => toggleFaq(0)}
                 />
 
                 <FaqItem
-                  question="Can I implement all three in my application?"
-                  answer="Yes, you can implement Onramp, Offramp, and Fund to provide a complete solution for your users. This gives them the ability to purchase crypto, fund your project, and cash out when needed, all within your application."
+                  question="Do I need to implement all three solutions?"
+                  answer="No, you can implement any combination of Onramp, Offramp, and Fund based on your application's needs. Each solution serves a different purpose and can be integrated independently."
+                  isOpen={openFaq === 1}
+                  onClick={() => toggleFaq(1)}
                 />
 
                 <FaqItem
-                  question="Which one should I implement first?"
-                  answer="It depends on your application's needs. If your primary goal is to help users acquire crypto, start with Onramp. If you need to collect payments for your project, start with Fund. If your users already have crypto and need a way to cash out, start with Offramp."
+                  question="What are the integration requirements?"
+                  answer="Onramp and Offramp require a Coinbase Developer Platform account and API keys. Fund integration is even simpler, requiring just a few lines of code using OnchainKit. All solutions offer SDKs and detailed documentation to make integration straightforward."
+                  isOpen={openFaq === 2}
+                  onClick={() => toggleFaq(2)}
                 />
 
                 <FaqItem
-                  question="What's the difference between Fund and Onramp?"
-                  answer="While both Fund and Onramp allow users to convert fiat to crypto, Fund is specifically designed for collecting payments with pre-built UI components (Fund Button and Fund Card). Onramp is more general-purpose and can be implemented with custom UI or pre-built components."
-                />
-
-                <FaqItem
-                  question="Are there different integration requirements?"
-                  answer="Yes. Onramp can be integrated using OnchainKit React components or by generating URLs. Offramp requires URL generation and handling the redirect flow. Fund provides pre-built React components through OnchainKit. All three use similar API patterns but have different implementation details."
+                  question="Do users need a Coinbase account?"
+                  answer="For Onramp and Offramp, users don't need a pre-existing Coinbase account, but they will need to complete KYC verification during the process. For Fund, users only need a connected crypto wallet."
+                  isOpen={openFaq === 3}
+                  onClick={() => toggleFaq(3)}
                 />
               </div>
-              <div className="mt-8 text-center">
+
+              <div className="mt-12 text-center">
                 <Link
-                  href="https://docs.cloud.coinbase.com/cdp/docs"
+                  href="https://docs.cdp.coinbase.com/onramp/docs/welcome"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                  className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
                 >
-                  View CDP Documentation →
+                  Explore Onramp/Offramp Documentation <span className="ml-2">→</span>
                 </Link>
+                <div className="mt-4">
+                  <Link
+                    href="https://docs.base.org/builderkits/onchainkit"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
+                  >
+                    Explore OnchainKit Documentation <span className="ml-2">→</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -223,65 +200,39 @@ export default function ComparePage() {
   );
 }
 
-function FaqItem({ question, answer }: { question: string; answer: string }) {
-  const [isOpen, setIsOpen] = useState(false);
-
+function FaqItem({ question, answer, isOpen, onClick }: { question: string; answer: string; isOpen: boolean; onClick: () => void }) {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden mb-4">
+    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
       <button
-        className="flex justify-between items-center w-full p-5 text-left bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-        onClick={() => setIsOpen(!isOpen)}
+        className="flex justify-between items-center w-full px-6 py-4 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none"
+        onClick={onClick}
       >
-        <span className="font-medium text-gray-900 dark:text-white">
-          {question}
-        </span>
+        <span className="font-medium text-gray-900 dark:text-white">{question}</span>
         <svg
-          className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
+          className={`w-5 h-5 text-gray-500 transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
-          stroke="currentColor"
           viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+          stroke="currentColor"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M19 9l-7 7-7-7"
-          ></path>
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
-      {isOpen && <div className="p-5 bg-gray-700 text-white">{answer}</div>}
+      {isOpen && (
+        <div className="px-6 py-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-gray-600 dark:text-gray-300">{answer}</p>
+        </div>
+      )}
     </div>
   );
 }
 
-function FeatureRowWithFund({
-  feature,
-  onramp,
-  offramp,
-  fund,
-}: {
-  feature: string;
-  onramp: string;
-  offramp: string;
-  fund: string;
-}) {
+function FeatureRowWithFund({ feature, onramp, offramp, fund }: { feature: string; onramp: string; offramp: string; fund: string }) {
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-      <td className="p-4 font-medium text-gray-900 dark:text-white border-r border-gray-200 dark:border-gray-700">
-        {feature}
-      </td>
-      <td className="p-4 text-center text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-        {onramp}
-      </td>
-      <td className="p-4 text-center text-gray-700 dark:text-gray-300 border-r border-gray-200 dark:border-gray-700">
-        {offramp}
-      </td>
-      <td className="p-4 text-center text-gray-700 dark:text-gray-300">
-        {fund}
-      </td>
+    <tr className="hover:bg-gray-50 dark:hover:bg-gray-750">
+      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{feature}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{onramp}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{offramp}</td>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">{fund}</td>
     </tr>
   );
 }

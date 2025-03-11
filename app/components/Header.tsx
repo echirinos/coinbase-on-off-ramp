@@ -69,18 +69,18 @@ export function Header() {
               Offramp
             </NavLink>
             <NavLink
-              href="/compare"
-              isActive={pathname === "/compare"}
-              isScrolled={isScrolled}
-            >
-              Compare
-            </NavLink>
-            <NavLink
               href="/fund"
               isActive={pathname === "/fund"}
               isScrolled={isScrolled}
             >
               Fund
+            </NavLink>
+            <NavLink
+              href="/compare"
+              isActive={pathname === "/compare"}
+              isScrolled={isScrolled}
+            >
+              Compare
             </NavLink>
             <div className="ml-4">
               <WalletDefault />
@@ -153,18 +153,18 @@ export function Header() {
               Offramp
             </MobileNavLink>
             <MobileNavLink
-              href="/compare"
-              isActive={pathname === "/compare"}
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Compare
-            </MobileNavLink>
-            <MobileNavLink
               href="/fund"
               isActive={pathname === "/fund"}
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Fund
+            </MobileNavLink>
+            <MobileNavLink
+              href="/compare"
+              isActive={pathname === "/compare"}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Compare
             </MobileNavLink>
             <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
               <WalletDefault />
