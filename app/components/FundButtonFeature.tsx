@@ -31,7 +31,8 @@ export function FundButtonFeature() {
   const [hideIcon, setHideIcon] = useState(false);
   const [hideText, setHideText] = useState(false);
   const [openIn, setOpenIn] = useState<"popup" | "tab">("popup");
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const [cdpProjectId, setCdpProjectId] = useState("");
 
   const supportedAssets = [
     { symbol: "ETH", name: "Ethereum" },
@@ -43,11 +44,31 @@ export function FundButtonFeature() {
   ];
 
   useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    // Fetch the configuration from our secure API endpoint
+    const fetchConfig = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/auth", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            setCdpProjectId(data.config.cdpProjectId || "");
+          }
+        }
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Failed to fetch configuration:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchConfig();
   }, []);
 
   const handleAssetSelect = (asset: string) => {
@@ -61,10 +82,10 @@ export function FundButtonFeature() {
 
   // Generate custom onramp URL based on selected options
   const getCustomOnrampUrl = () => {
-    if (!address) return undefined;
+    if (!address || !cdpProjectId) return undefined;
 
     return getOnrampBuyUrl({
-      projectId: process.env.CDP_PROJECT_ID || "",
+      projectId: cdpProjectId,
       addresses: { [address]: ["base"] },
       assets: [selectedAsset],
       presetFiatAmount: 20,
@@ -199,19 +220,34 @@ export function FundButtonFeature() {
             </div>
           ) : (
             <div className="text-center">
-              <FundButton
-                text={hideText ? undefined : buttonText}
-                hideIcon={hideIcon}
-                hideText={hideText}
-                openIn={openIn}
-                fundingUrl={getCustomOnrampUrl()}
-              />
+              {isConnected ? (
+                <FundButton
+                  text={hideText ? undefined : buttonText}
+                  hideIcon={hideIcon}
+                  hideText={hideText}
+                  openIn={openIn}
+                  fundingUrl={getCustomOnrampUrl()}
+                />
+              ) : (
+                <div className="text-amber-600 dark:text-amber-400 text-sm">
+                  Please connect your wallet to use the Fund Button
+                </div>
+              )}
               <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
                 A simple button that opens the Coinbase Fund flow
               </p>
               <p className="text-amber-600 dark:text-amber-400 text-xs mt-2">
                 Wallet connection required to use
               </p>
+              {cdpProjectId ? (
+                <p className="text-green-600 dark:text-green-400 text-xs mt-2">
+                  CDP Project ID loaded successfully
+                </p>
+              ) : (
+                <p className="text-red-600 dark:text-red-400 text-xs mt-2">
+                  CDP Project ID not loaded
+                </p>
+              )}
             </div>
           )}
         </div>
