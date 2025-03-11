@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     });
 
     // For Vercel deployment, make sure these environment variables are set
+    // Using the correct variable names according to the documentation
     const walletConnectProjectId = process.env.WALLETCONNECT_PROJECT_ID || '';
     const onchainKitApiKey = process.env.ONCHAINKIT_API_KEY || '';
     const cdpProjectId = process.env.CDP_PROJECT_ID || '';

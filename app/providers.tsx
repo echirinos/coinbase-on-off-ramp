@@ -80,7 +80,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <CoinbaseRampTransactionProvider>
       <OnchainKitProvider
         chain={base}
-        projectId={config.cdpProjectId}
+        projectId={config.projectId}
         apiKey={config.apiKey}
         config={{
           appearance: {

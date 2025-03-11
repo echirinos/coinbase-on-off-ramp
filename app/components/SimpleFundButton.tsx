@@ -116,7 +116,10 @@ export function SimpleFundButton() {
         <FundButton text="Fund Now" fundingUrl={getFundingUrl()} />
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded"
-          onClick={() => window.open(getFundingUrl(), "_blank")}
+          onClick={() => {
+            const url = getFundingUrl();
+            if (url) window.open(url, "_blank");
+          }}
         >
           Open Funding URL Directly
         </button>
