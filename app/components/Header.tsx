@@ -82,6 +82,7 @@ export function Header() {
             >
               Compare
             </NavLink>
+
             <div className="ml-4">
               <WalletDefault />
             </div>
@@ -166,6 +167,7 @@ export function Header() {
             >
               Compare
             </MobileNavLink>
+
             <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
               <WalletDefault />
             </div>

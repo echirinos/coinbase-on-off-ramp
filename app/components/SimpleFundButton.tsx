@@ -8,46 +8,17 @@ export function SimpleFundButton() {
   const { address, isConnected, chainId } = useAccount();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [cdpProjectId, setCdpProjectId] = useState("");
+
+  // Access CDP Project ID directly from environment variables
+  // For client components, we need to use NEXT_PUBLIC_ prefix
+  const cdpProjectId = process.env.NEXT_PUBLIC_CDP_PROJECT_ID || "";
 
   useEffect(() => {
-    // Fetch the CDP Project ID from the API
-    const fetchCdpProjectId = async () => {
-      try {
-        setIsLoading(true);
-        console.log("Fetching CDP Project ID from API...");
-
-        const response = await fetch("/api/auth", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("API response received");
-
-          if (data.success && data.config.cdpProjectId) {
-            console.log("CDP Project ID fetched successfully");
-            setCdpProjectId(data.config.cdpProjectId);
-          } else {
-            console.error("CDP Project ID not found in API response");
-            setError("CDP Project ID not found");
-          }
-        } else {
-          console.error("API request failed with status:", response.status);
-          setError("Failed to fetch CDP Project ID");
-        }
-      } catch (err) {
-        console.error("Error fetching CDP Project ID:", err);
-        setError("Error fetching CDP Project ID");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchCdpProjectId();
+    // Simple loading simulation
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, []);
 
   const getFundingUrl = () => {
@@ -69,6 +40,7 @@ export function SimpleFundButton() {
         presetFiatAmount: 20,
         fiatCurrency: "USD",
       });
+
       console.log("Generated funding URL successfully");
       return url;
     } catch (err) {

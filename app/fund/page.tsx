@@ -5,14 +5,66 @@ import Link from "next/link";
 import { Header } from "../components/Header";
 import { useState } from "react";
 import { FundCardDemo } from "../components/FundCardDemo";
-import { FundButtonFeature } from "../components/FundButtonFeature";
+import { FundButton } from "../components/FundButton";
+import { SimpleFundCard } from "../components/SimpleFundCard";
 import { useCoinbaseRampTransaction } from "../contexts/CoinbaseRampTransactionContext";
 import { CustomIntegrationDemo } from "../components/CustomIntegrationDemo";
+import { useAccount } from "wagmi";
+import { FundCard } from "@coinbase/onchainkit/fund";
 
 export default function FundPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { selectedCountry, selectedSubdivision, selectedCurrency } =
     useCoinbaseRampTransaction();
+  const { isConnected } = useAccount();
+
+  // Fund Button configuration
+  const [hideIcon, setHideIcon] = useState(false);
+  const [hideText, setHideText] = useState(false);
+  const [openIn, setOpenIn] = useState<"popup" | "tab">("popup");
+  const [useCustomUrl, setUseCustomUrl] = useState(true);
+  const [presetAmount, setPresetAmount] = useState(20);
+  const [customText, setCustomText] = useState("Fund Project");
+
+  // Fund Card configuration
+  const [assetSymbol, setAssetSymbol] = useState("ETH");
+  const [country, setCountry] = useState("US");
+  const [currency, setCurrency] = useState("USD");
+  const [headerText, setHeaderText] = useState("Purchase Ethereum");
+  const [buttonText, setButtonText] = useState("Purchase");
+  const [showPresetAmounts, setShowPresetAmounts] = useState(true);
+  const [presetAmountInputs, setPresetAmountInputs] = useState<string[]>([
+    "10",
+    "20",
+    "50",
+  ]);
+
+  // Available assets
+  const assets = [
+    { symbol: "ETH", name: "Ethereum" },
+    { symbol: "USDC", name: "USD Coin" },
+    { symbol: "BTC", name: "Bitcoin" },
+    { symbol: "SOL", name: "Solana" },
+    { symbol: "MATIC", name: "Polygon" },
+  ];
+
+  // Available countries
+  const countries = [
+    { code: "US", name: "United States" },
+    { code: "GB", name: "United Kingdom" },
+    { code: "CA", name: "Canada" },
+    { code: "DE", name: "Germany" },
+    { code: "FR", name: "France" },
+  ];
+
+  // Available currencies
+  const currencies = [
+    { code: "USD", name: "US Dollar" },
+    { code: "GBP", name: "British Pound" },
+    { code: "EUR", name: "Euro" },
+    { code: "CAD", name: "Canadian Dollar" },
+    { code: "AUD", name: "Australian Dollar" },
+  ];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -76,71 +128,150 @@ export default function FundPage() {
         <section className="py-16 bg-white dark:bg-gray-900">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Fund Button
+                </h2>
+                <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  The Fund Button component provides a simple way for users to
+                  fund their wallet without leaving your app.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
-                  <h3 className="text-xl font-bold mb-6 dark:text-white">
-                    Configure Fund Button
+                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
+                    Configuration
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    The Fund Button allows your users to contribute funds to
-                    your dApp or project in a seamless manner.
-                  </p>
+
                   <div className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="asset"
-                          className="block text-gray-700 dark:text-gray-300 mb-2 font-medium"
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Custom Button Text
+                      </label>
+                      <input
+                        type="text"
+                        value={customText}
+                        onChange={(e) => setCustomText(e.target.value)}
+                        placeholder="Fund Project"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="hideIcon"
+                        checked={hideIcon}
+                        onChange={() => setHideIcon(!hideIcon)}
+                        className="w-5 h-5 mr-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="hideIcon"
+                        className="text-base text-gray-700 dark:text-gray-300"
+                      >
+                        Hide Icon
+                      </label>
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="hideText"
+                        checked={hideText}
+                        onChange={() => setHideText(!hideText)}
+                        className="w-5 h-5 mr-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="hideText"
+                        className="text-base text-gray-700 dark:text-gray-300"
+                      >
+                        Hide Text
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Open In
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={openIn}
+                          onChange={(e) =>
+                            setOpenIn(e.target.value as "popup" | "tab")
+                          }
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
-                          Select Asset
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {["ETH", "USDC", "MATIC", "AVAX", "ARB", "OP"].map(
-                            (assetOption) => (
-                              <button
-                                key={assetOption}
-                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
-                              >
-                                {assetOption}
-                              </button>
-                            )
-                          )}
+                          <option value="popup">Popup</option>
+                          <option value="tab">New Tab</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
                         </div>
                       </div>
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="button-text"
-                          className="block text-gray-700 dark:text-gray-300 mb-2 font-medium"
-                        >
-                          Button Text
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="useCustomUrl"
+                        checked={useCustomUrl}
+                        onChange={() => setUseCustomUrl(!useCustomUrl)}
+                        className="w-5 h-5 mr-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="useCustomUrl"
+                        className="text-base text-gray-700 dark:text-gray-300"
+                      >
+                        Use Custom Onramp URL
+                      </label>
+                    </div>
+
+                    {useCustomUrl && (
+                      <div>
+                        <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Preset Amount ($)
                         </label>
                         <input
-                          type="text"
-                          id="button-text"
-                          defaultValue="Fund Project"
-                          className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          type="number"
+                          value={presetAmount}
+                          onChange={(e) =>
+                            setPresetAmount(Number(e.target.value))
+                          }
+                          min="1"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
-                  <h3 className="text-xl font-bold mb-6 dark:text-white">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
                     Preview
                   </h3>
                   <div className="flex-grow flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4">
-                        Fund Project
-                      </div>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        A simple button that opens the Coinbase Fund flow
-                      </p>
-                      <p className="text-amber-600 dark:text-amber-400 text-xs mt-2">
-                        Wallet connection required to use
-                      </p>
-                    </div>
+                    <FundButton
+                      customText={customText || undefined}
+                      hideIcon={hideIcon}
+                      hideText={hideText}
+                      openIn={openIn}
+                      useCustomUrl={useCustomUrl}
+                      presetAmount={presetAmount}
+                    />
                   </div>
                 </div>
               </div>
@@ -149,62 +280,223 @@ export default function FundPage() {
         </section>
 
         {/* Fund Card Section */}
-        <section className="py-16 bg-white dark:bg-gray-900">
+        <section className="py-16 bg-gray-50 dark:bg-gray-800">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+                  Fund Card
+                </h2>
+                <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                  The Fund Card component provides a complete fiat onramp
+                  experience within your app, including amount input, payment
+                  method selection, and automatic exchange rate updates.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
-                  <h3 className="text-xl font-bold mb-6 dark:text-white">
-                    Configure Fund Card
+                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
+                    Configuration
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-6">
-                    The Fund Card provides a complete payment experience that
-                    enables users to fund your project with crypto.
-                  </p>
+
                   <div className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <label
-                          htmlFor="asset"
-                          className="block text-gray-700 dark:text-gray-300 mb-2 font-medium"
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Asset
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={assetSymbol}
+                          onChange={(e) => setAssetSymbol(e.target.value)}
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
-                          Select Asset
-                        </label>
-                        <select className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                          <option value="ETH">Ethereum (ETH)</option>
-                          <option value="USDC">USD Coin (USDC)</option>
-                          <option value="MATIC">Polygon (MATIC)</option>
-                          <option value="AVAX">Avalanche (AVAX)</option>
-                          <option value="ARB">Arbitrum (ARB)</option>
-                          <option value="OP">Optimism (OP)</option>
+                          {assets.map((asset) => (
+                            <option key={asset.symbol} value={asset.symbol}>
+                              {asset.name} ({asset.symbol})
+                            </option>
+                          ))}
                         </select>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
-                          Preset Amounts
-                        </label>
-                        <div className="flex space-x-2 mb-2">
-                          <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors">
-                            $10
-                          </button>
-                          <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors">
-                            $25
-                          </button>
-                          <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors">
-                            $50
-                          </button>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
                         </div>
                       </div>
                     </div>
+
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Country
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                        >
+                          {countries.map((country) => (
+                            <option key={country.code} value={country.code}>
+                              {country.name}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Currency
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={currency}
+                          onChange={(e) => setCurrency(e.target.value)}
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                        >
+                          {currencies.map((currency) => (
+                            <option key={currency.code} value={currency.code}>
+                              {currency.name} ({currency.code})
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                          <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                              d="M19 9l-7 7-7-7"
+                            ></path>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Header Text
+                      </label>
+                      <input
+                        type="text"
+                        value={headerText}
+                        onChange={(e) => setHeaderText(e.target.value)}
+                        placeholder="Purchase Ethereum"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Button Text
+                      </label>
+                      <input
+                        type="text"
+                        value={buttonText}
+                        onChange={(e) => setButtonText(e.target.value)}
+                        placeholder="Purchase"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+
+                    <div className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id="showPresetAmounts"
+                        checked={showPresetAmounts}
+                        onChange={() =>
+                          setShowPresetAmounts(!showPresetAmounts)
+                        }
+                        className="w-5 h-5 mr-3 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      />
+                      <label
+                        htmlFor="showPresetAmounts"
+                        className="text-base text-gray-700 dark:text-gray-300"
+                      >
+                        Show Preset Amounts
+                      </label>
+                    </div>
+
+                    {showPresetAmounts && (
+                      <div>
+                        <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Preset Amounts (comma separated)
+                        </label>
+                        <input
+                          type="text"
+                          value={presetAmountInputs.join(", ")}
+                          onChange={(e) => {
+                            const values = e.target.value
+                              .split(",")
+                              .map((v) => v.trim());
+                            setPresetAmountInputs(values);
+                          }}
+                          placeholder="10, 20, 50"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
-                  <h3 className="text-xl font-bold mb-6 dark:text-white">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
                     Preview
                   </h3>
                   <div className="flex-grow flex items-center justify-center">
-                    <FundCardDemo />
+                    {isConnected ? (
+                      <div className="w-full max-w-sm">
+                        <FundCard
+                          assetSymbol={assetSymbol}
+                          country={country}
+                          currency={currency}
+                          headerText={headerText}
+                          buttonText={buttonText}
+                          presetAmountInputs={
+                            showPresetAmounts
+                              ? (presetAmountInputs as any)
+                              : undefined
+                          }
+                        />
+                      </div>
+                    ) : (
+                      <div className="p-4 border rounded-lg bg-yellow-50 text-yellow-700">
+                        Please connect your wallet to use the Fund Card
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -213,7 +505,7 @@ export default function FundPage() {
         </section>
 
         {/* Documentation Section */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+        <section className="py-16 bg-white dark:bg-gray-900">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-6 dark:text-white">

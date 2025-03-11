@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAccount } from "wagmi";
 import { generateOfframpURL } from "../utils/rampUtils";
+import GeneratedLinkModal from "./GeneratedLinkModal";
 
 export default function OfframpFeature() {
   const { address, isConnected } = useAccount();
@@ -106,6 +107,15 @@ export default function OfframpFeature() {
     });
 
     window.open(url, "_blank");
+  };
+
+  const handleCopyUrl = () => {
+    navigator.clipboard.writeText(generatedUrl);
+    alert("URL copied to clipboard!");
+  };
+
+  const handleOpenUrl = () => {
+    window.open(generatedUrl, "_blank");
   };
 
   return (
@@ -350,94 +360,13 @@ export default function OfframpFeature() {
 
           {/* URL Modal */}
           {showUrlModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full shadow-2xl">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-bold dark:text-white">
-                    Generated Offramp URL
-                  </h3>
-                  <button
-                    onClick={() => setShowUrlModal(false)}
-                    className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M6 18L18 6M6 6l12 12"
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-gray-600 dark:text-gray-300 mb-2">
-                    Use this URL to redirect users to Coinbase Offramp:
-                  </p>
-                  <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded-lg overflow-x-auto">
-                    <code className="text-sm text-gray-800 dark:text-gray-200 whitespace-normal break-all">
-                      {generatedUrl}
-                    </code>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedUrl);
-                      alert("URL copied to clipboard!");
-                    }}
-                    className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 py-2 px-4 rounded-lg font-medium flex items-center justify-center"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
-                      ></path>
-                    </svg>
-                    Copy URL
-                  </button>
-                  <button
-                    onClick={() => {
-                      window.open(generatedUrl, "_blank");
-                      setShowUrlModal(false);
-                    }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium flex items-center justify-center"
-                  >
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                      ></path>
-                    </svg>
-                    Open URL
-                  </button>
-                </div>
-              </div>
-            </div>
+            <GeneratedLinkModal
+              title="Generated Offramp URL"
+              url={generatedUrl}
+              onClose={() => setShowUrlModal(false)}
+              onCopy={handleCopyUrl}
+              onOpen={handleOpenUrl}
+            />
           )}
         </div>
       </div>

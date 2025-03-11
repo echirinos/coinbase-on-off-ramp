@@ -28,12 +28,24 @@ export async function POST(request: NextRequest) {
     const cdpProjectId = process.env.CDP_PROJECT_ID || '';
 
     // Check if any of the required environment variables are missing
-    if (!walletConnectProjectId || !onchainKitApiKey || !cdpProjectId) {
-      console.warn("Some environment variables are missing:", {
-        walletConnectProjectId: !!walletConnectProjectId,
-        onchainKitApiKey: !!onchainKitApiKey,
-        cdpProjectId: !!cdpProjectId,
-      });
+    const missingVars = [];
+    if (!walletConnectProjectId) missingVars.push('WALLETCONNECT_PROJECT_ID');
+    if (!onchainKitApiKey) missingVars.push('ONCHAINKIT_API_KEY');
+    if (!cdpProjectId) missingVars.push('CDP_PROJECT_ID');
+
+    if (missingVars.length > 0) {
+      console.warn("Missing environment variables:", missingVars);
+
+      return NextResponse.json({
+        success: false,
+        error: `Missing required environment variables: ${missingVars.join(', ')}`,
+        missingVars,
+        config: {
+          walletConnectProjectId,
+          onchainKitApiKey,
+          cdpProjectId,
+        }
+      }, { status: 400 });
     }
 
     // For demo purposes, we're just returning the config
@@ -49,8 +61,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error in API route:", error);
     return NextResponse.json(
-      { success: false, error: 'Unauthorized' },
-      { status: 401 }
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
+      },
+      { status: 500 }
     );
   }
 }
