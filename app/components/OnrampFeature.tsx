@@ -132,8 +132,8 @@ export default function OnrampFeature() {
                   <button
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "api"
-                        ? "bg-gray-700 text-white"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("api")}
                   >
@@ -143,7 +143,7 @@ export default function OnrampFeature() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "url"
                         ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("url")}
                   >
@@ -168,14 +168,14 @@ export default function OnrampFeature() {
 
               {/* Asset Selection */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Select Asset
                 </label>
                 <div className="relative">
                   <select
                     value={selectedAsset}
                     onChange={(e) => setSelectedAsset(e.target.value)}
-                    className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {assets.map((asset) => (
                       <option key={asset.symbol} value={asset.symbol}>
@@ -183,7 +183,7 @@ export default function OnrampFeature() {
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
                       className="fill-current h-4 w-4"
                       xmlns="http://www.w3.org/2000/svg"
@@ -197,38 +197,38 @@ export default function OnrampFeature() {
 
               {/* Amount Input */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Amount
                 </label>
                 <div className="flex space-x-2 mb-2">
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("10")}
                   >
                     $10
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("25")}
                   >
                     $25
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("50")}
                   >
                     $50
                   </button>
                 </div>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-700">
                     $
                   </span>
                   <input
                     type="text"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-8 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 pl-8 pr-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter amount"
                   />
                 </div>
@@ -236,14 +236,14 @@ export default function OnrampFeature() {
 
               {/* Payment Method Selection */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Payment Method
                 </label>
                 <div className="relative">
                   <select
                     value={selectedPaymentMethod}
                     onChange={(e) => setSelectedPaymentMethod(e.target.value)}
-                    className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {paymentMethods.map((method) => (
                       <option key={method.id} value={method.id}>
@@ -251,7 +251,7 @@ export default function OnrampFeature() {
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
                       className="fill-current h-4 w-4"
                       xmlns="http://www.w3.org/2000/svg"
@@ -266,14 +266,12 @@ export default function OnrampFeature() {
               {/* Guest Checkout Toggle */}
               <div className="mb-8">
                 <div className="flex items-center justify-between">
-                  <label className="text-gray-700 dark:text-gray-300 font-medium">
+                  <label className="text-gray-700 font-medium">
                     Enable Guest Checkout
                   </label>
                   <div
                     className={`relative inline-block w-12 h-6 transition-colors duration-200 ease-in-out rounded-full ${
-                      enableGuestCheckout
-                        ? "bg-blue-600"
-                        : "bg-gray-400 dark:bg-gray-600"
+                      enableGuestCheckout ? "bg-blue-600" : "bg-gray-300"
                     }`}
                     onClick={() => setEnableGuestCheckout(!enableGuestCheckout)}
                   >
@@ -284,7 +282,7 @@ export default function OnrampFeature() {
                     ></span>
                   </div>
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-gray-500 mt-1">
                   Allow users to checkout without a Coinbase account
                 </p>
               </div>

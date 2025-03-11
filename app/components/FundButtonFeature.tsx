@@ -111,26 +111,26 @@ export function FundButtonFeature() {
             <div className="space-y-2">
               <label
                 htmlFor="asset"
-                className="block text-gray-700 dark:text-gray-300 mb-2 font-medium"
+                className="block text-gray-700 mb-2 font-medium"
               >
                 Select Asset
               </label>
               <div className="relative">
                 <button
                   onClick={() => setIsAssetDropdownOpen(!isAssetDropdownOpen)}
-                  className="flex items-center justify-between w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex items-center justify-between w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <span>{selectedAsset}</span>
                   <ChevronDown />
                 </button>
                 {isAssetDropdownOpen && (
-                  <div className="absolute z-10 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-lg">
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg">
                     <ul className="py-1 max-h-60 overflow-auto">
                       {supportedAssets.map((asset) => (
                         <li key={asset.symbol}>
                           <button
                             onClick={() => handleAssetSelect(asset.symbol)}
-                            className="w-full text-left px-4 py-2 text-white hover:bg-gray-600 focus:outline-none"
+                            className="w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-100 focus:outline-none"
                           >
                             {asset.name} ({asset.symbol})
                           </button>
@@ -144,7 +144,7 @@ export function FundButtonFeature() {
             <div className="space-y-2">
               <label
                 htmlFor="button-text"
-                className="block text-gray-700 dark:text-gray-300 mb-2 font-medium"
+                className="block text-gray-700 mb-2 font-medium"
               >
                 Button Text
               </label>
@@ -153,11 +153,11 @@ export function FundButtonFeature() {
                 id="button-text"
                 value={buttonText}
                 onChange={handleButtonTextChange}
-                className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
             <div className="space-y-2">
-              <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+              <label className="block text-gray-700 mb-2 font-medium">
                 Display Options
               </label>
               <div className="flex flex-wrap gap-2">
@@ -166,7 +166,7 @@ export function FundButtonFeature() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     hideIcon
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
+                      : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                   }`}
                 >
                   {hideIcon ? "Icon Hidden" : "Hide Icon"}
@@ -176,7 +176,7 @@ export function FundButtonFeature() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     hideText
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
+                      : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                   }`}
                 >
                   {hideText ? "Text Hidden" : "Hide Text"}
@@ -184,7 +184,7 @@ export function FundButtonFeature() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+              <label className="block text-gray-700 mb-2 font-medium">
                 Open In
               </label>
               <div className="flex flex-wrap gap-2">
@@ -193,7 +193,7 @@ export function FundButtonFeature() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     openIn === "popup"
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
+                      : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                   }`}
                 >
                   Popup
@@ -203,7 +203,7 @@ export function FundButtonFeature() {
                   className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                     openIn === "tab"
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
+                      : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                   }`}
                 >
                   New Tab

@@ -35,7 +35,8 @@ export function Providers({ children }: { children: ReactNode }) {
         config={{
           appearance: {
             name: projectName,
-            theme: "blue",
+            theme: "default",
+            mode: "light",
           },
         }}
       >

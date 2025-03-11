@@ -154,7 +154,7 @@ export default function FundPage() {
                         value={customText}
                         onChange={(e) => setCustomText(e.target.value)}
                         placeholder="Fund Project"
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
 
@@ -200,12 +200,12 @@ export default function FundPage() {
                           onChange={(e) =>
                             setOpenIn(e.target.value as "popup" | "tab")
                           }
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
                           <option value="popup">Popup</option>
                           <option value="tab">New Tab</option>
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -234,7 +234,7 @@ export default function FundPage() {
                       />
                       <label
                         htmlFor="useCustomUrl"
-                        className="text-base text-gray-700 dark:text-gray-300"
+                        className="text-base text-gray-700"
                       >
                         Use Custom Onramp URL
                       </label>
@@ -242,7 +242,7 @@ export default function FundPage() {
 
                     {useCustomUrl && (
                       <div>
-                        <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <label className="block text-base font-medium text-gray-700 mb-2">
                           Preset Amount ($)
                         </label>
                         <input
@@ -252,7 +252,7 @@ export default function FundPage() {
                             setPresetAmount(Number(e.target.value))
                           }
                           min="1"
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     )}
@@ -309,7 +309,7 @@ export default function FundPage() {
                         <select
                           value={assetSymbol}
                           onChange={(e) => setAssetSymbol(e.target.value)}
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
                           {assets.map((asset) => (
                             <option key={asset.symbol} value={asset.symbol}>
@@ -317,7 +317,7 @@ export default function FundPage() {
                             </option>
                           ))}
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -344,7 +344,7 @@ export default function FundPage() {
                         <select
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
                           {countries.map((country) => (
                             <option key={country.code} value={country.code}>
@@ -352,7 +352,7 @@ export default function FundPage() {
                             </option>
                           ))}
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -379,7 +379,7 @@ export default function FundPage() {
                         <select
                           value={currency}
                           onChange={(e) => setCurrency(e.target.value)}
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none pr-10"
                         >
                           {currencies.map((currency) => (
                             <option key={currency.code} value={currency.code}>
@@ -387,7 +387,7 @@ export default function FundPage() {
                             </option>
                           ))}
                         </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white">
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-700">
                           <svg
                             className="w-5 h-5"
                             fill="none"
@@ -415,7 +415,7 @@ export default function FundPage() {
                         value={headerText}
                         onChange={(e) => setHeaderText(e.target.value)}
                         placeholder="Purchase Ethereum"
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
 
@@ -428,7 +428,7 @@ export default function FundPage() {
                         value={buttonText}
                         onChange={(e) => setButtonText(e.target.value)}
                         placeholder="Purchase"
-                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
                     </div>
 
@@ -465,7 +465,7 @@ export default function FundPage() {
                             setPresetAmountInputs(values);
                           }}
                           placeholder="10, 20, 50"
-                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="block w-full px-4 py-3 rounded-lg border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     )}

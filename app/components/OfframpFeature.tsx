@@ -134,8 +134,8 @@ export default function OfframpFeature() {
                   <button
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "api"
-                        ? "bg-gray-700 text-white"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+                        ? "bg-blue-600 text-white"
+                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("api")}
                   >
@@ -145,7 +145,7 @@ export default function OfframpFeature() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "url"
                         ? "bg-blue-600 text-white"
-                        : "bg-white text-gray-800 border border-gray-300 hover:bg-gray-100"
+                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("url")}
                   >
@@ -170,14 +170,14 @@ export default function OfframpFeature() {
 
               {/* Asset Selection */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Select Asset
                 </label>
                 <div className="relative">
                   <select
                     value={selectedAsset}
                     onChange={(e) => setSelectedAsset(e.target.value)}
-                    className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {assets.map((asset) => (
                       <option key={asset.symbol} value={asset.symbol}>
@@ -185,7 +185,7 @@ export default function OfframpFeature() {
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
                       className="fill-current h-4 w-4"
                       xmlns="http://www.w3.org/2000/svg"
@@ -199,42 +199,42 @@ export default function OfframpFeature() {
 
               {/* Amount Input */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Amount
                 </label>
                 <div className="flex space-x-2 mb-2">
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("10")}
                   >
                     $10
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("25")}
                   >
                     $25
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("50")}
                   >
                     $50
                   </button>
                 </div>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-white">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-700">
                     $
                   </span>
                   <input
                     type="text"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-8 pr-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 pl-8 pr-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter amount"
                   />
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+                <p className="text-sm text-gray-500 mt-2">
                   Estimated value: {selectedAsset}{" "}
                   {(
                     parseFloat(amount) /
@@ -245,14 +245,14 @@ export default function OfframpFeature() {
 
               {/* Cashout Method Selection */}
               <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium">
+                <label className="block text-gray-700 mb-2 font-medium">
                   Cashout Method
                 </label>
                 <div className="relative">
                   <select
                     value={selectedCashoutMethod}
                     onChange={(e) => setSelectedCashoutMethod(e.target.value)}
-                    className="block w-full bg-gray-700 text-white border border-gray-600 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {cashoutMethods.map((method) => (
                       <option key={method.id} value={method.id}>
@@ -260,7 +260,7 @@ export default function OfframpFeature() {
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-white">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
                       className="fill-current h-4 w-4"
                       xmlns="http://www.w3.org/2000/svg"
@@ -307,17 +307,17 @@ export default function OfframpFeature() {
                     <div className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4">
                       Cash Out with Coinbase
                     </div>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    <p className="text-gray-600 text-sm">
                       A simple button that opens the Coinbase Offramp flow
                     </p>
                   </div>
                 ) : (
-                  <div className="w-full max-w-sm bg-gray-700 rounded-xl shadow-lg p-6 border border-gray-600">
+                  <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-6 border border-gray-300">
                     <div className="flex justify-between items-center mb-4">
-                      <h4 className="font-bold text-white">
+                      <h4 className="font-bold text-gray-800">
                         One-time Payment Link
                       </h4>
-                      <span className="text-blue-400">
+                      <span className="text-blue-600">
                         <svg
                           className="w-6 h-6"
                           fill="currentColor"
@@ -329,18 +329,18 @@ export default function OfframpFeature() {
                       </span>
                     </div>
                     <div className="mb-4">
-                      <div className="text-sm text-gray-400 mb-1">
+                      <div className="text-sm text-gray-500 mb-1">
                         You'll Receive
                       </div>
-                      <div className="text-2xl font-bold text-white">
+                      <div className="text-2xl font-bold text-gray-800">
                         ${estimatedUsdValue}
                       </div>
                     </div>
                     <div className="mb-4">
-                      <div className="text-sm text-gray-400 mb-1">
+                      <div className="text-sm text-gray-500 mb-1">
                         You'll Send
                       </div>
-                      <div className="flex items-center text-white">
+                      <div className="flex items-center text-gray-800">
                         {(
                           parseFloat(amount) /
                           (assets.find((a) => a.symbol === selectedAsset)
