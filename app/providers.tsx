@@ -12,11 +12,15 @@ export function Providers({ children }: { children: ReactNode }) {
     apiKey: "",
     cdpProjectId: "",
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Fetch the configuration from our secure API endpoint
     const fetchConfig = async () => {
       try {
+        setIsLoading(true);
+        console.log("Fetching configuration from API...");
+
         const response = await fetch("/api/auth", {
           method: "POST",
           headers: {
@@ -27,32 +31,50 @@ export function Providers({ children }: { children: ReactNode }) {
 
         if (response.ok) {
           const data = await response.json();
+          console.log("API response received:", data);
+
           if (data.success) {
+            // Log the configuration status without exposing actual values
             console.log("Config fetched successfully:", {
               projectId: data.config.walletConnectProjectId ? "Set" : "Not set",
               apiKey: data.config.onchainKitApiKey ? "Set" : "Not set",
               cdpProjectId: data.config.cdpProjectId ? "Set" : "Not set",
             });
+
             setConfig({
               projectId: data.config.walletConnectProjectId || "",
               apiKey: data.config.onchainKitApiKey || "",
               cdpProjectId: data.config.cdpProjectId || "",
             });
+          } else {
+            console.error("API returned success: false");
           }
+        } else {
+          console.error("API request failed with status:", response.status);
         }
       } catch (error) {
         console.error("Failed to fetch configuration:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchConfig();
   }, []);
 
-  console.log("OnchainKitProvider config:", {
-    chain: "base",
-    projectId: config.cdpProjectId ? "Set" : "Not set",
-    apiKey: config.apiKey ? "Set" : "Not set",
-  });
+  // Log the configuration status without exposing actual values
+  useEffect(() => {
+    console.log("Current provider config status:", {
+      chain: "base",
+      projectId: config.projectId ? "Set" : "Not set",
+      apiKey: config.apiKey ? "Set" : "Not set",
+      cdpProjectId: config.cdpProjectId ? "Set" : "Not set",
+    });
+  }, [config]);
+
+  if (isLoading) {
+    return <div>Loading configuration...</div>;
+  }
 
   return (
     <CoinbaseRampTransactionProvider>
@@ -62,9 +84,7 @@ export function Providers({ children }: { children: ReactNode }) {
         apiKey={config.apiKey}
         config={{
           appearance: {
-            name:
-              process.env.NEXT_PUBLIC_ONCHAINKIT_PROJECT_NAME ||
-              "Coinbase Ramp Demo",
+            name: "Coinbase Ramp Demo",
             theme: "blue",
           },
         }}
