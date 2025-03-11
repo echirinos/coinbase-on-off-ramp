@@ -12,6 +12,28 @@ A Next.js application demonstrating the integration of Coinbase's On-ramp and Of
   - **Fund Card**: Pre-built UI component from Coinbase
   - **Custom Integration**: Fully customizable UI with enhanced dropdown options
 
+## Getting Started
+
+### Environment Variables Setup
+
+This project requires several API keys to function properly. For security reasons, these keys are not included in the repository.
+
+1. Copy the `.env.example` file to `.env.local`:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Obtain the necessary API keys:
+
+   - **CDP Project ID**: Get this from the [Coinbase Developer Platform Dashboard](https://portal.cdp.coinbase.com/)
+   - **OnchainKit API Key**: Get this from the [Coinbase Developer Platform Dashboard](https://portal.cdp.coinbase.com/)
+   - **WalletConnect Project ID**: Get this from the [WalletConnect Dashboard](https://cloud.walletconnect.com/)
+
+3. Add your API keys to the `.env.local` file.
+
+> **IMPORTANT**: Never commit your API keys to the repository. The `.env.local` and `.env.production` files are included in `.gitignore` to prevent accidental exposure.
+
 ## Integration Options
 
 ### Fund Card
