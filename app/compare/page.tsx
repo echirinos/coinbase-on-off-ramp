@@ -22,32 +22,32 @@ export default function ComparePage() {
         {/* Modern hero section with gradient background */}
         <section className="relative overflow-hidden">
           {/* Modern gradient background */}
-          <div className="absolute inset-0 bg-[#fafafa] dark:bg-[#111] z-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-50 dark:from-indigo-900/30 dark:via-[#131313] dark:to-indigo-900/30 opacity-80"></div>
+          <div className="absolute inset-0 bg-[#fafafa] z-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-white to-indigo-50 opacity-80"></div>
 
             {/* Subtle grid pattern */}
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiNmMWYxZjEiIGQ9Ik0zNiAxOGgtMnYyaDJ6TTQwIDE4aC0ydjJoMnpNNDQgMThoLTJ2Mmgyek0zNCAxNmgtMnYyaDJ6TTM4IDE2aC0ydjJoMnpNNDIgMTZoLTJ2Mmgyek0zMCAxNmgtMnYyaDJ6TTI2IDE2aC0ydjJoMnpNMjIgMTZoLTJ2Mmgyek0xOCAxNmgtMnYyaDJ6TDE0IDE2aC0ydjJoMnpNMTAgMTZIOHYyaDJ6TTYgMTZINHYyaDJ6Ii8+PC9nPjwvc3ZnPg==')] opacity-[0.15] dark:opacity-[0.05]"></div>
+            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGZpbGw9IiNmMWYxZjEiIGQ9Ik0zNiAxOGgtMnYyaDJ6TTQwIDE4aC0ydjJoMnpNNDQgMThoLTJ2Mmgyek0zNCAxNmgtMnYyaDJ6TTM4IDE2aC0ydjJoMnpNNDIgMTZoLTJ2Mmgyek0zMCAxNmgtMnYyaDJ6TTI2IDE2aC0ydjJoMnpNMjIgMTZoLTJ2Mmgyek0xOCAxNmgtMnYyaDJ6TDE0IDE2aC0ydjJoMnpNMTAgMTZIOHYyaDJ6TTYgMTZINHYyaDJ6Ii8+PC9nPjwvc3ZnPg==')] opacity-[0.15]"></div>
           </div>
 
           {/* Subtle gradient orb */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-indigo-400 dark:bg-indigo-600 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
+            <div className="absolute top-20 right-10 w-[500px] h-[500px] bg-indigo-400 rounded-full mix-blend-multiply filter blur-[128px] opacity-10 animate-float"></div>
           </div>
 
           <div className="container mx-auto px-4 pt-28 pb-16 relative z-10">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 mb-6">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-indigo-50 border border-indigo-200 mb-6">
                 <span className="w-2 h-2 rounded-full bg-indigo-500 mr-2"></span>
-                <span className="text-indigo-700 dark:text-indigo-300 text-sm font-medium whitespace-nowrap">
+                <span className="text-indigo-700 text-sm font-medium whitespace-nowrap">
                   Powered by Coinbase Developer Platform
                 </span>
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 dark:from-indigo-400 dark:via-purple-400 dark:to-indigo-400 tracking-tight">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 tracking-tight">
                 Compare Onramp, Offramp & Fund
               </h1>
 
-              <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
                 Choose the right solution for your application by comparing
                 features and capabilities of Coinbase's Onramp, Offramp, and
                 Fund products.
@@ -57,7 +57,7 @@ export default function ComparePage() {
                 href="https://docs.cdp.coinbase.com/onramp/docs/welcome"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium mb-10"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium mb-10"
               >
                 View Documentation <span className="ml-2">→</span>
               </Link>
@@ -66,28 +66,28 @@ export default function ComparePage() {
         </section>
 
         {/* Feature Comparison Section */}
-        <section className="py-16 bg-white dark:bg-gray-900">
+        <section className="py-16 bg-white">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
               <div className="overflow-x-auto">
-                <table className="min-w-full bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
+                <table className="min-w-full bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
                   <thead>
-                    <tr className="bg-gray-50 dark:bg-gray-700">
-                      <th className="px-6 py-4 text-left text-sm font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                    <tr className="bg-gray-200 border-b border-gray-300">
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">
                         Feature
                       </th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-center text-sm font-semibold text-blue-600 uppercase tracking-wider">
                         Onramp
                       </th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-center text-sm font-semibold text-purple-600 uppercase tracking-wider">
                         Offramp
                       </th>
-                      <th className="px-6 py-4 text-center text-sm font-medium text-amber-600 dark:text-amber-400 uppercase tracking-wider">
+                      <th className="px-6 py-4 text-center text-sm font-semibold text-amber-600 uppercase tracking-wider">
                         Fund
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <tbody className="divide-y divide-gray-200">
                     <FeatureRowWithFund
                       feature="Primary Use Case"
                       onramp="Convert fiat to crypto"
@@ -135,6 +135,7 @@ export default function ComparePage() {
                       onramp="Optional"
                       offramp="Required"
                       fund="Required"
+                      isLastRow={true}
                     />
                   </tbody>
                 </table>
@@ -144,10 +145,10 @@ export default function ComparePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 bg-gray-50 dark:bg-gray-800">
+        <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto">
-              <h2 className="text-3xl font-bold mb-10 text-center dark:text-white">
+              <h2 className="text-3xl font-bold mb-10 text-center">
                 Frequently Asked Questions
               </h2>
 
@@ -186,7 +187,7 @@ export default function ComparePage() {
                   href="https://docs.cdp.coinbase.com/onramp/docs/welcome"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
+                  className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                   Explore Onramp/Offramp Documentation{" "}
                   <span className="ml-2">→</span>
@@ -196,7 +197,7 @@ export default function ComparePage() {
                     href="https://docs.base.org/builderkits/onchainkit"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium"
+                    className="inline-flex items-center text-indigo-600 hover:text-indigo-700 font-medium"
                   >
                     Explore OnchainKit Documentation{" "}
                     <span className="ml-2">→</span>
@@ -223,14 +224,12 @@ function FaqItem({
   onClick: () => void;
 }) {
   return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+    <div className="border border-gray-200 rounded-lg overflow-hidden">
       <button
-        className="flex justify-between items-center w-full px-6 py-4 text-left bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none"
+        className="flex justify-between items-center w-full px-6 py-4 text-left bg-white hover:bg-gray-50 focus:outline-none"
         onClick={onClick}
       >
-        <span className="font-medium text-gray-900 dark:text-white">
-          {question}
-        </span>
+        <span className="font-medium text-gray-900">{question}</span>
         <svg
           className={`w-5 h-5 text-gray-500 transform ${
             isOpen ? "rotate-180" : ""
@@ -248,8 +247,8 @@ function FaqItem({
         </svg>
       </button>
       {isOpen && (
-        <div className="px-6 py-4 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
-          <p className="text-gray-600 dark:text-gray-300">{answer}</p>
+        <div className="px-6 py-4 bg-white border-t border-gray-200">
+          <p className="text-gray-600">{answer}</p>
         </div>
       )}
     </div>
@@ -261,24 +260,34 @@ function FeatureRowWithFund({
   onramp,
   offramp,
   fund,
+  isLastRow = false,
 }: {
   feature: string;
   onramp: string;
   offramp: string;
   fund: string;
+  isLastRow?: boolean;
 }) {
   return (
-    <tr className="hover:bg-gray-50 dark:hover:bg-gray-750">
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+    <tr className={`hover:bg-gray-50 ${isLastRow ? "border-b-0" : ""}`}>
+      <td
+        className={`px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900 bg-gray-50 border-r border-gray-200 ${
+          isLastRow ? "rounded-bl-xl" : ""
+        }`}
+      >
         {feature}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
         {onramp}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
         {offramp}
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300 text-center">
+      <td
+        className={`px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center ${
+          isLastRow ? "rounded-br-xl" : ""
+        }`}
+      >
         {fund}
       </td>
     </tr>
