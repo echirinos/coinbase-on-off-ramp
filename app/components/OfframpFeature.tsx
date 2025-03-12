@@ -139,6 +139,38 @@ export default function OfframpFeature() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
 
+  // Update networks when asset changes
+  const updateNetworksForAsset = (
+    assetCode: string,
+    assets: CryptoAsset[] = availableAssets
+  ) => {
+    const asset = assets.find((a: CryptoAsset) => a.code === assetCode);
+    if (asset && asset.networks) {
+      setAvailableNetworks(asset.networks);
+
+      // Set default network
+      if (asset.networks.length > 0) {
+        // Prefer Base network if available, then Ethereum, then first available
+        const baseNetwork = asset.networks.find(
+          (n: { id: string; name: string }) => n.id === "base"
+        );
+        const ethereumNetwork = asset.networks.find(
+          (n: { id: string; name: string }) => n.id === "ethereum"
+        );
+
+        if (baseNetwork) {
+          setSelectedNetwork("base");
+        } else if (ethereumNetwork) {
+          setSelectedNetwork("ethereum");
+        } else {
+          setSelectedNetwork(asset.networks[0].id);
+        }
+      }
+    } else {
+      setAvailableNetworks([]);
+    }
+  };
+
   // Show notification if returning from Coinbase with a status
   useEffect(() => {
     if (status) {
@@ -206,7 +238,7 @@ export default function OfframpFeature() {
     };
 
     fetchCountries();
-  }, []);
+  }, [selectedSubdivision]);
 
   // Fetch assets and networks when country or subdivision changes
   useEffect(() => {
@@ -243,7 +275,7 @@ export default function OfframpFeature() {
     if (selectedCountry) {
       fetchAssets();
     }
-  }, [selectedCountry, selectedSubdivision]);
+  }, [selectedCountry, selectedSubdivision, updateNetworksForAsset]);
 
   // Update cashout methods when country changes
   useEffect(() => {
@@ -277,34 +309,6 @@ export default function OfframpFeature() {
     }
   }, [selectedCountry, countries]);
 
-  // Update networks when asset changes
-  const updateNetworksForAsset = (
-    assetCode: string,
-    assets: CryptoAsset[] = availableAssets
-  ) => {
-    const asset = assets.find((a) => a.code === assetCode);
-    if (asset && asset.networks) {
-      setAvailableNetworks(asset.networks);
-
-      // Set default network
-      if (asset.networks.length > 0) {
-        // Prefer Base network if available, then Ethereum, then first available
-        const baseNetwork = asset.networks.find((n) => n.id === "base");
-        const ethereumNetwork = asset.networks.find((n) => n.id === "ethereum");
-
-        if (baseNetwork) {
-          setSelectedNetwork("base");
-        } else if (ethereumNetwork) {
-          setSelectedNetwork("ethereum");
-        } else {
-          setSelectedNetwork(asset.networks[0].id);
-        }
-      }
-    } else {
-      setAvailableNetworks([]);
-    }
-  };
-
   // Handle asset change
   const handleAssetChange = (assetCode: string) => {
     setSelectedAsset(assetCode);
@@ -337,8 +341,9 @@ export default function OfframpFeature() {
   useEffect(() => {
     const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
     if (selectedAssetObj && amount) {
-      const usdValue = parseFloat(amount) * selectedAssetObj.price;
-      setEstimatedUsdValue(usdValue.toFixed(2));
+      // For offramp, the amount is in USD, and we need to show how much USD the user will receive
+      // So we just use the amount directly
+      setEstimatedUsdValue(parseFloat(amount).toFixed(2));
     } else if (amount) {
       // If asset not found, assume 1:1 conversion for display purposes
       setEstimatedUsdValue(parseFloat(amount).toFixed(2));
@@ -393,8 +398,21 @@ export default function OfframpFeature() {
       return;
     }
 
-    // Use the exact amount entered by the user
-    const exactAmount = numericAmount.toFixed(8);
+    // Calculate the crypto amount based on the USD amount and asset price
+    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
+    let cryptoAmount = numericAmount;
+
+    if (selectedAssetObj && selectedAssetObj.price) {
+      cryptoAmount = numericAmount / selectedAssetObj.price;
+    }
+
+    // Format the crypto amount with appropriate precision
+    let formattedCryptoAmount = cryptoAmount.toFixed(8);
+    if (selectedAsset === "SHIB") {
+      formattedCryptoAmount = cryptoAmount.toFixed(0);
+    } else if (selectedAsset !== "BTC" && selectedAsset !== "WBTC") {
+      formattedCryptoAmount = cryptoAmount.toFixed(6);
+    }
 
     // Skip balance check to allow users to see the Coinbase offramp flow
     // This is for demo purposes - in a production app, you would want to check balance
@@ -403,7 +421,7 @@ export default function OfframpFeature() {
       // Generate the offramp URL with validated parameters
       const url = generateOfframpURL({
         asset: selectedAsset,
-        amount: exactAmount,
+        amount: formattedCryptoAmount,
         network: selectedNetwork,
         cashoutMethod: selectedCashoutMethod,
         address: address || "0x0000000000000000000000000000000000000000",
@@ -413,7 +431,7 @@ export default function OfframpFeature() {
       console.log("Opening offramp URL:", url);
       console.log("Parameters:", {
         asset: selectedAsset,
-        amount: exactAmount,
+        amount: formattedCryptoAmount,
         network: selectedNetwork,
         cashoutMethod: selectedCashoutMethod,
         address: address || "0x0000000000000000000000000000000000000000",
@@ -787,7 +805,7 @@ export default function OfframpFeature() {
                               parseFloat(amount) / selectedAssetObj.price;
                             // Format based on the asset - more decimal places for BTC
                             if (selectedAsset === "BTC") {
-                              return cryptoAmount.toFixed(7);
+                              return cryptoAmount.toFixed(8);
                             } else if (selectedAsset === "SHIB") {
                               return cryptoAmount.toFixed(0); // No decimals for SHIB
                             } else {
