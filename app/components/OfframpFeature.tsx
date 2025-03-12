@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAccount } from "wagmi";
 import { generateOfframpURL } from "../utils/rampUtils";
+import { fetchSellConfig, fetchSellOptions, Country, CryptoAsset } from "../utils/offrampApi";
 import GeneratedLinkModal from "./GeneratedLinkModal";
 
 export default function OfframpFeature() {
@@ -18,32 +19,18 @@ export default function OfframpFeature() {
     useState("ACH_BANK_ACCOUNT");
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
 
-  // Define supported assets using useMemo to prevent recreation on every render
-  const assets = useMemo(
-    () => [
-      { symbol: "ETH", name: "Ethereum", price: 3500 },
-      { symbol: "USDC", name: "USD Coin", price: 1 },
-      { symbol: "BTC", name: "Bitcoin", price: 60000 },
-      { symbol: "SOL", name: "Solana", price: 140 },
-      { symbol: "MATIC", name: "Polygon", price: 0.8 },
-      { symbol: "AVAX", name: "Avalanche", price: 35 },
-    ],
-    []
-  );
+  // Country and subdivision state
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState("US");
+  const [selectedSubdivision, setSelectedSubdivision] = useState("");
+  const [subdivisions, setSubdivisions] = useState<string[]>([]);
 
-  // Define supported networks
-  const networks = [
-    { id: "ethereum", name: "Ethereum" },
-    { id: "base", name: "Base" },
-    { id: "optimism", name: "Optimism" },
-    { id: "polygon", name: "Polygon" },
-    { id: "arbitrum", name: "Arbitrum" },
-    { id: "avalanche-c-chain", name: "Avalanche" },
-    { id: "solana", name: "Solana" },
-  ];
+  // Assets and networks state
+  const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
+  const [availableNetworks, setAvailableNetworks] = useState<{id: string, name: string}[]>([]);
 
-  // Define supported cashout methods
-  const cashoutMethods = [
+  // Cashout methods state
+  const [cashoutMethods, setCashoutMethods] = useState([
     {
       id: "ACH_BANK_ACCOUNT",
       name: "Bank Transfer (ACH)",
@@ -59,7 +46,141 @@ export default function OfframpFeature() {
       name: "Coinbase Fiat Wallet",
       description: "Instant transfer to your Coinbase account",
     },
-  ];
+  ]);
+
+  // Define supported assets using useMemo to prevent recreation on every render
+  const assets = useMemo(
+    () => [
+      { symbol: "ETH", name: "Ethereum", price: 3500 },
+      { symbol: "USDC", name: "USD Coin", price: 1 },
+      { symbol: "BTC", name: "Bitcoin", price: 60000 },
+      { symbol: "SOL", name: "Solana", price: 140 },
+      { symbol: "MATIC", name: "Polygon", price: 0.8 },
+      { symbol: "AVAX", name: "Avalanche", price: 35 },
+    ],
+    []
+  );
+
+  // Fetch countries and cashout methods on component mount
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const config = await fetchSellConfig();
+        setCountries(config.countries);
+
+        // Set default country and update cashout methods
+        if (config.countries.length > 0) {
+          const defaultCountry = config.countries.find(c => c.code === "US") || config.countries[0];
+          setSelectedCountry(defaultCountry.code);
+
+          // Update cashout methods based on selected country
+          if (defaultCountry.cashout_methods) {
+            setCashoutMethods(defaultCountry.cashout_methods.map(cm => ({
+              id: cm.id,
+              name: cm.name,
+              description: cm.description || "",
+            })));
+
+            // Set default cashout method
+            if (defaultCountry.cashout_methods.length > 0) {
+              setSelectedCashoutMethod(defaultCountry.cashout_methods[0].id);
+            }
+          }
+
+          // Set subdivisions if available
+          if (defaultCountry.supported_states) {
+            setSubdivisions(defaultCountry.supported_states);
+            if (defaultCountry.supported_states.length > 0) {
+              setSelectedSubdivision(defaultCountry.supported_states[0]);
+            }
+          } else {
+            setSubdivisions([]);
+            setSelectedSubdivision("");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  // Fetch assets and networks when country or subdivision changes
+  useEffect(() => {
+    const fetchAssets = async () => {
+      try {
+        const options = await fetchSellOptions(selectedCountry, selectedSubdivision);
+        setAvailableAssets(options.sell_currencies);
+
+        // Set default asset and update networks
+        if (options.sell_currencies.length > 0) {
+          const defaultAsset = options.sell_currencies.find(a => a.code === "ETH") ||
+                              options.sell_currencies[0];
+          setSelectedAsset(defaultAsset.code);
+
+          // Update available networks for the selected asset
+          updateNetworksForAsset(defaultAsset.code, options.sell_currencies);
+        }
+      } catch (error) {
+        console.error("Error fetching assets:", error);
+      }
+    };
+
+    if (selectedCountry) {
+      fetchAssets();
+    }
+  }, [selectedCountry, selectedSubdivision]);
+
+  // Update cashout methods when country changes
+  useEffect(() => {
+    const country = countries.find(c => c.code === selectedCountry);
+    if (country && country.cashout_methods) {
+      setCashoutMethods(country.cashout_methods.map(cm => ({
+        id: cm.id,
+        name: cm.name,
+        description: cm.description || "",
+      })));
+
+      // Set default cashout method
+      if (country.cashout_methods.length > 0) {
+        setSelectedCashoutMethod(country.cashout_methods[0].id);
+      }
+
+      // Update subdivisions
+      if (country.supported_states) {
+        setSubdivisions(country.supported_states);
+        if (country.supported_states.length > 0) {
+          setSelectedSubdivision(country.supported_states[0]);
+        }
+      } else {
+        setSubdivisions([]);
+        setSelectedSubdivision("");
+      }
+    }
+  }, [selectedCountry, countries]);
+
+  // Update networks when asset changes
+  const updateNetworksForAsset = (assetCode: string, assets: CryptoAsset[] = availableAssets) => {
+    const asset = assets.find(a => a.code === assetCode);
+    if (asset && asset.networks) {
+      setAvailableNetworks(asset.networks);
+
+      // Set default network
+      if (asset.networks.length > 0) {
+        const defaultNetwork = asset.networks.find(n => n.id === "ethereum") || asset.networks[0];
+        setSelectedNetwork(defaultNetwork.id);
+      }
+    } else {
+      setAvailableNetworks([]);
+    }
+  };
+
+  // Handle asset change
+  const handleAssetChange = (assetCode: string) => {
+    setSelectedAsset(assetCode);
+    updateNetworksForAsset(assetCode);
+  };
 
   // Calculate estimated USD value when asset or amount changes
   useEffect(() => {
@@ -225,6 +346,66 @@ export default function OfframpFeature() {
                 </div>
               )}
 
+              {/* Country Selection */}
+              <div className="mb-6">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Country
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* State/Subdivision Selection (for US) */}
+              {subdivisions.length > 0 && (
+                <div className="mb-6">
+                  <label className="block text-gray-700 mb-2 font-medium">
+                    State
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedSubdivision}
+                      onChange={(e) => setSelectedSubdivision(e.target.value)}
+                      className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      {subdivisions.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <svg
+                        className="fill-current h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Asset Selection */}
               <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
@@ -233,12 +414,12 @@ export default function OfframpFeature() {
                 <div className="relative">
                   <select
                     value={selectedAsset}
-                    onChange={(e) => setSelectedAsset(e.target.value)}
+                    onChange={(e) => handleAssetChange(e.target.value)}
                     className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    {assets.map((asset) => (
-                      <option key={asset.symbol} value={asset.symbol}>
-                        {asset.name} ({asset.symbol})
+                    {availableAssets.map((asset) => (
+                      <option key={asset.code} value={asset.code}>
+                        {asset.name} ({asset.code})
                       </option>
                     ))}
                   </select>
@@ -300,6 +481,35 @@ export default function OfframpFeature() {
                 </p>
               </div>
 
+              {/* Network Selection */}
+              <div className="mb-6">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Network
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedNetwork}
+                    onChange={(e) => setSelectedNetwork(e.target.value)}
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {availableNetworks.map((network) => (
+                      <option key={network.id} value={network.id}>
+                        {network.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
               {/* Cashout Method Selection */}
               <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
@@ -327,6 +537,15 @@ export default function OfframpFeature() {
                     </svg>
                   </div>
                 </div>
+                {cashoutMethods.find((m) => m.id === selectedCashoutMethod)
+                  ?.description && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    {
+                      cashoutMethods.find((m) => m.id === selectedCashoutMethod)
+                        ?.description
+                    }
+                  </p>
+                )}
               </div>
 
               {/* Action Button */}
@@ -403,7 +622,7 @@ export default function OfframpFeature() {
                           (assets.find((a) => a.symbol === selectedAsset)
                             ?.price || 1)
                         ).toFixed(6)}{" "}
-                        {selectedAsset}
+                        {selectedAsset} on {availableNetworks.find(n => n.id === selectedNetwork)?.name || selectedNetwork}
                       </div>
                     </div>
                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
