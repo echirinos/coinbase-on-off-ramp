@@ -172,7 +172,7 @@ export async function fetchBuyConfig(): Promise<BuyConfigResponse> {
     const transformedConfig: BuyConfigResponse = {
       countries: config.countries.map(country => ({
         id: country.id,
-        paymentMethods: country.paymentMethods.map(method => ({ id: method })),
+        paymentMethods: country.paymentMethods.map(method => ({ id: String(method) })),
         subdivisions: country.subdivisions
       }))
     };
