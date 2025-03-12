@@ -13,6 +13,7 @@ import GeneratedLinkModal from "./GeneratedLinkModal";
 import OfframpInstructionsModal from "./OfframpInstructionsModal";
 import OfframpNotification from "./OfframpNotification";
 import { useSearchParams } from "next/navigation";
+import { fetchCryptoPrices } from "../utils/priceUtils";
 
 export default function OfframpFeature() {
   const { address, isConnected } = useAccount();
@@ -28,6 +29,8 @@ export default function OfframpFeature() {
   const [selectedCashoutMethod, setSelectedCashoutMethod] =
     useState("ACH_BANK_ACCOUNT");
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
+  const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
   // Country and subdivision state
   const [countries, setCountries] = useState<Country[]>([]);
@@ -107,21 +110,29 @@ export default function OfframpFeature() {
   // Define supported assets using useMemo to prevent recreation on every render
   const assets = useMemo(
     () => [
-      { symbol: "ETH", name: "Ethereum", price: 3500 },
-      { symbol: "USDC", name: "USD Coin", price: 1 },
-      { symbol: "BTC", name: "Bitcoin", price: 60000 },
-      { symbol: "SOL", name: "Solana", price: 140 },
-      { symbol: "MATIC", name: "Polygon", price: 0.8 },
-      { symbol: "AVAX", name: "Avalanche", price: 35 },
-      { symbol: "LINK", name: "Chainlink", price: 15 },
-      { symbol: "UNI", name: "Uniswap", price: 8 },
-      { symbol: "DOGE", name: "Dogecoin", price: 0.1 },
-      { symbol: "SHIB", name: "Shiba Inu", price: 0.00002 },
-      { symbol: "XRP", name: "XRP", price: 0.5 },
-      { symbol: "LTC", name: "Litecoin", price: 80 },
-      { symbol: "BCH", name: "Bitcoin Cash", price: 300 },
+      { symbol: "ETH", name: "Ethereum", price: cryptoPrices["ETH"] || 3500 },
+      { symbol: "USDC", name: "USD Coin", price: cryptoPrices["USDC"] || 1 },
+      { symbol: "BTC", name: "Bitcoin", price: cryptoPrices["BTC"] || 67000 },
+      { symbol: "SOL", name: "Solana", price: cryptoPrices["SOL"] || 140 },
+      { symbol: "MATIC", name: "Polygon", price: cryptoPrices["MATIC"] || 0.8 },
+      { symbol: "AVAX", name: "Avalanche", price: cryptoPrices["AVAX"] || 35 },
+      { symbol: "LINK", name: "Chainlink", price: cryptoPrices["LINK"] || 15 },
+      { symbol: "UNI", name: "Uniswap", price: cryptoPrices["UNI"] || 8 },
+      { symbol: "DOGE", name: "Dogecoin", price: cryptoPrices["DOGE"] || 0.1 },
+      {
+        symbol: "SHIB",
+        name: "Shiba Inu",
+        price: cryptoPrices["SHIB"] || 0.00002,
+      },
+      { symbol: "XRP", name: "XRP", price: cryptoPrices["XRP"] || 0.5 },
+      { symbol: "LTC", name: "Litecoin", price: cryptoPrices["LTC"] || 80 },
+      {
+        symbol: "BCH",
+        name: "Bitcoin Cash",
+        price: cryptoPrices["BCH"] || 300,
+      },
     ],
-    []
+    [cryptoPrices]
   );
 
   // Get search params to check for status
@@ -300,6 +311,28 @@ export default function OfframpFeature() {
     updateNetworksForAsset(assetCode);
   };
 
+  // Fetch cryptocurrency prices on component mount
+  useEffect(() => {
+    const getPrices = async () => {
+      setIsLoadingPrices(true);
+      try {
+        const prices = await fetchCryptoPrices();
+        setCryptoPrices(prices);
+      } catch (error) {
+        console.error("Failed to fetch cryptocurrency prices:", error);
+      } finally {
+        setIsLoadingPrices(false);
+      }
+    };
+
+    getPrices();
+
+    // Refresh prices every 60 seconds
+    const intervalId = setInterval(getPrices, 60000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Calculate estimated USD value when asset or amount changes
   useEffect(() => {
     const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
@@ -310,7 +343,7 @@ export default function OfframpFeature() {
       // If asset not found, assume 1:1 conversion for display purposes
       setEstimatedUsdValue(parseFloat(amount).toFixed(2));
     }
-  }, [selectedAsset, amount, assets]);
+  }, [selectedAsset, amount, assets, cryptoPrices]);
 
   // Helper function to check if user has sufficient balance
   const checkSufficientBalance = (
@@ -733,6 +766,11 @@ export default function OfframpFeature() {
                       </div>
                       <div className="text-2xl font-bold text-gray-800">
                         ${estimatedUsdValue}
+                        {isLoadingPrices && (
+                          <span className="text-sm text-gray-500 ml-2">
+                            (updating prices...)
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="mb-4">
@@ -745,9 +783,16 @@ export default function OfframpFeature() {
                             (a) => a.symbol === selectedAsset
                           );
                           if (selectedAssetObj) {
-                            return (
-                              parseFloat(amount) / selectedAssetObj.price
-                            ).toFixed(6);
+                            const cryptoAmount =
+                              parseFloat(amount) / selectedAssetObj.price;
+                            // Format based on the asset - more decimal places for BTC
+                            if (selectedAsset === "BTC") {
+                              return cryptoAmount.toFixed(7);
+                            } else if (selectedAsset === "SHIB") {
+                              return cryptoAmount.toFixed(0); // No decimals for SHIB
+                            } else {
+                              return cryptoAmount.toFixed(6);
+                            }
                           } else {
                             return parseFloat(amount).toFixed(6);
                           }

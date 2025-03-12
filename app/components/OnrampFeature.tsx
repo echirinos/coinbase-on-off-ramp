@@ -14,6 +14,7 @@ import {
   PaymentCurrency,
 } from "../utils/onrampApi";
 import GeneratedLinkModal from "./GeneratedLinkModal";
+import { fetchCryptoPrices } from "../utils/priceUtils";
 
 // Define payment method descriptions
 const PAYMENT_METHOD_DESCRIPTIONS: Record<string, string> = {
@@ -117,6 +118,8 @@ export default function OnrampFeature() {
   const [enableGuestCheckout, setEnableGuestCheckout] = useState(true);
   const [selectedPaymentCurrency, setSelectedPaymentCurrency] = useState("USD");
   const [selectedCountry, setSelectedCountry] = useState("US");
+  const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
   // Define supported payment methods
   const paymentMethods = [
@@ -139,34 +142,46 @@ export default function OnrampFeature() {
 
   // Define supported assets (expanded list)
   const assets = [
-    { symbol: "ETH", name: "Ethereum" },
-    { symbol: "USDC", name: "USD Coin" },
-    { symbol: "BTC", name: "Bitcoin" },
-    { symbol: "SOL", name: "Solana" },
-    { symbol: "MATIC", name: "Polygon" },
-    { symbol: "AVAX", name: "Avalanche" },
-    { symbol: "ADA", name: "Cardano" },
-    { symbol: "DOT", name: "Polkadot" },
-    { symbol: "DOGE", name: "Dogecoin" },
-    { symbol: "SHIB", name: "Shiba Inu" },
-    { symbol: "XRP", name: "XRP" },
-    { symbol: "LTC", name: "Litecoin" },
-    { symbol: "UNI", name: "Uniswap" },
-    { symbol: "LINK", name: "Chainlink" },
-    { symbol: "AAVE", name: "Aave" },
-    { symbol: "ATOM", name: "Cosmos" },
-    { symbol: "USDT", name: "Tether" },
-    { symbol: "DAI", name: "Dai" },
-    { symbol: "WBTC", name: "Wrapped Bitcoin" },
-    { symbol: "BCH", name: "Bitcoin Cash" },
-    { symbol: "APE", name: "ApeCoin" },
-    { symbol: "XLM", name: "Stellar" },
-    { symbol: "FIL", name: "Filecoin" },
-    { symbol: "NEAR", name: "NEAR Protocol" },
-    { symbol: "ALGO", name: "Algorand" },
-    { symbol: "MANA", name: "Decentraland" },
-    { symbol: "SAND", name: "The Sandbox" },
-    { symbol: "TRX", name: "TRON" },
+    { symbol: "ETH", name: "Ethereum", price: cryptoPrices["ETH"] || 3500 },
+    { symbol: "USDC", name: "USD Coin", price: cryptoPrices["USDC"] || 1 },
+    { symbol: "BTC", name: "Bitcoin", price: cryptoPrices["BTC"] || 67000 },
+    { symbol: "SOL", name: "Solana", price: cryptoPrices["SOL"] || 140 },
+    { symbol: "MATIC", name: "Polygon", price: cryptoPrices["MATIC"] || 0.8 },
+    { symbol: "AVAX", name: "Avalanche", price: cryptoPrices["AVAX"] || 35 },
+    { symbol: "ADA", name: "Cardano", price: cryptoPrices["ADA"] || 0.45 },
+    { symbol: "DOT", name: "Polkadot", price: cryptoPrices["DOT"] || 7 },
+    { symbol: "DOGE", name: "Dogecoin", price: cryptoPrices["DOGE"] || 0.1 },
+    {
+      symbol: "SHIB",
+      name: "Shiba Inu",
+      price: cryptoPrices["SHIB"] || 0.00002,
+    },
+    { symbol: "XRP", name: "XRP", price: cryptoPrices["XRP"] || 0.5 },
+    { symbol: "LTC", name: "Litecoin", price: cryptoPrices["LTC"] || 80 },
+    { symbol: "UNI", name: "Uniswap", price: cryptoPrices["UNI"] || 8 },
+    { symbol: "LINK", name: "Chainlink", price: cryptoPrices["LINK"] || 15 },
+    { symbol: "AAVE", name: "Aave", price: cryptoPrices["AAVE"] || 90 },
+    { symbol: "ATOM", name: "Cosmos", price: cryptoPrices["ATOM"] || 8 },
+    { symbol: "USDT", name: "Tether", price: cryptoPrices["USDT"] || 1 },
+    { symbol: "DAI", name: "Dai", price: cryptoPrices["DAI"] || 1 },
+    {
+      symbol: "WBTC",
+      name: "Wrapped Bitcoin",
+      price: cryptoPrices["WBTC"] || 67000,
+    },
+    { symbol: "BCH", name: "Bitcoin Cash", price: cryptoPrices["BCH"] || 300 },
+    { symbol: "APE", name: "ApeCoin", price: cryptoPrices["APE"] || 1.5 },
+    { symbol: "XLM", name: "Stellar", price: cryptoPrices["XLM"] || 0.1 },
+    { symbol: "FIL", name: "Filecoin", price: cryptoPrices["FIL"] || 5 },
+    { symbol: "NEAR", name: "NEAR Protocol", price: cryptoPrices["NEAR"] || 5 },
+    { symbol: "ALGO", name: "Algorand", price: cryptoPrices["ALGO"] || 0.15 },
+    {
+      symbol: "MANA",
+      name: "Decentraland",
+      price: cryptoPrices["MANA"] || 0.4,
+    },
+    { symbol: "SAND", name: "The Sandbox", price: cryptoPrices["SAND"] || 0.4 },
+    { symbol: "TRX", name: "TRON", price: cryptoPrices["TRX"] || 0.1 },
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   // Define supported networks (expanded list)
@@ -242,6 +257,28 @@ export default function OnrampFeature() {
         setSelectedNetwork(getDefaultNetworkForAsset(selectedAsset));
       }
     }
+  }, []);
+
+  // Fetch cryptocurrency prices on component mount
+  useEffect(() => {
+    const getPrices = async () => {
+      setIsLoadingPrices(true);
+      try {
+        const prices = await fetchCryptoPrices();
+        setCryptoPrices(prices);
+      } catch (error) {
+        console.error("Failed to fetch cryptocurrency prices:", error);
+      } finally {
+        setIsLoadingPrices(false);
+      }
+    };
+
+    getPrices();
+
+    // Refresh prices every 60 seconds
+    const intervalId = setInterval(getPrices, 60000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Handle asset change
@@ -655,6 +692,11 @@ export default function OnrampFeature() {
                         selectedPaymentCurrency
                           ? ` ${selectedPaymentCurrency}`
                           : ""}
+                        {isLoadingPrices && (
+                          <span className="text-sm text-gray-500 ml-2">
+                            (updating prices...)
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="mb-4">
@@ -668,7 +710,29 @@ export default function OnrampFeature() {
                         You'll Receive
                       </div>
                       <div className="flex items-center text-gray-800">
-                        <span className="mr-1">{amount}</span>
+                        <span className="mr-1">
+                          {(() => {
+                            const selectedAssetObj = assets.find(
+                              (a) => a.symbol === selectedAsset
+                            );
+                            if (selectedAssetObj && selectedAssetObj.price) {
+                              const cryptoAmount =
+                                parseFloat(amount) / selectedAssetObj.price;
+                              // Format based on the asset
+                              if (
+                                selectedAsset === "BTC" ||
+                                selectedAsset === "WBTC"
+                              ) {
+                                return cryptoAmount.toFixed(7);
+                              } else if (selectedAsset === "SHIB") {
+                                return cryptoAmount.toFixed(0);
+                              } else {
+                                return cryptoAmount.toFixed(6);
+                              }
+                            }
+                            return amount;
+                          })()}
+                        </span>
                         <span>{selectedAsset}</span>
                         <span className="ml-1">
                           {" "}
