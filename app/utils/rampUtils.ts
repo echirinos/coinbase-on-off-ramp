@@ -147,11 +147,11 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   // Optional parameters with proper formatting according to documentation
   if (asset) queryParams.append("defaultAsset", asset);
 
-  // Format amount properly - for offramp we need to use presetCryptoAmount
+  // Format amount properly - for offramp we need to use presetFiatAmount
   if (amount) {
     const numericAmount = parseFloat(amount);
     if (!isNaN(numericAmount)) {
-      queryParams.append("presetCryptoAmount", numericAmount.toString());
+      queryParams.append("presetFiatAmount", numericAmount.toString());
     }
   }
 

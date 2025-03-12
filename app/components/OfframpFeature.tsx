@@ -236,36 +236,12 @@ export default function OfframpFeature() {
       return;
     }
 
-    // Find the selected asset to get its price
-    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
-    if (!selectedAssetObj) {
-      console.warn(
-        `Asset ${selectedAsset} not found in price list, using default price of 1.0`
-      );
-      // Use a fallback price of 1.0 for unknown assets
-      const cryptoAmount = numericAmount.toFixed(8);
-
-      const url = generateOfframpURL({
-        asset: selectedAsset,
-        amount: cryptoAmount,
-        network: selectedNetwork,
-        cashoutMethod: selectedCashoutMethod,
-        address: address,
-        redirectUrl: window.location.origin + "/offramp?status=success",
-      });
-
-      setGeneratedUrl(url);
-      setShowUrlModal(true);
-      return;
-    }
-
-    // Calculate the crypto amount based on the USD value
-    const cryptoAmount = (numericAmount / selectedAssetObj.price).toFixed(8);
+    // Use the exact amount entered by the user
+    const exactAmount = numericAmount.toFixed(8);
 
     const url = generateOfframpURL({
       asset: selectedAsset,
-      // Pass the crypto amount instead of the USD amount
-      amount: cryptoAmount,
+      amount: exactAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address: address,
@@ -275,8 +251,7 @@ export default function OfframpFeature() {
     console.log("Generated offramp URL:", url);
     console.log("Parameters:", {
       asset: selectedAsset,
-      cryptoAmount,
-      usdAmount: numericAmount,
+      amount: exactAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address,
@@ -300,36 +275,13 @@ export default function OfframpFeature() {
       return;
     }
 
-    // Find the selected asset to get its price
-    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
-    if (!selectedAssetObj) {
-      console.warn(
-        `Asset ${selectedAsset} not found in price list, using default price of 1.0`
-      );
-      // Use a fallback price of 1.0 for unknown assets
-      const cryptoAmount = numericAmount.toFixed(8);
-
-      const url = generateOfframpURL({
-        asset: selectedAsset,
-        amount: cryptoAmount,
-        network: selectedNetwork,
-        cashoutMethod: selectedCashoutMethod,
-        address: address || "0x0000000000000000000000000000000000000000",
-        redirectUrl: window.location.origin + "/offramp?status=success",
-      });
-
-      window.open(url, "_blank");
-      return;
-    }
-
-    // Calculate the crypto amount based on the USD value
-    const cryptoAmount = (numericAmount / selectedAssetObj.price).toFixed(8);
+    // Use the exact amount entered by the user
+    const exactAmount = numericAmount.toFixed(8);
 
     // Generate the offramp URL with validated parameters
     const url = generateOfframpURL({
       asset: selectedAsset,
-      // Pass the crypto amount instead of the USD amount
-      amount: cryptoAmount,
+      amount: exactAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address: address || "0x0000000000000000000000000000000000000000",
@@ -339,8 +291,7 @@ export default function OfframpFeature() {
     console.log("Opening offramp URL:", url);
     console.log("Parameters:", {
       asset: selectedAsset,
-      cryptoAmount,
-      usdAmount: numericAmount,
+      amount: exactAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address: address || "0x0000000000000000000000000000000000000000",
@@ -535,7 +486,7 @@ export default function OfframpFeature() {
                   />
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
-                  Estimated value: {selectedAsset}{" "}
+                  Estimated crypto equivalent: {selectedAsset}{" "}
                   {(() => {
                     const selectedAssetObj = assets.find(
                       (a) => a.symbol === selectedAsset
