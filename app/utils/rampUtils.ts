@@ -125,40 +125,57 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   } = params;
 
   // Base URL for Coinbase Offramp
-  const baseUrl = "https://pay.coinbase.com/v3/sell/input";
+  const baseUrl = "https://pay.coinbase.com/sell/select-asset";
 
   // Build query parameters
   const queryParams = new URLSearchParams();
 
   // Required parameters - use the specific appId
   queryParams.append("appId", CDP_PROJECT_ID);
-  queryParams.append("partnerUserId", address || "anonymous");
+
+  // Partner user ID must be unique and less than 50 chars
+  queryParams.append("partnerUserId", address ? address.substring(0, 49) : "anonymous");
 
   // Create addresses object - ensure proper formatting according to documentation
+  // Format: {"network1":["address1","address2"]}
   const addressesObj: Record<string, string[]> = {};
-  addressesObj[address || "0x0000000000000000000000000000000000000000"] = [network];
+  addressesObj[network] = [address || "0x0000000000000000000000000000000000000000"];
   queryParams.append("addresses", JSON.stringify(addressesObj));
 
   // Add assets parameter as a JSON array of strings
   if (asset) {
     queryParams.append("assets", JSON.stringify([asset]));
+    queryParams.append("defaultAsset", asset);
   }
 
-  // Optional parameters with proper formatting according to documentation
-  if (asset) queryParams.append("defaultAsset", asset);
-
-  // Format amount properly - for offramp we need to use presetFiatAmount
+  // Format amount properly - for offramp we need to use presetCryptoAmount for crypto amount
+  // or presetFiatAmount for fiat amount
   if (amount) {
     const numericAmount = parseFloat(amount);
     if (!isNaN(numericAmount)) {
-      queryParams.append("presetFiatAmount", numericAmount.toString());
+      // For offramp, we're selling crypto for fiat, so we use presetCryptoAmount
+      queryParams.append("presetCryptoAmount", numericAmount.toString());
     }
   }
 
   if (network) queryParams.append("defaultNetwork", network);
   if (cashoutMethod) queryParams.append("defaultCashoutMethod", cashoutMethod);
-  if (redirectUrl) queryParams.append("redirectUrl", redirectUrl);
-  if (sessionId) queryParams.append("sessionToken", sessionId);
+
+  // Allow users to edit their order
+  queryParams.append("disableEdit", "false");
+
+  // Redirect URL is required and must be in the allowed domains
+  if (redirectUrl) {
+    queryParams.append("redirectUrl", redirectUrl);
+  } else {
+    // Fallback to current origin if no redirect URL provided
+    queryParams.append("redirectUrl", window.location.origin + "/offramp?status=success");
+  }
+
+  // Add session token if provided
+  if (sessionId) {
+    queryParams.append("sessionToken", sessionId);
+  }
 
   // Return the complete URL
   return `${baseUrl}?${queryParams.toString()}`;
