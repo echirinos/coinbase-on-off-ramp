@@ -139,14 +139,14 @@ export default function FundPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
+                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900">
                     Configuration
                   </h3>
 
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Custom Button Text
                       </label>
                       <input
@@ -259,7 +259,7 @@ export default function FundPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
+                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
                   <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
                     Preview
                   </h3>
@@ -295,14 +295,14 @@ export default function FundPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
-                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
+                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900">
                     Configuration
                   </h3>
 
                   <div className="space-y-6">
                     <div>
-                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Asset
                       </label>
                       <div className="relative">
@@ -337,7 +337,7 @@ export default function FundPage() {
                     </div>
 
                     <div>
-                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Country
                       </label>
                       <div className="relative">
@@ -372,7 +372,7 @@ export default function FundPage() {
                     </div>
 
                     <div>
-                      <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      <label className="block text-base font-medium text-gray-700 mb-2">
                         Currency
                       </label>
                       <div className="relative">
@@ -472,8 +472,8 @@ export default function FundPage() {
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
-                  <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
+                <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
+                  <h3 className="text-2xl font-bold mb-8 text-gray-900">
                     Preview
                   </h3>
                   <div className="flex-grow flex items-center justify-center">

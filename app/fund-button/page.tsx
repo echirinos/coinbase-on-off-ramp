@@ -29,7 +29,7 @@ export default function FundButtonPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-md">
               <h2 className="text-xl font-bold mb-4">Configuration</h2>
 
               <div className="space-y-4">
