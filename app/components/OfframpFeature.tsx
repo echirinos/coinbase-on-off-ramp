@@ -3,7 +3,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAccount } from "wagmi";
 import { generateOfframpURL } from "../utils/rampUtils";
-import { fetchSellConfig, fetchSellOptions, Country, CryptoAsset } from "../utils/offrampApi";
+import {
+  fetchSellConfig,
+  fetchSellOptions,
+  Country,
+  CryptoAsset,
+} from "../utils/offrampApi";
 import GeneratedLinkModal from "./GeneratedLinkModal";
 
 export default function OfframpFeature() {
@@ -27,7 +32,9 @@ export default function OfframpFeature() {
 
   // Assets and networks state
   const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
-  const [availableNetworks, setAvailableNetworks] = useState<{id: string, name: string}[]>([]);
+  const [availableNetworks, setAvailableNetworks] = useState<
+    { id: string; name: string }[]
+  >([]);
 
   // Cashout methods state
   const [cashoutMethods, setCashoutMethods] = useState([
@@ -57,6 +64,13 @@ export default function OfframpFeature() {
       { symbol: "SOL", name: "Solana", price: 140 },
       { symbol: "MATIC", name: "Polygon", price: 0.8 },
       { symbol: "AVAX", name: "Avalanche", price: 35 },
+      { symbol: "LINK", name: "Chainlink", price: 15 },
+      { symbol: "UNI", name: "Uniswap", price: 8 },
+      { symbol: "DOGE", name: "Dogecoin", price: 0.1 },
+      { symbol: "SHIB", name: "Shiba Inu", price: 0.00002 },
+      { symbol: "XRP", name: "XRP", price: 0.5 },
+      { symbol: "LTC", name: "Litecoin", price: 80 },
+      { symbol: "BCH", name: "Bitcoin Cash", price: 300 },
     ],
     []
   );
@@ -70,16 +84,20 @@ export default function OfframpFeature() {
 
         // Set default country and update cashout methods
         if (config.countries.length > 0) {
-          const defaultCountry = config.countries.find(c => c.code === "US") || config.countries[0];
+          const defaultCountry =
+            config.countries.find((c) => c.code === "US") ||
+            config.countries[0];
           setSelectedCountry(defaultCountry.code);
 
           // Update cashout methods based on selected country
           if (defaultCountry.cashout_methods) {
-            setCashoutMethods(defaultCountry.cashout_methods.map(cm => ({
-              id: cm.id,
-              name: cm.name,
-              description: cm.description || "",
-            })));
+            setCashoutMethods(
+              defaultCountry.cashout_methods.map((cm) => ({
+                id: cm.id,
+                name: cm.name,
+                description: cm.description || "",
+              }))
+            );
 
             // Set default cashout method
             if (defaultCountry.cashout_methods.length > 0) {
@@ -110,13 +128,17 @@ export default function OfframpFeature() {
   useEffect(() => {
     const fetchAssets = async () => {
       try {
-        const options = await fetchSellOptions(selectedCountry, selectedSubdivision);
+        const options = await fetchSellOptions(
+          selectedCountry,
+          selectedSubdivision
+        );
         setAvailableAssets(options.sell_currencies);
 
         // Set default asset and update networks
         if (options.sell_currencies.length > 0) {
-          const defaultAsset = options.sell_currencies.find(a => a.code === "ETH") ||
-                              options.sell_currencies[0];
+          const defaultAsset =
+            options.sell_currencies.find((a) => a.code === "ETH") ||
+            options.sell_currencies[0];
           setSelectedAsset(defaultAsset.code);
 
           // Update available networks for the selected asset
@@ -134,13 +156,15 @@ export default function OfframpFeature() {
 
   // Update cashout methods when country changes
   useEffect(() => {
-    const country = countries.find(c => c.code === selectedCountry);
+    const country = countries.find((c) => c.code === selectedCountry);
     if (country && country.cashout_methods) {
-      setCashoutMethods(country.cashout_methods.map(cm => ({
-        id: cm.id,
-        name: cm.name,
-        description: cm.description || "",
-      })));
+      setCashoutMethods(
+        country.cashout_methods.map((cm) => ({
+          id: cm.id,
+          name: cm.name,
+          description: cm.description || "",
+        }))
+      );
 
       // Set default cashout method
       if (country.cashout_methods.length > 0) {
@@ -161,14 +185,18 @@ export default function OfframpFeature() {
   }, [selectedCountry, countries]);
 
   // Update networks when asset changes
-  const updateNetworksForAsset = (assetCode: string, assets: CryptoAsset[] = availableAssets) => {
-    const asset = assets.find(a => a.code === assetCode);
+  const updateNetworksForAsset = (
+    assetCode: string,
+    assets: CryptoAsset[] = availableAssets
+  ) => {
+    const asset = assets.find((a) => a.code === assetCode);
     if (asset && asset.networks) {
       setAvailableNetworks(asset.networks);
 
       // Set default network
       if (asset.networks.length > 0) {
-        const defaultNetwork = asset.networks.find(n => n.id === "ethereum") || asset.networks[0];
+        const defaultNetwork =
+          asset.networks.find((n) => n.id === "ethereum") || asset.networks[0];
         setSelectedNetwork(defaultNetwork.id);
       }
     } else {
@@ -188,6 +216,9 @@ export default function OfframpFeature() {
     if (selectedAssetObj && amount) {
       const usdValue = parseFloat(amount) * selectedAssetObj.price;
       setEstimatedUsdValue(usdValue.toFixed(2));
+    } else if (amount) {
+      // If asset not found, assume 1:1 conversion for display purposes
+      setEstimatedUsdValue(parseFloat(amount).toFixed(2));
     }
   }, [selectedAsset, amount, assets]);
 
@@ -208,7 +239,23 @@ export default function OfframpFeature() {
     // Find the selected asset to get its price
     const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
     if (!selectedAssetObj) {
-      alert("Selected asset not found");
+      console.warn(
+        `Asset ${selectedAsset} not found in price list, using default price of 1.0`
+      );
+      // Use a fallback price of 1.0 for unknown assets
+      const cryptoAmount = numericAmount.toFixed(8);
+
+      const url = generateOfframpURL({
+        asset: selectedAsset,
+        amount: cryptoAmount,
+        network: selectedNetwork,
+        cashoutMethod: selectedCashoutMethod,
+        address: address,
+        redirectUrl: window.location.origin + "/offramp?status=success",
+      });
+
+      setGeneratedUrl(url);
+      setShowUrlModal(true);
       return;
     }
 
@@ -256,7 +303,22 @@ export default function OfframpFeature() {
     // Find the selected asset to get its price
     const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
     if (!selectedAssetObj) {
-      alert("Selected asset not found");
+      console.warn(
+        `Asset ${selectedAsset} not found in price list, using default price of 1.0`
+      );
+      // Use a fallback price of 1.0 for unknown assets
+      const cryptoAmount = numericAmount.toFixed(8);
+
+      const url = generateOfframpURL({
+        asset: selectedAsset,
+        amount: cryptoAmount,
+        network: selectedNetwork,
+        cashoutMethod: selectedCashoutMethod,
+        address: address || "0x0000000000000000000000000000000000000000",
+        redirectUrl: window.location.origin + "/offramp?status=success",
+      });
+
+      window.open(url, "_blank");
       return;
     }
 
@@ -474,10 +536,18 @@ export default function OfframpFeature() {
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
                   Estimated value: {selectedAsset}{" "}
-                  {(
-                    parseFloat(amount) /
-                    (assets.find((a) => a.symbol === selectedAsset)?.price || 1)
-                  ).toFixed(6)}
+                  {(() => {
+                    const selectedAssetObj = assets.find(
+                      (a) => a.symbol === selectedAsset
+                    );
+                    if (selectedAssetObj) {
+                      return (
+                        parseFloat(amount) / selectedAssetObj.price
+                      ).toFixed(6);
+                    } else {
+                      return parseFloat(amount).toFixed(6);
+                    }
+                  })()}
                 </p>
               </div>
 
@@ -617,12 +687,21 @@ export default function OfframpFeature() {
                         You'll Send
                       </div>
                       <div className="flex items-center text-gray-800">
-                        {(
-                          parseFloat(amount) /
-                          (assets.find((a) => a.symbol === selectedAsset)
-                            ?.price || 1)
-                        ).toFixed(6)}{" "}
-                        {selectedAsset} on {availableNetworks.find(n => n.id === selectedNetwork)?.name || selectedNetwork}
+                        {(() => {
+                          const selectedAssetObj = assets.find(
+                            (a) => a.symbol === selectedAsset
+                          );
+                          if (selectedAssetObj) {
+                            return (
+                              parseFloat(amount) / selectedAssetObj.price
+                            ).toFixed(6);
+                          } else {
+                            return parseFloat(amount).toFixed(6);
+                          }
+                        })()}{" "}
+                        {selectedAsset} on{" "}
+                        {availableNetworks.find((n) => n.id === selectedNetwork)
+                          ?.name || selectedNetwork}
                       </div>
                     </div>
                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
