@@ -1,12 +1,14 @@
 /**
  * Utility functions for Coinbase Onramp and Offramp URL generation
  */
+import { getOnrampBuyUrl } from '@coinbase/onchainkit/fund';
 
 interface OnrampURLParams {
   asset: string;
   amount: string;
   network: string;
   paymentMethod: string;
+  paymentCurrency?: string;
   address: string;
   redirectUrl: string;
   sessionId?: string;
@@ -23,6 +25,9 @@ interface OfframpURLParams {
   sessionId?: string;
 }
 
+// Coinbase Developer Platform Project ID
+const CDP_PROJECT_ID = 'a353ad87-5af2-4bc7-af5b-884e6aabf088';
+
 /**
  * Generates a Coinbase Onramp URL with the provided parameters
  */
@@ -32,11 +37,18 @@ export function generateOnrampURL(params: OnrampURLParams): string {
     amount,
     network,
     paymentMethod,
+    paymentCurrency,
     address,
     redirectUrl,
     sessionId,
     enableGuestCheckout,
   } = params;
+
+  // Parse amount to a number for presetFiatAmount
+  const numericAmount = parseFloat(amount);
+  if (isNaN(numericAmount)) {
+    throw new Error("Invalid amount provided");
+  }
 
   // Base URL for Coinbase Onramp
   const baseUrl = "https://pay.coinbase.com/buy/select-asset";
@@ -44,28 +56,52 @@ export function generateOnrampURL(params: OnrampURLParams): string {
   // Build query parameters
   const queryParams = new URLSearchParams();
 
-  // Required parameters - use the specific appId
-  queryParams.append("appId", "a353ad87-5af2-4bc7-af5b-884e6aabf088");
+  // Required parameters
+  queryParams.append("appId", CDP_PROJECT_ID);
 
-  // Create addresses object (replacing deprecated destinationWallets)
+  // Format addresses as a JSON string: {"address":["network"]}
   const addressesObj: Record<string, string[]> = {};
-  addressesObj[address] = [network];
+  addressesObj[address || "0x0000000000000000000000000000000000000000"] = [network];
   queryParams.append("addresses", JSON.stringify(addressesObj));
 
-  // Add assets parameter - simple array of strings format
+  // Optional parameters
   if (asset) {
     queryParams.append("assets", JSON.stringify([asset]));
+    queryParams.append("defaultAsset", asset);
   }
 
-  // Optional parameters
-  if (asset) queryParams.append("defaultAsset", asset);
-  if (amount) queryParams.append("presetFiatAmount", amount);
   if (network) queryParams.append("defaultNetwork", network);
-  if (paymentMethod) queryParams.append("defaultPaymentMethod", paymentMethod);
-  if (redirectUrl) queryParams.append("redirectUrl", redirectUrl);
-  if (sessionId) queryParams.append("sessionId", sessionId);
 
-  // Add guest checkout parameter if specified
+  // Format payment method properly
+  if (paymentMethod) {
+    // Convert to uppercase for consistency with API expectations
+    const formattedPaymentMethod = paymentMethod.toUpperCase();
+    queryParams.append("defaultPaymentMethod", formattedPaymentMethod);
+  }
+
+  // Add fiat amount and currency
+  if (numericAmount > 0) {
+    queryParams.append("presetFiatAmount", numericAmount.toString());
+  }
+
+  if (paymentCurrency) {
+    queryParams.append("fiatCurrency", paymentCurrency);
+  }
+
+  // Add partner user ID (limited to 49 chars)
+  queryParams.append("partnerUserId", address.substring(0, 49));
+
+  // Add redirect URL
+  if (redirectUrl) {
+    queryParams.append("redirectUrl", redirectUrl);
+  }
+
+  // Add session token if provided
+  if (sessionId) {
+    queryParams.append("sessionToken", sessionId);
+  }
+
+  // Add guest checkout parameter if provided
   if (enableGuestCheckout !== undefined) {
     queryParams.append("enableGuestCheckout", enableGuestCheckout.toString());
   }
@@ -95,7 +131,7 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   const queryParams = new URLSearchParams();
 
   // Required parameters - use the specific appId
-  queryParams.append("appId", "a353ad87-5af2-4bc7-af5b-884e6aabf088");
+  queryParams.append("appId", CDP_PROJECT_ID);
   queryParams.append("partnerUserId", address || "anonymous");
 
   // Create addresses object - ensure proper formatting according to documentation
@@ -122,7 +158,7 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   if (network) queryParams.append("defaultNetwork", network);
   if (cashoutMethod) queryParams.append("defaultCashoutMethod", cashoutMethod);
   if (redirectUrl) queryParams.append("redirectUrl", redirectUrl);
-  if (sessionId) queryParams.append("sessionId", sessionId);
+  if (sessionId) queryParams.append("sessionToken", sessionId);
 
   // Return the complete URL
   return `${baseUrl}?${queryParams.toString()}`;
