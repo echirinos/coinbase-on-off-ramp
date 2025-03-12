@@ -124,8 +124,8 @@ export function generateOfframpURL(params: OfframpURLParams): string {
     sessionId,
   } = params;
 
-  // Base URL for Coinbase Offramp
-  const baseUrl = "https://pay.coinbase.com/sell/select-asset";
+  // Base URL for Coinbase Offramp - using the v3 endpoint as per documentation
+  const baseUrl = "https://pay.coinbase.com/v3/sell/input";
 
   // Build query parameters
   const queryParams = new URLSearchParams();
@@ -137,9 +137,9 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   queryParams.append("partnerUserId", address ? address.substring(0, 49) : "anonymous");
 
   // Create addresses object - ensure proper formatting according to documentation
-  // Format: {"network1":["address1","address2"]}
+  // Format: {"address":["network1","network2"]} as per documentation
   const addressesObj: Record<string, string[]> = {};
-  addressesObj[network] = [address || "0x0000000000000000000000000000000000000000"];
+  addressesObj[address || "0x0000000000000000000000000000000000000000"] = [network];
   queryParams.append("addresses", JSON.stringify(addressesObj));
 
   // Add assets parameter as a JSON array of strings
@@ -149,7 +149,6 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   }
 
   // Format amount properly - for offramp we need to use presetCryptoAmount for crypto amount
-  // or presetFiatAmount for fiat amount
   if (amount) {
     const numericAmount = parseFloat(amount);
     if (!isNaN(numericAmount)) {

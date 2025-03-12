@@ -52,7 +52,7 @@ export async function fetchCryptoPrices(): Promise<Record<string, number>> {
     // Convert the response to our format
     for (const [id, priceData] of Object.entries(data)) {
       const symbol = idToSymbol[id];
-      if (symbol && priceData.usd) {
+      if (symbol && priceData && typeof priceData === 'object' && 'usd' in priceData && typeof priceData.usd === 'number') {
         newPriceCache[symbol] = priceData.usd;
       }
     }
