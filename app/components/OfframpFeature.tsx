@@ -77,13 +77,41 @@ export default function OfframpFeature() {
       return;
     }
 
+    // Ensure amount is a valid number
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    // Find the selected asset to get its price
+    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
+    if (!selectedAssetObj) {
+      alert("Selected asset not found");
+      return;
+    }
+
+    // Calculate the crypto amount based on the USD value
+    const cryptoAmount = (numericAmount / selectedAssetObj.price).toFixed(8);
+
     const url = generateOfframpURL({
       asset: selectedAsset,
-      amount,
+      // Pass the crypto amount instead of the USD amount
+      amount: cryptoAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address: address,
       redirectUrl: window.location.origin + "/offramp?status=success",
+    });
+
+    console.log("Generated offramp URL:", url);
+    console.log("Parameters:", {
+      asset: selectedAsset,
+      cryptoAmount,
+      usdAmount: numericAmount,
+      network: selectedNetwork,
+      cashoutMethod: selectedCashoutMethod,
+      address,
     });
 
     setGeneratedUrl(url);
@@ -97,13 +125,42 @@ export default function OfframpFeature() {
       return;
     }
 
+    // Ensure amount is a valid number
+    const numericAmount = parseFloat(amount);
+    if (isNaN(numericAmount) || numericAmount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    // Find the selected asset to get its price
+    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
+    if (!selectedAssetObj) {
+      alert("Selected asset not found");
+      return;
+    }
+
+    // Calculate the crypto amount based on the USD value
+    const cryptoAmount = (numericAmount / selectedAssetObj.price).toFixed(8);
+
+    // Generate the offramp URL with validated parameters
     const url = generateOfframpURL({
       asset: selectedAsset,
-      amount,
+      // Pass the crypto amount instead of the USD amount
+      amount: cryptoAmount,
       network: selectedNetwork,
       cashoutMethod: selectedCashoutMethod,
       address: address || "0x0000000000000000000000000000000000000000",
       redirectUrl: window.location.origin + "/offramp?status=success",
+    });
+
+    console.log("Opening offramp URL:", url);
+    console.log("Parameters:", {
+      asset: selectedAsset,
+      cryptoAmount,
+      usdAmount: numericAmount,
+      network: selectedNetwork,
+      cashoutMethod: selectedCashoutMethod,
+      address: address || "0x0000000000000000000000000000000000000000",
     });
 
     window.open(url, "_blank");

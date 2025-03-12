@@ -98,14 +98,28 @@ export function generateOfframpURL(params: OfframpURLParams): string {
   queryParams.append("appId", "a353ad87-5af2-4bc7-af5b-884e6aabf088");
   queryParams.append("partnerUserId", address || "anonymous");
 
-  // Create addresses object
+  // Create addresses object - ensure proper formatting according to documentation
   const addressesObj: Record<string, string[]> = {};
   addressesObj[address || "0x0000000000000000000000000000000000000000"] = [network];
   queryParams.append("addresses", JSON.stringify(addressesObj));
 
-  // Optional parameters
+  // Add assets parameter as a JSON array of strings
+  if (asset) {
+    queryParams.append("assets", JSON.stringify([asset]));
+  }
+
+  // Optional parameters with proper formatting according to documentation
   if (asset) queryParams.append("defaultAsset", asset);
-  if (amount) queryParams.append("defaultAmount", amount);
+
+  // Format amount properly - for offramp we need to use presetCryptoAmount
+  if (amount) {
+    const numericAmount = parseFloat(amount);
+    if (!isNaN(numericAmount)) {
+      queryParams.append("presetCryptoAmount", numericAmount.toString());
+    }
+  }
+
+  if (network) queryParams.append("defaultNetwork", network);
   if (cashoutMethod) queryParams.append("defaultCashoutMethod", cashoutMethod);
   if (redirectUrl) queryParams.append("redirectUrl", redirectUrl);
   if (sessionId) queryParams.append("sessionId", sessionId);
