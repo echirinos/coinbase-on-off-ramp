@@ -288,7 +288,13 @@ export async function fetchBuyOptions(country: string, subdivision?: string): Pr
     // Transform the response to match our expected format if needed
     const transformedOptions: BuyOptionsResponse = {
       paymentCurrencies: options.paymentCurrencies || [],
-      purchaseCurrencies: options.purchaseCurrencies || []
+      purchaseCurrencies: (options.purchaseCurrencies || []).map(currency => ({
+        ...currency,
+        networks: (currency.networks || []).map(network => ({
+          ...network,
+          chainId: Number(network.chainId) // Convert chainId from string to number
+        }))
+      }))
     };
 
     // Log all payment currencies and purchase currencies for debugging
