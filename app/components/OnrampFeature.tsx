@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAccount } from "wagmi";
 import { generateOnrampURL } from "../utils/rampUtils";
 import {
@@ -69,12 +69,48 @@ const countryList = Object.entries(countryNames)
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
 
+// Define asset-network compatibility mapping
+const assetNetworkMap: Record<string, string[]> = {
+  ETH: ["ethereum", "base", "optimism", "arbitrum", "polygon"],
+  USDC: [
+    "ethereum",
+    "base",
+    "optimism",
+    "arbitrum",
+    "polygon",
+    "solana",
+    "avalanche-c-chain",
+  ],
+  BTC: ["bitcoin", "bitcoin-lightning"],
+  SOL: ["solana"],
+  MATIC: ["polygon", "ethereum"],
+  AVAX: ["avalanche-c-chain"],
+  ADA: ["cardano"],
+  DOT: ["polkadot"],
+  ATOM: ["cosmos"],
+  XRP: ["xrp"],
+  ALGO: ["algorand"],
+  FIL: ["filecoin"],
+  NEAR: ["near"],
+  XLM: ["stellar"],
+  TRX: ["tron"],
+  // Add more mappings as needed
+};
+
+// Helper function to get default network for an asset
+const getDefaultNetworkForAsset = (asset: string): string => {
+  if (!assetNetworkMap[asset] || assetNetworkMap[asset].length === 0) {
+    return "ethereum"; // Default fallback
+  }
+  return assetNetworkMap[asset][0]; // Return first compatible network
+};
+
 export default function OnrampFeature() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
-  const [selectedAsset, setSelectedAsset] = useState("BTC");
+  const [selectedAsset, setSelectedAsset] = useState("USDC");
   const [amount, setAmount] = useState("10");
-  const [selectedNetwork, setSelectedNetwork] = useState("bitcoin");
+  const [selectedNetwork, setSelectedNetwork] = useState("base");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState("");
   const [showUrlModal, setShowUrlModal] = useState(false);
@@ -196,6 +232,31 @@ export default function OnrampFeature() {
     { code: "MYR", name: "Malaysian Ringgit" },
     { code: "PHP", name: "Philippine Peso" },
   ].sort((a, b) => a.name.localeCompare(b.name));
+
+  // Initialize network based on selected asset
+  useEffect(() => {
+    // Ensure the selected network is compatible with the selected asset
+    if (assetNetworkMap[selectedAsset]) {
+      const compatibleNetworks = assetNetworkMap[selectedAsset];
+      if (!compatibleNetworks.includes(selectedNetwork)) {
+        setSelectedNetwork(getDefaultNetworkForAsset(selectedAsset));
+      }
+    }
+  }, []);
+
+  // Handle asset change
+  const handleAssetChange = (assetCode: string) => {
+    setSelectedAsset(assetCode);
+
+    // Update network based on the selected asset
+    if (assetNetworkMap[assetCode]) {
+      const compatibleNetworks = assetNetworkMap[assetCode];
+      // If current network is not compatible with the new asset, update it
+      if (!compatibleNetworks.includes(selectedNetwork)) {
+        setSelectedNetwork(getDefaultNetworkForAsset(assetCode));
+      }
+    }
+  };
 
   // Generate one-time URL
   const handleGenerateUrl = () => {
@@ -336,7 +397,7 @@ export default function OnrampFeature() {
                 <div className="relative">
                   <select
                     value={selectedAsset}
-                    onChange={(e) => setSelectedAsset(e.target.value)}
+                    onChange={(e) => handleAssetChange(e.target.value)}
                     className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {assets.map((asset) => (
@@ -357,6 +418,50 @@ export default function OnrampFeature() {
                 </div>
               </div>
 
+              {/* Network Selection - Moved right after Asset Selection */}
+              <div className="mb-6">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Network
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedNetwork}
+                    onChange={(e) => setSelectedNetwork(e.target.value)}
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {/* Filter networks based on selected asset */}
+                    {networks
+                      .filter(
+                        (network) =>
+                          !assetNetworkMap[selectedAsset] ||
+                          assetNetworkMap[selectedAsset].includes(network.id)
+                      )
+                      .map((network) => (
+                        <option key={network.id} value={network.id}>
+                          {network.name}
+                        </option>
+                      ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500 mt-2">
+                  {assetNetworkMap[selectedAsset] &&
+                    `${selectedAsset} is available on ${
+                      assetNetworkMap[selectedAsset].length
+                    } network${
+                      assetNetworkMap[selectedAsset].length > 1 ? "s" : ""
+                    }`}
+                </p>
+              </div>
+
               {/* Amount Input */}
               <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
@@ -364,7 +469,7 @@ export default function OnrampFeature() {
                 </label>
                 <div className="flex space-x-2 mb-2">
                   <button
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
+                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 rounded-lg font-medium transition-colors"
                     onClick={() => setAmount("10")}
                   >
                     {getCurrencySymbol(selectedPaymentCurrency)}10
@@ -410,35 +515,6 @@ export default function OnrampFeature() {
                     {paymentCurrencies.map((currency) => (
                       <option key={currency.code} value={currency.code}>
                         {currency.name} ({currency.code})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Network Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
-                  Network
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedNetwork}
-                    onChange={(e) => setSelectedNetwork(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {networks.map((network) => (
-                      <option key={network.id} value={network.id}>
-                        {network.name}
                       </option>
                     ))}
                   </select>

@@ -516,7 +516,7 @@ export default function OfframpFeature() {
               )}
 
               {/* Asset Selection */}
-              <div className="mb-2">
+              <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
                   Select Asset
                 </label>
@@ -542,11 +542,6 @@ export default function OfframpFeature() {
                     </svg>
                   </div>
                 </div>
-              </div>
-
-              {/* Visual connector between Asset and Network */}
-              <div className="flex justify-center mb-2">
-                <div className="w-0.5 h-4 bg-gray-300"></div>
               </div>
 
               {/* Network Selection - Moved right after Asset Selection */}
