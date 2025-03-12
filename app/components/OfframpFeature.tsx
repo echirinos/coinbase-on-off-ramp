@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { generateOfframpURL } from "../utils/rampUtils";
 import {
   fetchSellConfig,
@@ -10,16 +10,21 @@ import {
   CryptoAsset,
 } from "../utils/offrampApi";
 import GeneratedLinkModal from "./GeneratedLinkModal";
+import OfframpInstructionsModal from "./OfframpInstructionsModal";
+import OfframpNotification from "./OfframpNotification";
+import { useSearchParams } from "next/navigation";
 
 export default function OfframpFeature() {
   const { address, isConnected } = useAccount();
-  const [selectedAsset, setSelectedAsset] = useState("ETH");
-  const [amount, setAmount] = useState("100");
-  const [selectedNetwork, setSelectedNetwork] = useState("ethereum");
+  const [selectedAsset, setSelectedAsset] = useState("USDC");
+  const [amount, setAmount] = useState("10");
+  const [selectedNetwork, setSelectedNetwork] = useState("base");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [generatedUrl, setGeneratedUrl] = useState("");
   const [showUrlModal, setShowUrlModal] = useState(false);
-  const [estimatedUsdValue, setEstimatedUsdValue] = useState("100.00");
+  const [showInstructionsModal, setShowInstructionsModal] = useState(false);
+  const [showNotification, setShowNotification] = useState(false);
+  const [estimatedUsdValue, setEstimatedUsdValue] = useState("10.00");
   const [selectedCashoutMethod, setSelectedCashoutMethod] =
     useState("ACH_BANK_ACCOUNT");
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
@@ -27,7 +32,7 @@ export default function OfframpFeature() {
   // Country and subdivision state
   const [countries, setCountries] = useState<Country[]>([]);
   const [selectedCountry, setSelectedCountry] = useState("US");
-  const [selectedSubdivision, setSelectedSubdivision] = useState("");
+  const [selectedSubdivision, setSelectedSubdivision] = useState("CA");
   const [subdivisions, setSubdivisions] = useState<string[]>([]);
 
   // Assets and networks state
@@ -55,6 +60,50 @@ export default function OfframpFeature() {
     },
   ]);
 
+  // Helper function to get token address based on asset and network
+  const getTokenAddress = (
+    asset: string,
+    network: string
+  ): `0x${string}` | undefined => {
+    // This is a simplified example - in a real app, you would have a mapping of token addresses
+    // For common tokens on different networks
+    const tokenAddresses: Record<string, Record<string, `0x${string}`>> = {
+      USDC: {
+        base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
+        ethereum: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as `0x${string}`,
+        optimism: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607" as `0x${string}`,
+      },
+      ETH: {
+        // For native ETH, we don't need an address
+        base: undefined as unknown as `0x${string}`,
+        ethereum: undefined as unknown as `0x${string}`,
+        optimism: undefined as unknown as `0x${string}`,
+      },
+      // Add more tokens as needed
+    };
+
+    return tokenAddresses[asset]?.[network];
+  };
+
+  // Helper function to get chain ID based on network
+  const getChainId = (network: string): number => {
+    const chainIds: Record<string, number> = {
+      base: 8453,
+      ethereum: 1,
+      optimism: 10,
+      // Add more networks as needed
+    };
+
+    return chainIds[network] || 1; // Default to Ethereum mainnet
+  };
+
+  // Get the balance of the selected asset
+  const { data: tokenBalance } = useBalance({
+    address: address,
+    token: getTokenAddress(selectedAsset, selectedNetwork),
+    chainId: getChainId(selectedNetwork),
+  });
+
   // Define supported assets using useMemo to prevent recreation on every render
   const assets = useMemo(
     () => [
@@ -75,6 +124,22 @@ export default function OfframpFeature() {
     []
   );
 
+  // Get search params to check for status
+  const searchParams = useSearchParams();
+  const status = searchParams.get("status");
+
+  // Show notification if returning from Coinbase with a status
+  useEffect(() => {
+    if (status) {
+      setShowNotification(true);
+
+      // If status is success, also show the instructions modal
+      if (status === "success") {
+        setShowInstructionsModal(true);
+      }
+    }
+  }, [status]);
+
   // Fetch countries and cashout methods on component mount
   useEffect(() => {
     const fetchCountries = async () => {
@@ -87,7 +152,9 @@ export default function OfframpFeature() {
           const defaultCountry =
             config.countries.find((c) => c.code === "US") ||
             config.countries[0];
-          setSelectedCountry(defaultCountry.code);
+
+          // Keep the US as selected country
+          setSelectedCountry("US");
 
           // Update cashout methods based on selected country
           if (defaultCountry.cashout_methods) {
@@ -108,12 +175,18 @@ export default function OfframpFeature() {
           // Set subdivisions if available
           if (defaultCountry.supported_states) {
             setSubdivisions(defaultCountry.supported_states);
-            if (defaultCountry.supported_states.length > 0) {
+            // Keep CA as the default state if it exists in the supported states
+            if (defaultCountry.supported_states.includes("CA")) {
+              setSelectedSubdivision("CA");
+            } else if (defaultCountry.supported_states.length > 0) {
               setSelectedSubdivision(defaultCountry.supported_states[0]);
             }
           } else {
             setSubdivisions([]);
-            setSelectedSubdivision("");
+            // Only reset subdivision if there are no supported states
+            if (selectedSubdivision) {
+              setSelectedSubdivision("");
+            }
           }
         }
       } catch (error) {
@@ -134,11 +207,18 @@ export default function OfframpFeature() {
         );
         setAvailableAssets(options.sell_currencies);
 
-        // Set default asset and update networks
-        if (options.sell_currencies.length > 0) {
-          const defaultAsset =
-            options.sell_currencies.find((a) => a.code === "ETH") ||
-            options.sell_currencies[0];
+        // Try to keep USDC as the selected asset if available
+        const usdcAsset = options.sell_currencies.find(
+          (a) => a.code === "USDC"
+        );
+        if (usdcAsset) {
+          setSelectedAsset("USDC");
+
+          // Update available networks for USDC
+          updateNetworksForAsset("USDC", options.sell_currencies);
+        } else if (options.sell_currencies.length > 0) {
+          // Fallback to first available asset if USDC is not available
+          const defaultAsset = options.sell_currencies[0];
           setSelectedAsset(defaultAsset.code);
 
           // Update available networks for the selected asset
@@ -174,7 +254,9 @@ export default function OfframpFeature() {
       // Update subdivisions
       if (country.supported_states) {
         setSubdivisions(country.supported_states);
-        if (country.supported_states.length > 0) {
+        if (country.supported_states.includes("CA")) {
+          setSelectedSubdivision("CA");
+        } else if (country.supported_states.length > 0) {
           setSelectedSubdivision(country.supported_states[0]);
         }
       } else {
@@ -195,9 +277,17 @@ export default function OfframpFeature() {
 
       // Set default network
       if (asset.networks.length > 0) {
-        const defaultNetwork =
-          asset.networks.find((n) => n.id === "ethereum") || asset.networks[0];
-        setSelectedNetwork(defaultNetwork.id);
+        // Prefer Base network if available, then Ethereum, then first available
+        const baseNetwork = asset.networks.find((n) => n.id === "base");
+        const ethereumNetwork = asset.networks.find((n) => n.id === "ethereum");
+
+        if (baseNetwork) {
+          setSelectedNetwork("base");
+        } else if (ethereumNetwork) {
+          setSelectedNetwork("ethereum");
+        } else {
+          setSelectedNetwork(asset.networks[0].id);
+        }
       }
     } else {
       setAvailableNetworks([]);
@@ -222,43 +312,38 @@ export default function OfframpFeature() {
     }
   }, [selectedAsset, amount, assets]);
 
-  // Generate one-time URL
-  const handleGenerateUrl = () => {
-    if (!address) {
-      alert("Please connect your wallet first");
-      return;
+  // Helper function to check if user has sufficient balance
+  const checkSufficientBalance = (
+    asset: string,
+    amount: string,
+    network: string
+  ): boolean => {
+    console.log(`Checking balance for ${amount} ${asset} on ${network}`);
+
+    try {
+      if (!tokenBalance) {
+        console.log("Token balance not available");
+        return false;
+      }
+
+      const requestedAmount = parseFloat(amount);
+      const userBalance = parseFloat(tokenBalance.formatted);
+
+      console.log(`User balance: ${userBalance} ${tokenBalance.symbol}`);
+      console.log(`Requested amount: ${requestedAmount} ${asset}`);
+
+      if (userBalance >= requestedAmount) {
+        console.log("Sufficient balance available");
+        return true;
+      } else {
+        console.log("Insufficient balance");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error checking balance:", error);
+      // In case of error, we'll fail safe and return false
+      return false;
     }
-
-    // Ensure amount is a valid number
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      alert("Please enter a valid amount");
-      return;
-    }
-
-    // Use the exact amount entered by the user
-    const exactAmount = numericAmount.toFixed(8);
-
-    const url = generateOfframpURL({
-      asset: selectedAsset,
-      amount: exactAmount,
-      network: selectedNetwork,
-      cashoutMethod: selectedCashoutMethod,
-      address: address,
-      redirectUrl: window.location.origin + "/offramp?status=success",
-    });
-
-    console.log("Generated offramp URL:", url);
-    console.log("Parameters:", {
-      asset: selectedAsset,
-      amount: exactAmount,
-      network: selectedNetwork,
-      cashoutMethod: selectedCashoutMethod,
-      address,
-    });
-
-    setGeneratedUrl(url);
-    setShowUrlModal(true);
   };
 
   // Handle direct offramp
@@ -278,26 +363,37 @@ export default function OfframpFeature() {
     // Use the exact amount entered by the user
     const exactAmount = numericAmount.toFixed(8);
 
-    // Generate the offramp URL with validated parameters
-    const url = generateOfframpURL({
-      asset: selectedAsset,
-      amount: exactAmount,
-      network: selectedNetwork,
-      cashoutMethod: selectedCashoutMethod,
-      address: address || "0x0000000000000000000000000000000000000000",
-      redirectUrl: window.location.origin + "/offramp?status=success",
-    });
+    // Skip balance check to allow users to see the Coinbase offramp flow
+    // This is for demo purposes - in a production app, you would want to check balance
 
-    console.log("Opening offramp URL:", url);
-    console.log("Parameters:", {
-      asset: selectedAsset,
-      amount: exactAmount,
-      network: selectedNetwork,
-      cashoutMethod: selectedCashoutMethod,
-      address: address || "0x0000000000000000000000000000000000000000",
-    });
+    try {
+      // Generate the offramp URL with validated parameters
+      const url = generateOfframpURL({
+        asset: selectedAsset,
+        amount: exactAmount,
+        network: selectedNetwork,
+        cashoutMethod: selectedCashoutMethod,
+        address: address || "0x0000000000000000000000000000000000000000",
+        redirectUrl: window.location.origin + "/offramp?status=success",
+      });
 
-    window.open(url, "_blank");
+      console.log("Opening offramp URL:", url);
+      console.log("Parameters:", {
+        asset: selectedAsset,
+        amount: exactAmount,
+        network: selectedNetwork,
+        cashoutMethod: selectedCashoutMethod,
+        address: address || "0x0000000000000000000000000000000000000000",
+      });
+
+      // Open the URL in a new tab
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error generating offramp URL:", error);
+      alert(
+        "An error occurred while generating the offramp URL. Please try again."
+      );
+    }
   };
 
   const handleCopyUrl = () => {
@@ -420,7 +516,7 @@ export default function OfframpFeature() {
               )}
 
               {/* Asset Selection */}
-              <div className="mb-6">
+              <div className="mb-2">
                 <label className="block text-gray-700 mb-2 font-medium">
                   Select Asset
                 </label>
@@ -446,6 +542,46 @@ export default function OfframpFeature() {
                     </svg>
                   </div>
                 </div>
+              </div>
+
+              {/* Visual connector between Asset and Network */}
+              <div className="flex justify-center mb-2">
+                <div className="w-0.5 h-4 bg-gray-300"></div>
+              </div>
+
+              {/* Network Selection - Moved right after Asset Selection */}
+              <div className="mb-6">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  Network
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedNetwork}
+                    onChange={(e) => setSelectedNetwork(e.target.value)}
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {availableNetworks.map((network) => (
+                      <option key={network.id} value={network.id}>
+                        {network.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+                {availableNetworks.length > 0 && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    {selectedAsset} is available on {availableNetworks.length}{" "}
+                    network{availableNetworks.length > 1 ? "s" : ""}
+                  </p>
+                )}
               </div>
 
               {/* Amount Input */}
@@ -502,35 +638,6 @@ export default function OfframpFeature() {
                 </p>
               </div>
 
-              {/* Network Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
-                  Network
-                </label>
-                <div className="relative">
-                  <select
-                    value={selectedNetwork}
-                    onChange={(e) => setSelectedNetwork(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {availableNetworks.map((network) => (
-                      <option key={network.id} value={network.id}>
-                        {network.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
               {/* Cashout Method Selection */}
               <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
@@ -584,10 +691,10 @@ export default function OfframpFeature() {
                 </button>
               ) : (
                 <button
-                  onClick={handleGenerateUrl}
+                  onClick={handleOfframp}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
                 >
-                  Generate Payment Link
+                  Start Offramp
                 </button>
               )}
             </div>
@@ -656,7 +763,7 @@ export default function OfframpFeature() {
                       </div>
                     </div>
                     <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
-                      Generate Link
+                      Start Offramp
                     </button>
                   </div>
                 )}
@@ -672,6 +779,26 @@ export default function OfframpFeature() {
               onClose={() => setShowUrlModal(false)}
               onCopy={handleCopyUrl}
               onOpen={handleOpenUrl}
+            />
+          )}
+
+          {/* Instructions Modal */}
+          {showInstructionsModal && (
+            <OfframpInstructionsModal
+              onClose={() => setShowInstructionsModal(false)}
+              asset={selectedAsset}
+              network={
+                availableNetworks.find((n) => n.id === selectedNetwork)?.name ||
+                selectedNetwork
+              }
+            />
+          )}
+
+          {/* Notification */}
+          {showNotification && (
+            <OfframpNotification
+              onClose={() => setShowNotification(false)}
+              status={status || "default"}
             />
           )}
         </div>
