@@ -257,7 +257,7 @@ export default function OnrampFeature() {
         setSelectedNetwork(getDefaultNetworkForAsset(selectedAsset));
       }
     }
-  }, []);
+  }, [selectedAsset, selectedNetwork]);
 
   // Fetch cryptocurrency prices on component mount
   useEffect(() => {

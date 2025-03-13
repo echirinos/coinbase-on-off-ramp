@@ -98,11 +98,9 @@ export function FundButtonFeature() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
-        <h3 className="text-xl font-bold mb-6 dark:text-white">
-          Configure Fund Button
-        </h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-6">
+      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100">
+        <h3 className="text-xl font-bold mb-6">Configure Fund Button</h3>
+        <p className="text-gray-600 mb-6">
           The Fund Button allows your users to contribute funds to your dApp or
           project in a seamless manner.
         </p>
@@ -214,8 +212,8 @@ export function FundButtonFeature() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
-        <h3 className="text-xl font-bold mb-6 dark:text-white">Preview</h3>
+      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
+        <h3 className="text-xl font-bold mb-6">Preview</h3>
         <div className="flex-grow flex items-center justify-center">
           {isLoading ? (
             <div className="animate-pulse flex space-x-4">
@@ -232,22 +230,22 @@ export function FundButtonFeature() {
                   fundingUrl={getCustomOnrampUrl()}
                 />
               ) : (
-                <div className="text-amber-600 dark:text-amber-400 text-sm">
+                <div className="text-amber-600 text-sm">
                   Please connect your wallet to use the Fund Button
                 </div>
               )}
-              <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
+              <p className="text-gray-600 text-sm mt-4">
                 A simple button that opens the Coinbase Fund flow
               </p>
-              <p className="text-amber-600 dark:text-amber-400 text-xs mt-2">
+              <p className="text-amber-600 text-xs mt-2">
                 Wallet connection required to use
               </p>
               {cdpProjectId ? (
-                <p className="text-green-600 dark:text-green-400 text-xs mt-2">
+                <p className="text-green-600 text-xs mt-2">
                   CDP Project ID loaded successfully
                 </p>
               ) : (
-                <p className="text-red-600 dark:text-red-400 text-xs mt-2">
+                <p className="text-red-600 text-xs mt-2">
                   CDP Project ID not loaded
                 </p>
               )}

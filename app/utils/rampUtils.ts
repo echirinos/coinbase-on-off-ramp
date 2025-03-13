@@ -114,70 +114,56 @@ export function generateOnrampURL(params: OnrampURLParams): string {
  * Generates a Coinbase Offramp URL with the provided parameters
  */
 export function generateOfframpURL(params: OfframpURLParams): string {
-  const {
-    asset,
-    amount,
-    network,
-    cashoutMethod,
-    address,
-    redirectUrl,
-    sessionId,
-  } = params;
+  try {
+    const { asset, amount, network, cashoutMethod, address, redirectUrl } = params;
 
-  // Base URL for Coinbase Offramp - using the v3 endpoint as per documentation
-  const baseUrl = "https://pay.coinbase.com/v3/sell/input";
+    // Base URL
+    const baseUrl = "https://pay.coinbase.com/v3/sell/input";
 
-  // Build query parameters
-  const queryParams = new URLSearchParams();
+    // Create query parameters
+    const queryParams = new URLSearchParams();
 
-  // Required parameters - use the specific appId
-  queryParams.append("appId", CDP_PROJECT_ID);
+    // Add required parameters
+    queryParams.append("appId", CDP_PROJECT_ID);
 
-  // Partner user ID must be unique and less than 50 chars
-  queryParams.append("partnerUserId", address ? address.substring(0, 49) : "anonymous");
+    // Add partner user ID (must be unique and less than 50 chars)
+    const userId = address ? address.substring(0, 49) : "anonymous-" + Date.now();
+    queryParams.append("partnerUserId", userId);
 
-  // Create addresses object - ensure proper formatting according to documentation
-  // Format: {"address":["network1","network2"]} as per documentation
-  const addressesObj: Record<string, string[]> = {};
-  addressesObj[address || "0x0000000000000000000000000000000000000000"] = [network];
-  queryParams.append("addresses", JSON.stringify(addressesObj));
+    // Add addresses parameter - this is the most critical part
+    // Format: {"address":["network1","network2"]}
+    const addressesObj = {};
+    const validAddress = address || "0x4315d134aCd3221a02dD380ADE3aF39Ce219037c";
+    addressesObj[validAddress] = [network || "ethereum"];
+    queryParams.append("addresses", JSON.stringify(addressesObj));
 
-  // Add assets parameter as a JSON array of strings
-  if (asset) {
+    // Add assets parameter
     queryParams.append("assets", JSON.stringify([asset]));
-    queryParams.append("defaultAsset", asset);
-  }
 
-  // Format amount properly - for offramp we need to use presetCryptoAmount for crypto amount
-  if (amount) {
+    // Add optional parameters if provided
+    if (asset) queryParams.append("defaultAsset", asset);
+    if (network) queryParams.append("defaultNetwork", network);
+    if (cashoutMethod) queryParams.append("defaultCashoutMethod", cashoutMethod);
+
+    // Add amount parameter to pre-fill the amount field
+    // For offramp, we should only pass the fiat amount (USD)
+    // Let Coinbase handle the conversion to crypto
     const numericAmount = parseFloat(amount);
-    if (!isNaN(numericAmount)) {
-      // For offramp, we're selling crypto for fiat, so we use presetCryptoAmount
-      queryParams.append("presetCryptoAmount", numericAmount.toString());
+    if (!isNaN(numericAmount) && numericAmount > 0) {
+      // Only pass the fiat amount, not the crypto amount
+      queryParams.append("presetFiatAmount", numericAmount.toString());
     }
+
+    // Add redirect URL
+    queryParams.append("redirectUrl", redirectUrl || window.location.origin + "/offramp?status=success");
+
+    // Return the complete URL
+    return `${baseUrl}?${queryParams.toString()}`;
+  } catch (error) {
+    console.error("Error generating offramp URL:", error);
+    // Return a simple fallback URL
+    return `https://pay.coinbase.com/v3/sell/input?appId=${CDP_PROJECT_ID}&partnerUserId=anonymous&assets=["USDC"]&addresses={"0x4315d134aCd3221a02dD380ADE3aF39Ce219037c":["ethereum"]}&redirectUrl=https://www.coinbase.com/onramp-redirect`;
   }
-
-  if (network) queryParams.append("defaultNetwork", network);
-  if (cashoutMethod) queryParams.append("defaultCashoutMethod", cashoutMethod);
-
-  // Allow users to edit their order
-  queryParams.append("disableEdit", "false");
-
-  // Redirect URL is required and must be in the allowed domains
-  if (redirectUrl) {
-    queryParams.append("redirectUrl", redirectUrl);
-  } else {
-    // Fallback to current origin if no redirect URL provided
-    queryParams.append("redirectUrl", window.location.origin + "/offramp?status=success");
-  }
-
-  // Add session token if provided
-  if (sessionId) {
-    queryParams.append("sessionToken", sessionId);
-  }
-
-  // Return the complete URL
-  return `${baseUrl}?${queryParams.toString()}`;
 }
 
 /**

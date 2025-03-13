@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { useAccount, useBalance } from "wagmi";
+import React, { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
 import { generateOfframpURL } from "../utils/rampUtils";
 import {
   fetchSellConfig,
@@ -9,177 +9,92 @@ import {
   Country,
   CryptoAsset,
 } from "../utils/offrampApi";
-import GeneratedLinkModal from "./GeneratedLinkModal";
-import OfframpInstructionsModal from "./OfframpInstructionsModal";
-import OfframpNotification from "./OfframpNotification";
 import { useSearchParams } from "next/navigation";
-import { fetchCryptoPrices } from "../utils/priceUtils";
+import OfframpNotification from "./OfframpNotification";
+
+// Define types for the modal component
+interface SimpleModalProps {
+  title: string;
+  content: React.ReactNode;
+  onClose: () => void;
+  actions: React.ReactNode;
+}
+
+// Simple modal component
+const SimpleModal: React.FC<SimpleModalProps> = ({
+  title,
+  content,
+  onClose,
+  actions,
+}) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl p-6 max-w-md w-full shadow-lg">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+        <button
+          onClick={onClose}
+          className="text-gray-500 hover:text-gray-700"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <div className="mb-4">{content}</div>
+      <div className="flex gap-2">{actions}</div>
+    </div>
+  </div>
+);
+
+// Define types for cashout methods
+interface CashoutMethod {
+  id: string;
+  name: string;
+}
+
+// Define types for network
+interface Network {
+  id: string;
+  name: string;
+}
 
 export default function OfframpFeature() {
+  // Core states
   const { address, isConnected } = useAccount();
-  const [selectedAsset, setSelectedAsset] = useState("USDC");
-  const [amount, setAmount] = useState("10");
-  const [selectedNetwork, setSelectedNetwork] = useState("base");
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [generatedUrl, setGeneratedUrl] = useState("");
-  const [showUrlModal, setShowUrlModal] = useState(false);
-  const [showInstructionsModal, setShowInstructionsModal] = useState(false);
-  const [showNotification, setShowNotification] = useState(false);
-  const [estimatedUsdValue, setEstimatedUsdValue] = useState("10.00");
+  const [selectedAsset, setSelectedAsset] = useState<string>("USDC");
+  const [amount, setAmount] = useState<string>("10");
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("ethereum");
   const [selectedCashoutMethod, setSelectedCashoutMethod] =
-    useState("ACH_BANK_ACCOUNT");
+    useState<string>("ACH_BANK_ACCOUNT");
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
-  const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
-  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
-  // Country and subdivision state
+  // UI states
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [generatedUrl, setGeneratedUrl] = useState<string>("");
+  const [showNotification, setShowNotification] = useState<boolean>(false);
+
+  // Data states
   const [countries, setCountries] = useState<Country[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("US");
-  const [selectedSubdivision, setSelectedSubdivision] = useState("CA");
+  const [selectedCountry, setSelectedCountry] = useState<string>("US");
+  const [selectedSubdivision, setSelectedSubdivision] = useState<string>("CA");
   const [subdivisions, setSubdivisions] = useState<string[]>([]);
-
-  // Assets and networks state
   const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
-  const [availableNetworks, setAvailableNetworks] = useState<
-    { id: string; name: string }[]
-  >([]);
-
-  // Cashout methods state
-  const [cashoutMethods, setCashoutMethods] = useState([
-    {
-      id: "ACH_BANK_ACCOUNT",
-      name: "Bank Transfer (ACH)",
-      description: "US only, 1-3 business days",
-    },
-    {
-      id: "PAYPAL",
-      name: "PayPal",
-      description: "Available in select countries",
-    },
-    {
-      id: "FIAT_WALLET",
-      name: "Coinbase Fiat Wallet",
-      description: "Instant transfer to your Coinbase account",
-    },
+  const [availableNetworks, setAvailableNetworks] = useState<Network[]>([]);
+  const [cashoutMethods, setCashoutMethods] = useState<CashoutMethod[]>([
+    { id: "ACH_BANK_ACCOUNT", name: "Bank Transfer (ACH)" },
+    { id: "PAYPAL", name: "PayPal" },
+    { id: "FIAT_WALLET", name: "Coinbase Fiat Wallet" },
   ]);
 
-  // Helper function to get token address based on asset and network
-  const getTokenAddress = (
-    asset: string,
-    network: string
-  ): `0x${string}` | undefined => {
-    // This is a simplified example - in a real app, you would have a mapping of token addresses
-    // For common tokens on different networks
-    const tokenAddresses: Record<string, Record<string, `0x${string}`>> = {
-      USDC: {
-        base: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as `0x${string}`,
-        ethereum: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48" as `0x${string}`,
-        optimism: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607" as `0x${string}`,
-      },
-      ETH: {
-        // For native ETH, we don't need an address
-        base: undefined as unknown as `0x${string}`,
-        ethereum: undefined as unknown as `0x${string}`,
-        optimism: undefined as unknown as `0x${string}`,
-      },
-      // Add more tokens as needed
-    };
-
-    return tokenAddresses[asset]?.[network];
-  };
-
-  // Helper function to get chain ID based on network
-  const getChainId = (network: string): number => {
-    const chainIds: Record<string, number> = {
-      base: 8453,
-      ethereum: 1,
-      optimism: 10,
-      // Add more networks as needed
-    };
-
-    return chainIds[network] || 1; // Default to Ethereum mainnet
-  };
-
-  // Get the balance of the selected asset
-  const { data: tokenBalance } = useBalance({
-    address: address,
-    token: getTokenAddress(selectedAsset, selectedNetwork),
-    chainId: getChainId(selectedNetwork),
-  });
-
-  // Define supported assets using useMemo to prevent recreation on every render
-  const assets = useMemo(
-    () => [
-      { symbol: "ETH", name: "Ethereum", price: cryptoPrices["ETH"] || 3500 },
-      { symbol: "USDC", name: "USD Coin", price: cryptoPrices["USDC"] || 1 },
-      { symbol: "BTC", name: "Bitcoin", price: cryptoPrices["BTC"] || 67000 },
-      { symbol: "SOL", name: "Solana", price: cryptoPrices["SOL"] || 140 },
-      { symbol: "MATIC", name: "Polygon", price: cryptoPrices["MATIC"] || 0.8 },
-      { symbol: "AVAX", name: "Avalanche", price: cryptoPrices["AVAX"] || 35 },
-      { symbol: "LINK", name: "Chainlink", price: cryptoPrices["LINK"] || 15 },
-      { symbol: "UNI", name: "Uniswap", price: cryptoPrices["UNI"] || 8 },
-      { symbol: "DOGE", name: "Dogecoin", price: cryptoPrices["DOGE"] || 0.1 },
-      {
-        symbol: "SHIB",
-        name: "Shiba Inu",
-        price: cryptoPrices["SHIB"] || 0.00002,
-      },
-      { symbol: "XRP", name: "XRP", price: cryptoPrices["XRP"] || 0.5 },
-      { symbol: "LTC", name: "Litecoin", price: cryptoPrices["LTC"] || 80 },
-      {
-        symbol: "BCH",
-        name: "Bitcoin Cash",
-        price: cryptoPrices["BCH"] || 300,
-      },
-    ],
-    [cryptoPrices]
-  );
-
-  // Get search params to check for status
+  // Check for status in URL
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
-
-  // Update networks when asset changes
-  const updateNetworksForAsset = (
-    assetCode: string,
-    assets: CryptoAsset[] = availableAssets
-  ) => {
-    const asset = assets.find((a: CryptoAsset) => a.code === assetCode);
-    if (asset && asset.networks) {
-      setAvailableNetworks(asset.networks);
-
-      // Set default network
-      if (asset.networks.length > 0) {
-        // Prefer Base network if available, then Ethereum, then first available
-        const baseNetwork = asset.networks.find(
-          (n: { id: string; name: string }) => n.id === "base"
-        );
-        const ethereumNetwork = asset.networks.find(
-          (n: { id: string; name: string }) => n.id === "ethereum"
-        );
-
-        if (baseNetwork) {
-          setSelectedNetwork("base");
-        } else if (ethereumNetwork) {
-          setSelectedNetwork("ethereum");
-        } else {
-          setSelectedNetwork(asset.networks[0].id);
-        }
-      }
-    } else {
-      setAvailableNetworks([]);
-    }
-  };
 
   // Show notification if returning from Coinbase with a status
   useEffect(() => {
     if (status) {
       setShowNotification(true);
-
-      // If status is success, also show the instructions modal
-      if (status === "success") {
-        setShowInstructionsModal(true);
-      }
     }
   }, [status]);
 
@@ -188,49 +103,8 @@ export default function OfframpFeature() {
     const fetchCountries = async () => {
       try {
         const config = await fetchSellConfig();
-        setCountries(config.countries);
-
-        // Set default country and update cashout methods
-        if (config.countries.length > 0) {
-          const defaultCountry =
-            config.countries.find((c) => c.code === "US") ||
-            config.countries[0];
-
-          // Keep the US as selected country
-          setSelectedCountry("US");
-
-          // Update cashout methods based on selected country
-          if (defaultCountry.cashout_methods) {
-            setCashoutMethods(
-              defaultCountry.cashout_methods.map((cm) => ({
-                id: cm.id,
-                name: cm.name,
-                description: cm.description || "",
-              }))
-            );
-
-            // Set default cashout method
-            if (defaultCountry.cashout_methods.length > 0) {
-              setSelectedCashoutMethod(defaultCountry.cashout_methods[0].id);
-            }
-          }
-
-          // Set subdivisions if available
-          if (defaultCountry.supported_states) {
-            setSubdivisions(defaultCountry.supported_states);
-            // Keep CA as the default state if it exists in the supported states
-            if (defaultCountry.supported_states.includes("CA")) {
-              setSelectedSubdivision("CA");
-            } else if (defaultCountry.supported_states.length > 0) {
-              setSelectedSubdivision(defaultCountry.supported_states[0]);
-            }
-          } else {
-            setSubdivisions([]);
-            // Only reset subdivision if there are no supported states
-            if (selectedSubdivision) {
-              setSelectedSubdivision("");
-            }
-          }
+        if (config && config.countries) {
+          setCountries(config.countries);
         }
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -238,242 +112,166 @@ export default function OfframpFeature() {
     };
 
     fetchCountries();
-  }, [selectedSubdivision]);
+  }, []);
 
   // Fetch assets and networks when country or subdivision changes
   useEffect(() => {
     const fetchAssets = async () => {
+      if (!selectedCountry) return;
+
       try {
         const options = await fetchSellOptions(
           selectedCountry,
           selectedSubdivision
         );
-        setAvailableAssets(options.sell_currencies);
+        if (options && options.sell_currencies) {
+          setAvailableAssets(options.sell_currencies);
 
-        // Try to keep USDC as the selected asset if available
-        const usdcAsset = options.sell_currencies.find(
-          (a) => a.code === "USDC"
-        );
-        if (usdcAsset) {
-          setSelectedAsset("USDC");
+          // Set default asset to USDC if available
+          const usdcAsset = options.sell_currencies.find(
+            (a) => a.code === "USDC"
+          );
+          if (usdcAsset) {
+            setSelectedAsset("USDC");
 
-          // Update available networks for USDC
-          updateNetworksForAsset("USDC", options.sell_currencies);
-        } else if (options.sell_currencies.length > 0) {
-          // Fallback to first available asset if USDC is not available
-          const defaultAsset = options.sell_currencies[0];
-          setSelectedAsset(defaultAsset.code);
+            // Set available networks for USDC
+            if (usdcAsset.networks && usdcAsset.networks.length > 0) {
+              setAvailableNetworks(usdcAsset.networks);
 
-          // Update available networks for the selected asset
-          updateNetworksForAsset(defaultAsset.code, options.sell_currencies);
+              // Set default network to base if available
+              const baseNetwork = usdcAsset.networks.find(
+                (n) => n.id === "base"
+              );
+              if (baseNetwork) {
+                setSelectedNetwork("base");
+              } else if (usdcAsset.networks.length > 0) {
+                setSelectedNetwork(usdcAsset.networks[0].id);
+              }
+            }
+          } else if (options.sell_currencies.length > 0) {
+            // Default to first available asset
+            setSelectedAsset(options.sell_currencies[0].code);
+
+            // Set available networks for the selected asset
+            if (
+              options.sell_currencies[0].networks &&
+              options.sell_currencies[0].networks.length > 0
+            ) {
+              setAvailableNetworks(options.sell_currencies[0].networks);
+              setSelectedNetwork(options.sell_currencies[0].networks[0].id);
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching assets:", error);
       }
     };
 
-    if (selectedCountry) {
-      fetchAssets();
-    }
-  }, [selectedCountry, selectedSubdivision, updateNetworksForAsset]);
-
-  // Update cashout methods when country changes
-  useEffect(() => {
-    const country = countries.find((c) => c.code === selectedCountry);
-    if (country && country.cashout_methods) {
-      setCashoutMethods(
-        country.cashout_methods.map((cm) => ({
-          id: cm.id,
-          name: cm.name,
-          description: cm.description || "",
-        }))
-      );
-
-      // Set default cashout method
-      if (country.cashout_methods.length > 0) {
-        setSelectedCashoutMethod(country.cashout_methods[0].id);
-      }
-
-      // Update subdivisions
-      if (country.supported_states) {
-        setSubdivisions(country.supported_states);
-        if (country.supported_states.includes("CA")) {
-          setSelectedSubdivision("CA");
-        } else if (country.supported_states.length > 0) {
-          setSelectedSubdivision(country.supported_states[0]);
-        }
-      } else {
-        setSubdivisions([]);
-        setSelectedSubdivision("");
-      }
-    }
-  }, [selectedCountry, countries]);
+    fetchAssets();
+  }, [selectedCountry, selectedSubdivision]);
 
   // Handle asset change
   const handleAssetChange = (assetCode: string) => {
     setSelectedAsset(assetCode);
-    updateNetworksForAsset(assetCode);
-  };
 
-  // Fetch cryptocurrency prices on component mount
-  useEffect(() => {
-    const getPrices = async () => {
-      setIsLoadingPrices(true);
-      try {
-        const prices = await fetchCryptoPrices();
-        setCryptoPrices(prices);
-      } catch (error) {
-        console.error("Failed to fetch cryptocurrency prices:", error);
-      } finally {
-        setIsLoadingPrices(false);
-      }
-    };
-
-    getPrices();
-
-    // Refresh prices every 60 seconds
-    const intervalId = setInterval(getPrices, 60000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  // Calculate estimated USD value when asset or amount changes
-  useEffect(() => {
-    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
-    if (selectedAssetObj && amount) {
-      // For offramp, the amount is in USD, and we need to show how much USD the user will receive
-      // So we just use the amount directly
-      setEstimatedUsdValue(parseFloat(amount).toFixed(2));
-    } else if (amount) {
-      // If asset not found, assume 1:1 conversion for display purposes
-      setEstimatedUsdValue(parseFloat(amount).toFixed(2));
-    }
-  }, [selectedAsset, amount, assets, cryptoPrices]);
-
-  // Helper function to check if user has sufficient balance
-  const checkSufficientBalance = (
-    asset: string,
-    amount: string,
-    network: string
-  ): boolean => {
-    console.log(`Checking balance for ${amount} ${asset} on ${network}`);
-
-    try {
-      if (!tokenBalance) {
-        console.log("Token balance not available");
-        return false;
-      }
-
-      const requestedAmount = parseFloat(amount);
-      const userBalance = parseFloat(tokenBalance.formatted);
-
-      console.log(`User balance: ${userBalance} ${tokenBalance.symbol}`);
-      console.log(`Requested amount: ${requestedAmount} ${asset}`);
-
-      if (userBalance >= requestedAmount) {
-        console.log("Sufficient balance available");
-        return true;
-      } else {
-        console.log("Insufficient balance");
-        return false;
-      }
-    } catch (error) {
-      console.error("Error checking balance:", error);
-      // In case of error, we'll fail safe and return false
-      return false;
+    // Update networks for the selected asset
+    const asset = availableAssets.find((a) => a.code === assetCode);
+    if (asset && asset.networks && asset.networks.length > 0) {
+      setAvailableNetworks(asset.networks);
+      setSelectedNetwork(asset.networks[0].id);
+    } else {
+      setAvailableNetworks([]);
     }
   };
 
-  // Handle direct offramp
+  // Handle offramp
   const handleOfframp = () => {
-    if (!isConnected) {
-      alert("Please connect your wallet first");
+    // Clear any previous error
+    setErrorMessage(null);
+
+    // Validate wallet connection for API mode
+    if (activeTab === "api" && !isConnected) {
+      setErrorMessage("Please connect your wallet first");
       return;
     }
 
-    // Ensure amount is a valid number
-    const numericAmount = parseFloat(amount);
-    if (isNaN(numericAmount) || numericAmount <= 0) {
-      alert("Please enter a valid amount");
+    // Validate amount
+    if (!amount || parseFloat(amount) <= 0) {
+      setErrorMessage("Please enter a valid amount");
       return;
     }
 
-    // Calculate the crypto amount based on the USD amount and asset price
-    const selectedAssetObj = assets.find((a) => a.symbol === selectedAsset);
-    let cryptoAmount = numericAmount;
-
-    if (selectedAssetObj && selectedAssetObj.price) {
-      cryptoAmount = numericAmount / selectedAssetObj.price;
-    }
-
-    // Format the crypto amount with appropriate precision
-    let formattedCryptoAmount = cryptoAmount.toFixed(8);
-    if (selectedAsset === "SHIB") {
-      formattedCryptoAmount = cryptoAmount.toFixed(0);
-    } else if (selectedAsset !== "BTC" && selectedAsset !== "WBTC") {
-      formattedCryptoAmount = cryptoAmount.toFixed(6);
-    }
-
-    // Skip balance check to allow users to see the Coinbase offramp flow
-    // This is for demo purposes - in a production app, you would want to check balance
+    // Start loading
+    setIsLoading(true);
 
     try {
-      // Generate the offramp URL with validated parameters
+      // Generate offramp URL
       const url = generateOfframpURL({
         asset: selectedAsset,
-        amount: formattedCryptoAmount,
+        amount: amount,
         network: selectedNetwork,
         cashoutMethod: selectedCashoutMethod,
         address: address || "0x0000000000000000000000000000000000000000",
         redirectUrl: window.location.origin + "/offramp?status=success",
       });
 
-      console.log("Opening offramp URL:", url);
-      console.log("Parameters:", {
-        asset: selectedAsset,
-        amount: formattedCryptoAmount,
-        network: selectedNetwork,
-        cashoutMethod: selectedCashoutMethod,
-        address: address || "0x0000000000000000000000000000000000000000",
-      });
-
-      // Open the URL in a new tab
-      window.open(url, "_blank");
+      // Handle URL based on active tab
+      if (activeTab === "url") {
+        setGeneratedUrl(url);
+        setShowModal(true);
+      } else {
+        window.open(url, "_blank");
+      }
     } catch (error) {
       console.error("Error generating offramp URL:", error);
-      alert(
-        "An error occurred while generating the offramp URL. Please try again."
-      );
+      setErrorMessage("Failed to generate offramp URL");
+    } finally {
+      setIsLoading(false);
     }
   };
 
+  // Handle copy URL
   const handleCopyUrl = () => {
     navigator.clipboard.writeText(generatedUrl);
     alert("URL copied to clipboard!");
   };
 
+  // Handle open URL
   const handleOpenUrl = () => {
     window.open(generatedUrl, "_blank");
   };
 
+  // Get the selected asset name for display
+  const getSelectedAssetName = () => {
+    const asset = availableAssets.find((a) => a.code === selectedAsset);
+    return asset ? asset.name : selectedAsset;
+  };
+
+  // Get the selected network name for display
+  const getSelectedNetworkName = () => {
+    const network = availableNetworks.find((n) => n.id === selectedNetwork);
+    return network ? network.name : selectedNetwork;
+  };
+
   return (
-    <div className="bg-white dark:bg-gray-900 py-16">
+    <div className="bg-gray-900 py-16">
       <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700">
-              <h3 className="text-xl font-bold mb-6 dark:text-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Configuration Box */}
+            <div className="bg-gray-800 p-8 rounded-xl shadow-md border border-gray-700">
+              <h3 className="text-xl font-bold mb-6 text-white">
                 Configure Your Offramp
               </h3>
 
-              {/* Integration Method Tabs */}
-              <div className="mb-8">
-                <div className="flex space-x-2 mb-4">
+              {/* Tab Selection */}
+              <div className="mb-6">
+                <div className="flex space-x-2 mb-2">
                   <button
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "api"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
+                        : "bg-gray-700 text-gray-300 border border-gray-600"
                     }`}
                     onClick={() => setActiveTab("api")}
                   >
@@ -483,23 +281,28 @@ export default function OfframpFeature() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium ${
                       activeTab === "url"
                         ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
+                        : "bg-gray-700 text-gray-300 border border-gray-600"
                     }`}
                     onClick={() => setActiveTab("url")}
                   >
                     One-time Payment Link
                   </button>
                 </div>
+                <p className="text-sm text-gray-400">
+                  {activeTab === "api"
+                    ? "Connect your wallet to sell crypto for fiat"
+                    : "Generate a link to share with others"}
+                </p>
               </div>
 
               {/* Connect Wallet Button */}
-              {!isConnected && (
+              {activeTab === "api" && !isConnected && (
                 <div className="mb-6">
                   <button
                     onClick={() =>
                       document.getElementById("connect-wallet-button")?.click()
                     }
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg"
                   >
                     Connect Wallet
                   </button>
@@ -507,123 +310,79 @@ export default function OfframpFeature() {
               )}
 
               {/* Country Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-2 font-medium">
                   Country
                 </label>
-                <div className="relative">
+                <select
+                  value={selectedCountry}
+                  onChange={(e) => setSelectedCountry(e.target.value)}
+                  className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white"
+                >
+                  {countries.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* State Selection (for US) */}
+              {subdivisions.length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-gray-300 mb-2 font-medium">
+                    State
+                  </label>
                   <select
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={selectedSubdivision}
+                    onChange={(e) => setSelectedSubdivision(e.target.value)}
+                    className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white"
                   >
-                    {countries.map((country) => (
-                      <option key={country.code} value={country.code}>
-                        {country.name}
+                    {subdivisions.map((state) => (
+                      <option key={state} value={state}>
+                        {state}
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* State/Subdivision Selection (for US) */}
-              {subdivisions.length > 0 && (
-                <div className="mb-6">
-                  <label className="block text-gray-700 mb-2 font-medium">
-                    State
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={selectedSubdivision}
-                      onChange={(e) => setSelectedSubdivision(e.target.value)}
-                      className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      {subdivisions.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <svg
-                        className="fill-current h-4 w-4"
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                      </svg>
-                    </div>
-                  </div>
                 </div>
               )}
 
               {/* Asset Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-2 font-medium">
                   Select Asset
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedAsset}
-                    onChange={(e) => handleAssetChange(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {availableAssets.map((asset) => (
-                      <option key={asset.code} value={asset.code}>
-                        {asset.name} ({asset.code})
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
+                <select
+                  value={selectedAsset}
+                  onChange={(e) => handleAssetChange(e.target.value)}
+                  className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white"
+                >
+                  {availableAssets.map((asset) => (
+                    <option key={asset.code} value={asset.code}>
+                      {asset.name} ({asset.code})
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Network Selection - Moved right after Asset Selection */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
+              {/* Network Selection */}
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-2 font-medium">
                   Network
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedNetwork}
-                    onChange={(e) => setSelectedNetwork(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {availableNetworks.map((network) => (
-                      <option key={network.id} value={network.id}>
-                        {network.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
+                <select
+                  value={selectedNetwork}
+                  onChange={(e) => setSelectedNetwork(e.target.value)}
+                  className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white"
+                >
+                  {availableNetworks.map((network) => (
+                    <option key={network.id} value={network.id}>
+                      {network.name}
+                    </option>
+                  ))}
+                </select>
                 {availableNetworks.length > 0 && (
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-gray-400 mt-1">
                     {selectedAsset} is available on {availableNetworks.length}{" "}
                     network{availableNetworks.length > 1 ? "s" : ""}
                   </p>
@@ -631,236 +390,211 @@ export default function OfframpFeature() {
               </div>
 
               {/* Amount Input */}
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
+              <div className="mb-4">
+                <label className="block text-gray-300 mb-2 font-medium">
                   Amount
                 </label>
                 <div className="flex space-x-2 mb-2">
                   <button
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-white"
                     onClick={() => setAmount("10")}
                   >
                     $10
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-white"
                     onClick={() => setAmount("25")}
                   >
                     $25
                   </button>
                   <button
-                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-lg text-white"
                     onClick={() => setAmount("50")}
                   >
                     $50
                   </button>
                 </div>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-700">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                     $
                   </span>
                   <input
                     type="text"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 pl-8 pr-4 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Enter amount"
+                    className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 pl-8 pr-4 text-white"
                   />
                 </div>
-                <p className="text-sm text-gray-500 mt-2">
-                  Estimated crypto equivalent: {selectedAsset}{" "}
-                  {(() => {
-                    const selectedAssetObj = assets.find(
-                      (a) => a.symbol === selectedAsset
-                    );
-                    if (selectedAssetObj) {
-                      return (
-                        parseFloat(amount) / selectedAssetObj.price
-                      ).toFixed(6);
-                    } else {
-                      return parseFloat(amount).toFixed(6);
-                    }
-                  })()}
-                </p>
               </div>
 
-              {/* Cashout Method Selection */}
+              {/* Cashout Method */}
               <div className="mb-6">
-                <label className="block text-gray-700 mb-2 font-medium">
+                <label className="block text-gray-300 mb-2 font-medium">
                   Cashout Method
                 </label>
-                <div className="relative">
-                  <select
-                    value={selectedCashoutMethod}
-                    onChange={(e) => setSelectedCashoutMethod(e.target.value)}
-                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    {cashoutMethods.map((method) => (
-                      <option key={method.id} value={method.id}>
-                        {method.name}
-                      </option>
-                    ))}
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-                {cashoutMethods.find((m) => m.id === selectedCashoutMethod)
-                  ?.description && (
-                  <p className="text-sm text-gray-500 mt-2">
-                    {
-                      cashoutMethods.find((m) => m.id === selectedCashoutMethod)
-                        ?.description
-                    }
-                  </p>
-                )}
+                <select
+                  value={selectedCashoutMethod}
+                  onChange={(e) => setSelectedCashoutMethod(e.target.value)}
+                  className="block w-full bg-gray-700 border border-gray-600 rounded-lg py-3 px-4 text-white"
+                >
+                  {cashoutMethods.map((method) => (
+                    <option key={method.id} value={method.id}>
+                      {method.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Action Button */}
-              {activeTab === "api" ? (
-                <button
-                  onClick={handleOfframp}
-                  disabled={!isConnected}
-                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all ${
-                    isConnected
-                      ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
-                      : "bg-gray-600 text-gray-300 cursor-not-allowed"
-                  }`}
-                >
-                  {isConnected ? "Start Offramp" : "Connect Wallet to Continue"}
-                </button>
-              ) : (
-                <button
-                  onClick={handleOfframp}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-all shadow-md hover:shadow-lg"
-                >
-                  Start Offramp
-                </button>
+              <button
+                onClick={handleOfframp}
+                disabled={isLoading || (activeTab === "api" && !isConnected)}
+                className={`w-full py-3 px-4 rounded-lg font-medium ${
+                  isLoading || (activeTab === "api" && !isConnected)
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                {isLoading
+                  ? "Loading..."
+                  : activeTab === "api"
+                  ? "Start Offramp"
+                  : "Generate Link"}
+              </button>
+
+              {/* Error Message */}
+              {errorMessage && (
+                <div className="mt-4 p-3 bg-red-900 text-red-200 rounded-lg border border-red-800">
+                  {errorMessage}
+                </div>
               )}
             </div>
 
-            {/* Preview Section */}
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
-              <h3 className="text-xl font-bold mb-6 dark:text-white">
-                Preview
-              </h3>
+            {/* Preview Box */}
+            <div className="bg-gray-800 p-8 rounded-xl shadow-md border border-gray-700">
+              <h3 className="text-xl font-bold mb-6 text-white">Preview</h3>
 
-              <div className="flex-grow flex items-center justify-center">
-                {activeTab === "api" ? (
-                  <div className="text-center">
-                    <div className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4">
-                      Cash Out with Coinbase
-                    </div>
-                    <p className="text-gray-600 text-sm">
-                      A simple button that opens the Coinbase Offramp flow
+              {activeTab === "api" ? (
+                <div className="flex flex-col items-center justify-center h-full">
+                  <button
+                    onClick={handleOfframp}
+                    disabled={!isConnected || isLoading}
+                    className={`px-8 py-3 rounded-lg font-medium mb-4 ${
+                      !isConnected || isLoading
+                        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                  >
+                    Sell with Coinbase
+                  </button>
+                  <p className="text-gray-400 text-sm">
+                    A simple button that opens the Coinbase Offramp flow
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                    <p className="text-sm text-gray-400 mb-1">You'll receive</p>
+                    <p className="text-2xl font-bold text-white">
+                      ${parseFloat(amount || "0").toFixed(2)}
                     </p>
                   </div>
-                ) : (
-                  <div className="w-full max-w-sm bg-white rounded-xl shadow-lg p-6 border border-gray-300">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="font-bold text-gray-800">
-                        One-time Payment Link
-                      </h4>
-                      <span className="text-blue-600">
-                        <svg
-                          className="w-6 h-6"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"></path>
-                        </svg>
-                      </span>
-                    </div>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-1">
-                        You'll Receive
-                      </div>
-                      <div className="text-2xl font-bold text-gray-800">
-                        ${estimatedUsdValue}
-                        {isLoadingPrices && (
-                          <span className="text-sm text-gray-500 ml-2">
-                            (updating prices...)
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <div className="text-sm text-gray-500 mb-1">
-                        You'll Send
-                      </div>
-                      <div className="flex items-center text-gray-800">
-                        {(() => {
-                          const selectedAssetObj = assets.find(
-                            (a) => a.symbol === selectedAsset
-                          );
-                          if (selectedAssetObj) {
-                            const cryptoAmount =
-                              parseFloat(amount) / selectedAssetObj.price;
-                            // Format based on the asset - more decimal places for BTC
-                            if (selectedAsset === "BTC") {
-                              return cryptoAmount.toFixed(8);
-                            } else if (selectedAsset === "SHIB") {
-                              return cryptoAmount.toFixed(0); // No decimals for SHIB
-                            } else {
-                              return cryptoAmount.toFixed(6);
-                            }
-                          } else {
-                            return parseFloat(amount).toFixed(6);
-                          }
-                        })()}{" "}
-                        {selectedAsset} on{" "}
-                        {availableNetworks.find((n) => n.id === selectedNetwork)
-                          ?.name || selectedNetwork}
-                      </div>
-                    </div>
-                    <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all">
-                      Start Offramp
-                    </button>
+
+                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                    <p className="text-sm text-gray-400 mb-1">Selling</p>
+                    <p className="font-medium text-white">
+                      {getSelectedAssetName()} ({selectedAsset})
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      on {getSelectedNetworkName()}
+                    </p>
                   </div>
-                )}
-              </div>
+
+                  <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                    <p className="text-sm text-gray-400 mb-1">Cashout Method</p>
+                    <p className="font-medium text-white">
+                      {cashoutMethods.find(
+                        (m) => m.id === selectedCashoutMethod
+                      )?.name || selectedCashoutMethod}
+                    </p>
+                  </div>
+
+                  {isConnected && (
+                    <div className="bg-gray-700 p-4 rounded-lg border border-gray-600">
+                      <p className="text-sm text-gray-400 mb-1">
+                        Connected Wallet
+                      </p>
+                      <p className="font-medium text-white">
+                        {address
+                          ? `${address.substring(0, 6)}...${address.substring(
+                              address.length - 4
+                            )}`
+                          : "Not connected"}
+                      </p>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleOfframp}
+                    disabled={isLoading}
+                    className={`w-full py-3 px-4 rounded-lg font-medium mt-6 ${
+                      isLoading
+                        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
+                  >
+                    {isLoading ? "Generating..." : "Generate Link"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* URL Modal */}
-          {showUrlModal && (
-            <GeneratedLinkModal
-              title="Generated Offramp URL"
-              url={generatedUrl}
-              onClose={() => setShowUrlModal(false)}
-              onCopy={handleCopyUrl}
-              onOpen={handleOpenUrl}
-            />
-          )}
-
-          {/* Instructions Modal */}
-          {showInstructionsModal && (
-            <OfframpInstructionsModal
-              onClose={() => setShowInstructionsModal(false)}
-              asset={selectedAsset}
-              network={
-                availableNetworks.find((n) => n.id === selectedNetwork)?.name ||
-                selectedNetwork
-              }
-            />
-          )}
-
-          {/* Notification */}
-          {showNotification && (
-            <OfframpNotification
-              onClose={() => setShowNotification(false)}
-              status={status || "default"}
-            />
-          )}
         </div>
       </div>
+
+      {/* URL Modal */}
+      {showModal && (
+        <SimpleModal
+          title="Generated Offramp URL"
+          content={
+            <div>
+              <p className="text-gray-700 mb-2">
+                Use this URL to redirect users to Coinbase:
+              </p>
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 overflow-hidden">
+                <div className="text-xs text-gray-800 break-all max-h-32 overflow-y-auto">
+                  {generatedUrl}
+                </div>
+              </div>
+            </div>
+          }
+          onClose={() => setShowModal(false)}
+          actions={
+            <>
+              <button
+                onClick={handleCopyUrl}
+                className="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 py-2 px-4 rounded-lg font-medium"
+              >
+                Copy URL
+              </button>
+              <button
+                onClick={handleOpenUrl}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium"
+              >
+                Open URL
+              </button>
+            </>
+          }
+        />
+      )}
+
+      {/* Notification */}
+      {showNotification && (
+        <OfframpNotification
+          onClose={() => setShowNotification(false)}
+          status={status || "default"}
+        />
+      )}
     </div>
   );
 }

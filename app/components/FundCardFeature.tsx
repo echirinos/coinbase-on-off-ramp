@@ -91,13 +91,13 @@ export function FundCardFeature() {
   const availableCurrencies = buyOptions?.paymentCurrencies || [];
 
   return (
-    <div className="py-16 bg-gradient-to-b from-white to-gray-100 dark:from-gray-950 dark:to-gray-900">
+    <div className="py-16 bg-gradient-to-b from-white to-gray-100">
       <div className="container space-y-12">
         <div className="space-y-4 text-center">
           <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
             Fund Card
           </h2>
-          <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed dark:text-gray-400">
+          <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl/relaxed">
             The Fund Card provides a complete payment experience that enables
             users to fund your project with crypto.
           </p>
@@ -111,7 +111,7 @@ export function FundCardFeature() {
               </div>
             ) : !isConnected ? (
               <div className="text-center p-8">
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className="text-gray-600">
                   Please connect your wallet to use the Fund Card
                 </p>
               </div>
@@ -130,8 +130,8 @@ export function FundCardFeature() {
           </div>
 
           <div className="flex flex-col gap-2 items-center p-4 w-full max-w-[800px]">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden w-full">
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div className="bg-white rounded-lg shadow-md overflow-hidden w-full">
+              <div className="p-4 border-b border-gray-200">
                 <p className="text-lg font-medium">Fund card props</p>
               </div>
 
@@ -143,7 +143,7 @@ export function FundCardFeature() {
                 <div className="flex pt-4 pb-4 gap-2 flex-wrap">
                   {/* Currency Dropdown */}
                   <div className="relative w-[200px]">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Currency
                     </label>
                     <button
@@ -183,7 +183,7 @@ export function FundCardFeature() {
 
                   {/* Asset Input */}
                   <div className="w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Asset
                     </label>
                     <input
@@ -197,7 +197,7 @@ export function FundCardFeature() {
 
                   {/* Header Text Input */}
                   <div className="w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Header Text
                     </label>
                     <input
@@ -211,7 +211,7 @@ export function FundCardFeature() {
 
                   {/* Button Text Input */}
                   <div className="w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Button Text
                     </label>
                     <input
@@ -225,7 +225,7 @@ export function FundCardFeature() {
 
                   {/* Preset Amounts Input */}
                   <div className="w-[150px]">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
                       Preset Amounts
                     </label>
                     <input
@@ -241,8 +241,8 @@ export function FundCardFeature() {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                <pre className="text-xs overflow-auto bg-gray-100 dark:bg-gray-900 p-4 rounded">
+              <div className="p-4 border-t border-gray-200">
+                <pre className="text-xs overflow-auto bg-gray-100 p-4 rounded">
                   {previewConfig}
                 </pre>
               </div>
