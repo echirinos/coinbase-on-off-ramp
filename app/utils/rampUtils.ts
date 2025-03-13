@@ -132,7 +132,7 @@ export function generateOfframpURL(params: OfframpURLParams): string {
 
     // Add addresses parameter - this is the most critical part
     // Format: {"address":["network1","network2"]}
-    const addressesObj = {};
+    const addressesObj: Record<string, string[]> = {};
     const validAddress = address || "0x4315d134aCd3221a02dD380ADE3aF39Ce219037c";
     addressesObj[validAddress] = [network || "ethereum"];
     queryParams.append("addresses", JSON.stringify(addressesObj));
