@@ -506,7 +506,7 @@ export default function OnrampFeature() {
                 </label>
                 <div className="flex space-x-2 mb-2">
                   <button
-                    className="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 border border-blue-600 rounded-lg font-medium transition-colors"
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg text-gray-800 font-medium transition-colors"
                     onClick={() => setAmount("10")}
                   >
                     {getCurrencySymbol(selectedPaymentCurrency)}10

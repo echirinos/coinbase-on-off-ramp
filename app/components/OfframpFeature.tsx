@@ -314,17 +314,28 @@ export default function OfframpFeature() {
                 <label className="block text-gray-700 mb-2 font-medium">
                   Country
                 </label>
-                <select
-                  value={selectedCountry}
-                  onChange={(e) => setSelectedCountry(e.target.value)}
-                  className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-800"
-                >
-                  {countries.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedCountry}
+                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  >
+                    {countries.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* State Selection (for US) */}
@@ -333,36 +344,58 @@ export default function OfframpFeature() {
                   <label className="block text-gray-700 mb-2 font-medium">
                     State
                   </label>
-                  <select
-                    value={selectedSubdivision}
-                    onChange={(e) => setSelectedSubdivision(e.target.value)}
-                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-800"
-                  >
-                    {subdivisions.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={selectedSubdivision}
+                      onChange={(e) => setSelectedSubdivision(e.target.value)}
+                      className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                    >
+                      {subdivisions.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <svg
+                        className="fill-current h-4 w-4"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {/* Asset Selection */}
               <div className="mb-4">
                 <label className="block text-gray-700 mb-2 font-medium">
-                  Select Asset
+                  Asset
                 </label>
-                <select
-                  value={selectedAsset}
-                  onChange={(e) => handleAssetChange(e.target.value)}
-                  className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-800"
-                >
-                  {availableAssets.map((asset) => (
-                    <option key={asset.code} value={asset.code}>
-                      {asset.name} ({asset.code})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedAsset}
+                    onChange={(e) => handleAssetChange(e.target.value)}
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  >
+                    {availableAssets.map((asset) => (
+                      <option key={asset.code} value={asset.code}>
+                        {asset.name} ({asset.code})
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* Network Selection */}
@@ -370,17 +403,28 @@ export default function OfframpFeature() {
                 <label className="block text-gray-700 mb-2 font-medium">
                   Network
                 </label>
-                <select
-                  value={selectedNetwork}
-                  onChange={(e) => setSelectedNetwork(e.target.value)}
-                  className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-800"
-                >
-                  {availableNetworks.map((network) => (
-                    <option key={network.id} value={network.id}>
-                      {network.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedNetwork}
+                    onChange={(e) => setSelectedNetwork(e.target.value)}
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  >
+                    {availableNetworks.map((network) => (
+                      <option key={network.id} value={network.id}>
+                        {network.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
                 {availableNetworks.length > 0 && (
                   <p className="text-sm text-gray-500 mt-1">
                     {selectedAsset} is available on {availableNetworks.length}{" "}
@@ -432,17 +476,28 @@ export default function OfframpFeature() {
                 <label className="block text-gray-700 mb-2 font-medium">
                   Cashout Method
                 </label>
-                <select
-                  value={selectedCashoutMethod}
-                  onChange={(e) => setSelectedCashoutMethod(e.target.value)}
-                  className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 text-gray-800"
-                >
-                  {cashoutMethods.map((method) => (
-                    <option key={method.id} value={method.id}>
-                      {method.name}
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={selectedCashoutMethod}
+                    onChange={(e) => setSelectedCashoutMethod(e.target.value)}
+                    className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
+                  >
+                    {cashoutMethods.map((method) => (
+                      <option key={method.id} value={method.id}>
+                        {method.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
 
               {/* Action Button */}
