@@ -15,7 +15,7 @@ export default function OfframpInstructionsModal({
 }: OfframpInstructionsModalProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full p-6 relative">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
@@ -37,9 +37,9 @@ export default function OfframpInstructionsModal({
         </button>
 
         <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
             <svg
-              className="w-8 h-8 text-blue-600"
+              className="w-8 h-8 text-purple-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -53,12 +53,12 @@ export default function OfframpInstructionsModal({
               ></path>
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h3 className="text-xl font-bold text-gray-900">
             Complete Your Offramp Transaction
           </h3>
         </div>
 
-        <div className="space-y-4 text-gray-700 dark:text-gray-300">
+        <div className="space-y-4 text-gray-700">
           <p>
             After clicking "Cash out now" in the Coinbase interface, you need to
             complete these steps:
@@ -83,11 +83,11 @@ export default function OfframpInstructionsModal({
             </li>
           </ol>
 
-          <div className="bg-yellow-50 dark:bg-yellow-900/30 p-4 rounded-lg mt-4">
+          <div className="bg-yellow-50 p-4 rounded-lg mt-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-yellow-600 dark:text-yellow-500"
+                  className="h-5 w-5 text-yellow-600"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                 >
@@ -99,10 +99,10 @@ export default function OfframpInstructionsModal({
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800 dark:text-yellow-400">
+                <h3 className="text-sm font-medium text-yellow-800">
                   Important Note
                 </h3>
-                <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
+                <div className="mt-2 text-sm text-yellow-700">
                   <p>
                     If the price of {asset} drops significantly during the
                     transaction, Coinbase may cancel the offramp and deposit
@@ -117,7 +117,7 @@ export default function OfframpInstructionsModal({
         <div className="mt-6 flex justify-center">
           <button
             onClick={onClose}
-            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+            className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
           >
             I Understand
           </button>
