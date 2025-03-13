@@ -371,7 +371,7 @@ export default function OnrampFeature() {
       paymentMethod: selectedPaymentMethod,
       paymentCurrency: selectedPaymentCurrency,
       address: address || "0x0000000000000000000000000000000000000000",
-      redirectUrl: window.location.origin + "/onramp?status=success",
+      redirectUrl: window.location.origin + "/onramp",
       enableGuestCheckout, // Add guest checkout option
     });
 
@@ -386,6 +386,7 @@ export default function OnrampFeature() {
       return;
     }
 
+    // Note: This is a demo app - actual payments require ownership of assets and sufficient funds
     const url = generateOnrampURL({
       asset: selectedAsset,
       amount,
@@ -393,7 +394,7 @@ export default function OnrampFeature() {
       paymentMethod: selectedPaymentMethod,
       paymentCurrency: selectedPaymentCurrency,
       address: address || "0x0000000000000000000000000000000000000000",
-      redirectUrl: window.location.origin + "/onramp?status=success",
+      redirectUrl: window.location.origin + "/onramp",
       enableGuestCheckout, // Add guest checkout option
     });
 

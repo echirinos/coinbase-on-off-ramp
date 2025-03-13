@@ -28,9 +28,9 @@ export default function OfframpNotification({
     switch (status) {
       case "success":
         return {
-          title: "Transaction Initiated",
+          title: "Demo Transaction Initiated",
           message:
-            "Your offramp transaction has been initiated. Please complete the crypto transfer to finalize the transaction.",
+            "This is a demo app. In a real implementation, your offramp transaction would be initiated. Note that actual payments require ownership of assets and sufficient funds.",
           icon: (
             <svg
               className="w-6 h-6 text-green-500"

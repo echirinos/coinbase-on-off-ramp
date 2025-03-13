@@ -202,7 +202,7 @@ export default function OfframpFeature() {
   const [generatedUrl, setGeneratedUrl] = useState("");
   const [showUrlModal, setShowUrlModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("US");
-  const [selectedSubdivision, setSelectedSubdivision] = useState("");
+  const [selectedSubdivision, setSelectedSubdivision] = useState("CA");
   const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
   const [availableNetworks, setAvailableNetworks] = useState<Network[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -348,30 +348,50 @@ export default function OfframpFeature() {
       if (options.sell_currencies && options.sell_currencies.length > 0) {
         setAvailableAssets(options.sell_currencies);
 
-        // Set initial asset
-        const initialAsset = options.sell_currencies[0].code;
-        setSelectedAsset(initialAsset);
-
-        // Find networks for the selected asset from API response
-        const assetNetworksFromApi =
-          options.sell_currencies.find((a) => a.code === initialAsset)
-            ?.networks || [];
-
-        // Merge API networks with our predefined networks to ensure we have all needed networks
-        const mergedNetworks = networks.filter((network) =>
-          assetNetworkMap[initialAsset]?.includes(network.id)
+        // Check if USDC is available in the response
+        const usdcAsset = options.sell_currencies.find(
+          (a) => a.code === "USDC"
         );
 
-        setAvailableNetworks(mergedNetworks);
+        // Only update the selected asset if USDC is not available
+        if (!usdcAsset) {
+          const initialAsset = options.sell_currencies[0].code;
+          setSelectedAsset(initialAsset);
 
-        // Set initial network that's compatible with the asset
-        if (
-          assetNetworkMap[initialAsset] &&
-          assetNetworkMap[initialAsset].length > 0
-        ) {
-          setSelectedNetwork(assetNetworkMap[initialAsset][0]);
-        } else if (mergedNetworks.length > 0) {
-          setSelectedNetwork(mergedNetworks[0].id);
+          // Find networks for the selected asset from API response
+          const assetNetworksFromApi =
+            options.sell_currencies.find((a) => a.code === initialAsset)
+              ?.networks || [];
+
+          // Merge API networks with our predefined networks to ensure we have all needed networks
+          const mergedNetworks = networks.filter((network) =>
+            assetNetworkMap[initialAsset]?.includes(network.id)
+          );
+
+          setAvailableNetworks(mergedNetworks);
+
+          // Set initial network that's compatible with the asset
+          if (
+            assetNetworkMap[initialAsset] &&
+            assetNetworkMap[initialAsset].length > 0
+          ) {
+            setSelectedNetwork(assetNetworkMap[initialAsset][0]);
+          } else if (mergedNetworks.length > 0) {
+            setSelectedNetwork(mergedNetworks[0].id);
+          }
+        } else {
+          // USDC is available, ensure we have the correct networks for it
+          const mergedNetworks = networks.filter((network) =>
+            assetNetworkMap["USDC"]?.includes(network.id)
+          );
+
+          setAvailableNetworks(mergedNetworks);
+
+          // Keep Base as the selected network if it's compatible with USDC
+          if (!assetNetworkMap["USDC"]?.includes("base")) {
+            // If Base is not compatible with USDC, select the first compatible network
+            setSelectedNetwork(assetNetworkMap["USDC"][0]);
+          }
         }
       }
 
@@ -379,17 +399,26 @@ export default function OfframpFeature() {
       if (options.cashout_currencies && options.cashout_currencies.length > 0) {
         setCashoutCurrencies(options.cashout_currencies);
 
-        // Set initial cashout currency
-        const initialCurrency = options.cashout_currencies[0];
-        setSelectedCashoutCurrency(initialCurrency.code);
+        // Prefer USD as the cashout currency
+        const usdCurrency =
+          options.cashout_currencies.find((c) => c.code === "USD") ||
+          options.cashout_currencies[0];
+        setSelectedCashoutCurrency(usdCurrency.code);
 
         // Set available cashout methods for the selected currency
         if (
-          initialCurrency.cashout_methods &&
-          initialCurrency.cashout_methods.length > 0
+          usdCurrency.cashout_methods &&
+          usdCurrency.cashout_methods.length > 0
         ) {
-          setCashoutMethods(initialCurrency.cashout_methods);
-          setSelectedCashoutMethod(initialCurrency.cashout_methods[0].id);
+          setCashoutMethods(usdCurrency.cashout_methods);
+
+          // Prefer ACH_BANK_ACCOUNT as the cashout method for USD
+          const achMethod = usdCurrency.cashout_methods.find(
+            (m) => m.id === "ACH_BANK_ACCOUNT"
+          );
+          setSelectedCashoutMethod(
+            achMethod ? achMethod.id : usdCurrency.cashout_methods[0].id
+          );
         }
       }
     } catch (error) {
@@ -397,28 +426,35 @@ export default function OfframpFeature() {
       // Use default values if API fails
       setAvailableAssets(defaultAssets);
 
-      // Set initial asset
-      const initialAsset = defaultAssets[0].code;
-      setSelectedAsset(initialAsset);
+      // Set USDC as the default asset
+      setSelectedAsset("USDC");
 
-      // Set networks for the selected asset
+      // Set networks for USDC
       const mergedNetworks = networks.filter((network) =>
-        assetNetworkMap[initialAsset]?.includes(network.id)
+        assetNetworkMap["USDC"]?.includes(network.id)
       );
       setAvailableNetworks(mergedNetworks);
 
-      // Set initial network
-      if (mergedNetworks.length > 0) {
-        setSelectedNetwork(mergedNetworks[0].id);
-      }
+      // Set Base as the default network
+      setSelectedNetwork("base");
 
       // Set default cashout currencies and methods
       setCashoutCurrencies(defaultCashoutCurrencies);
-      setSelectedCashoutCurrency(defaultCashoutCurrencies[0].code);
-      setCashoutMethods(defaultCashoutCurrencies[0].cashout_methods);
-      setSelectedCashoutMethod(
-        defaultCashoutCurrencies[0].cashout_methods[0].id
+      setSelectedCashoutCurrency("USD");
+
+      // Find ACH_BANK_ACCOUNT method for USD
+      const usdCurrency = defaultCashoutCurrencies.find(
+        (c) => c.code === "USD"
       );
+      if (usdCurrency && usdCurrency.cashout_methods) {
+        setCashoutMethods(usdCurrency.cashout_methods);
+        const achMethod = usdCurrency.cashout_methods.find(
+          (m) => m.id === "ACH_BANK_ACCOUNT"
+        );
+        setSelectedCashoutMethod(
+          achMethod ? achMethod.id : usdCurrency.cashout_methods[0].id
+        );
+      }
     } finally {
       setIsLoading(false);
     }
@@ -479,13 +515,14 @@ export default function OfframpFeature() {
 
     try {
       // Generate offramp URL
+      // Note: This is a demo app - actual payments require ownership of assets and sufficient funds
       const url = generateOfframpURL({
         asset: selectedAsset,
         amount: amount,
         network: selectedNetwork,
         cashoutMethod: selectedCashoutMethod,
         address: address || "0x0000000000000000000000000000000000000000",
-        redirectUrl: window.location.origin + "/offramp?status=success",
+        redirectUrl: window.location.origin + "/offramp",
       });
 
       // Handle URL based on active tab
@@ -627,7 +664,6 @@ export default function OfframpFeature() {
                       onChange={(e) => setSelectedSubdivision(e.target.value)}
                       className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
                     >
-                      <option value="">Select a state</option>
                       {US_STATES.map((state) => (
                         <option key={state.code} value={state.code}>
                           {state.name}

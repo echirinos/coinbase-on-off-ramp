@@ -94,6 +94,9 @@ export function generateOnrampURL(params: OnrampURLParams): string {
   // Add redirect URL
   if (redirectUrl) {
     queryParams.append("redirectUrl", redirectUrl);
+  } else {
+    // Note: This is a demo app - actual payments require ownership of assets and sufficient funds
+    queryParams.append("redirectUrl", "https://coinbase-on-off-ramp.vercel.app/onramp");
   }
 
   // Add session token if provided
@@ -155,14 +158,16 @@ export function generateOfframpURL(params: OfframpURLParams): string {
     }
 
     // Add redirect URL
-    queryParams.append("redirectUrl", redirectUrl || window.location.origin + "/offramp?status=success");
+    // Note: This is a demo app - actual payments require ownership of assets and sufficient funds
+    queryParams.append("redirectUrl", redirectUrl || "https://coinbase-on-off-ramp.vercel.app/offramp");
 
     // Return the complete URL
     return `${baseUrl}?${queryParams.toString()}`;
   } catch (error) {
     console.error("Error generating offramp URL:", error);
-    // Return a simple fallback URL
-    return `https://pay.coinbase.com/v3/sell/input?appId=${CDP_PROJECT_ID}&partnerUserId=anonymous&assets=["USDC"]&addresses={"0x4315d134aCd3221a02dD380ADE3aF39Ce219037c":["ethereum"]}&redirectUrl=https://www.coinbase.com/onramp-redirect`;
+    // Return a simple fallback URL with the same redirect pattern as the main function
+    // Note: This is a demo app - actual payments require ownership of assets and sufficient funds
+    return `https://pay.coinbase.com/v3/sell/input?appId=${CDP_PROJECT_ID}&partnerUserId=anonymous&assets=["USDC"]&addresses={"0x4315d134aCd3221a02dD380ADE3aF39Ce219037c":["ethereum"]}&redirectUrl=${encodeURIComponent("https://coinbase-on-off-ramp.vercel.app/offramp")}`;
   }
 }
 
