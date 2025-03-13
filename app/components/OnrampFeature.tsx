@@ -367,6 +367,7 @@ export default function OnrampFeature() {
                         : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("api")}
+                    aria-label="Switch to Onramp API"
                   >
                     Onramp API
                   </button>
@@ -377,6 +378,7 @@ export default function OnrampFeature() {
                         : "bg-gray-100 text-gray-800 border border-gray-300 hover:bg-gray-200"
                     }`}
                     onClick={() => setActiveTab("url")}
+                    aria-label="Switch to One-time Payment Link"
                   >
                     One-time Payment Link
                   </button>
@@ -657,7 +659,18 @@ export default function OnrampFeature() {
               <div className="flex-grow flex items-center justify-center">
                 {activeTab === "api" ? (
                   <div className="text-center">
-                    <div className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4">
+                    <div
+                      className={`inline-block font-medium py-3 px-8 rounded-lg transition-all shadow-md hover:shadow-lg mb-4 cursor-pointer ${
+                        isConnected
+                          ? "bg-blue-600 hover:bg-blue-700 text-white"
+                          : "bg-gray-600 text-gray-300 cursor-not-allowed"
+                      }`}
+                      onClick={
+                        isConnected
+                          ? handleOnramp
+                          : () => alert("Please connect your wallet first")
+                      }
+                    >
                       Buy with Coinbase
                     </div>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">
