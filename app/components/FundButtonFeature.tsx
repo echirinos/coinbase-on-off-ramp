@@ -33,6 +33,7 @@ export function FundButtonFeature() {
   const [openIn, setOpenIn] = useState<"popup" | "tab">("popup");
   const { address, isConnected } = useAccount();
   const [cdpProjectId, setCdpProjectId] = useState("");
+  const [showSolanaNote, setShowSolanaNote] = useState(false);
 
   const supportedAssets = [
     { symbol: "ETH", name: "Ethereum" },
@@ -41,6 +42,7 @@ export function FundButtonFeature() {
     { symbol: "AVAX", name: "Avalanche" },
     { symbol: "ARB", name: "Arbitrum" },
     { symbol: "OP", name: "Optimism" },
+    { symbol: "SOL", name: "Solana" },
   ];
 
   useEffect(() => {
@@ -70,6 +72,11 @@ export function FundButtonFeature() {
 
     fetchConfig();
   }, []);
+
+  useEffect(() => {
+    // Show Solana note if SOL is selected
+    setShowSolanaNote(selectedAsset === "SOL");
+  }, [selectedAsset]);
 
   const handleAssetSelect = (asset: string) => {
     setSelectedAsset(asset);
@@ -212,8 +219,47 @@ export function FundButtonFeature() {
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-xl shadow-md border border-gray-100 flex flex-col">
-        <h3 className="text-xl font-bold mb-6">Preview</h3>
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border border-gray-100 dark:border-gray-700 flex flex-col">
+        <h3 className="text-xl font-bold mb-6 dark:text-white">Preview</h3>
+
+        {showSolanaNote && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 mb-4">
+            <div className="flex items-start">
+              <svg
+                className="w-5 h-5 mr-2 mt-0.5 text-yellow-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                ></path>
+              </svg>
+              <div>
+                <p className="font-medium">
+                  Solana is not supported with Fund components
+                </p>
+                <p className="text-sm mt-1">
+                  You can use the getOnrampBuyUrl utility to generate a URL
+                  client-side that supports Solana.
+                </p>
+                <a
+                  href="https://docs.base.org/builderkits/onchainkit/fund/get-onramp-buy-url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800 mt-1 inline-block"
+                >
+                  Learn more about getOnrampBuyUrl
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex-grow flex items-center justify-center">
           {isLoading ? (
             <div className="animate-pulse flex space-x-4">

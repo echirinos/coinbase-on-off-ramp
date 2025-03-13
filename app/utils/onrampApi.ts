@@ -153,6 +153,37 @@ const CACHE_EXPIRY = 1000 * 60 * 15; // 15 minutes
 let lastConfigFetch = 0;
 let lastOptionsFetch: Record<string, number> = {};
 
+// Define asset-network compatibility mapping
+const assetNetworkMap: Record<string, string[]> = {
+  ETH: ["ethereum", "base", "optimism", "arbitrum", "polygon"],
+  USDC: [
+    "ethereum",
+    "base",
+    "optimism",
+    "arbitrum",
+    "polygon",
+    "solana",
+    "avalanche-c-chain",
+    "unichain",
+    "aptos",
+    "bnb-chain",
+  ],
+  BTC: ["bitcoin", "bitcoin-lightning"],
+  SOL: ["solana"],
+  MATIC: ["polygon", "ethereum"],
+  AVAX: ["avalanche-c-chain"],
+  ADA: ["cardano"],
+  DOT: ["polkadot"],
+  ATOM: ["cosmos"],
+  XRP: ["xrp"],
+  ALGO: ["algorand"],
+  FIL: ["filecoin"],
+  NEAR: ["near"],
+  XLM: ["stellar"],
+  TRX: ["tron"],
+  // Add more mappings as needed
+};
+
 /**
  * Fetches the list of supported countries and payment methods
  */
@@ -450,6 +481,36 @@ export async function fetchBuyOptions(country: string, subdivision?: string): Pr
               contractAddress: "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
               displayName: "Polygon",
               name: "polygon"
+            },
+            {
+              chainId: 1111,
+              contractAddress: "0x1234567890abcdef1234567890abcdef12345678",
+              displayName: "Unichain",
+              name: "unichain"
+            },
+            {
+              chainId: 1,
+              contractAddress: "0xfedcba9876543210fedcba9876543210fedcba98",
+              displayName: "Aptos",
+              name: "aptos"
+            },
+            {
+              chainId: 43114,
+              contractAddress: "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e",
+              displayName: "Avalanche",
+              name: "avalanche"
+            },
+            {
+              chainId: 56,
+              contractAddress: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
+              displayName: "BNB Chain",
+              name: "bnb-chain"
+            },
+            {
+              chainId: 0,
+              contractAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+              displayName: "Solana",
+              name: "solana"
             }
           ]
         },

@@ -81,6 +81,9 @@ const assetNetworkMap: Record<string, string[]> = {
     "polygon",
     "solana",
     "avalanche-c-chain",
+    "unichain",
+    "aptos",
+    "bnb-chain",
   ],
   BTC: ["bitcoin", "bitcoin-lightning"],
   SOL: ["solana"],
@@ -106,6 +109,61 @@ const getDefaultNetworkForAsset = (asset: string): string => {
   return assetNetworkMap[asset][0]; // Return first compatible network
 };
 
+// US States list
+const US_STATES = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+  { code: "DC", name: "District of Columbia" },
+];
+
 export default function OnrampFeature() {
   const { address, isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState<"api" | "url">("api");
@@ -118,6 +176,7 @@ export default function OnrampFeature() {
   const [enableGuestCheckout, setEnableGuestCheckout] = useState(true);
   const [selectedPaymentCurrency, setSelectedPaymentCurrency] = useState("USD");
   const [selectedCountry, setSelectedCountry] = useState("US");
+  const [selectedState, setSelectedState] = useState("");
   const [cryptoPrices, setCryptoPrices] = useState<Record<string, number>>({});
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
@@ -207,6 +266,7 @@ export default function OnrampFeature() {
     { id: "tron", name: "TRON" },
     { id: "filecoin", name: "Filecoin" },
     { id: "binance-smart-chain", name: "BNB Chain" },
+    { id: "bnb-chain", name: "BNB Chain" },
     { id: "binance-chain", name: "Binance Chain" },
     { id: "fantom", name: "Fantom" },
     { id: "cronos", name: "Cronos" },
@@ -214,6 +274,8 @@ export default function OnrampFeature() {
     { id: "celo", name: "Celo" },
     { id: "moonbeam", name: "Moonbeam" },
     { id: "harmony", name: "Harmony" },
+    { id: "unichain", name: "Unichain" },
+    { id: "aptos", name: "Aptos" },
   ].sort((a, b) => a.name.localeCompare(b.name));
 
   // Define supported payment currencies (expanded list)
@@ -413,6 +475,35 @@ export default function OnrampFeature() {
                     {countryList.map((country) => (
                       <option key={country.code} value={country.code}>
                         {country.name}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                    <svg
+                      className="fill-current h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* State Selection */}
+              <div className="mb-6">
+                <label className="block text-gray-700 mb-2 font-medium">
+                  State
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedState}
+                    onChange={(e) => setSelectedState(e.target.value)}
+                    className="block w-full bg-white text-gray-800 border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    {US_STATES.map((state) => (
+                      <option key={state.code} value={state.code}>
+                        {state.name}
                       </option>
                     ))}
                   </select>

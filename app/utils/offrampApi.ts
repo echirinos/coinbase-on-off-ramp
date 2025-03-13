@@ -354,6 +354,9 @@ export async function fetchSellOptions(country: string, subdivision?: string): P
             { id: "arbitrum", name: "Arbitrum" },
             { id: "solana", name: "Solana" },
             { id: "avalanche-c-chain", name: "Avalanche" },
+            { id: "unichain", name: "Unichain" },
+            { id: "aptos", name: "Aptos" },
+            { id: "bnb-chain", name: "BNB Chain" }
           ],
         },
         {

@@ -34,6 +34,12 @@ export function FundCardFeature() {
   const [cdpProjectId, setCdpProjectId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [currencyDropdownOpen, setCurrencyDropdownOpen] = useState(false);
+  const [showSolanaNote, setShowSolanaNote] = useState(false);
+
+  useEffect(() => {
+    // Show Solana note if SOL is selected
+    setShowSolanaNote(asset === "SOL");
+  }, [asset]);
 
   useEffect(() => {
     // Fetch CDP Project ID from server
@@ -247,6 +253,56 @@ export function FundCardFeature() {
                 </pre>
               </div>
             </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Preview</h3>
+          </div>
+
+          {showSolanaNote && (
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-800 mb-4">
+              <div className="flex items-start">
+                <svg
+                  className="w-5 h-5 mr-2 mt-0.5 text-yellow-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  ></path>
+                </svg>
+                <div>
+                  <p className="font-medium">
+                    Solana is not supported with Fund components
+                  </p>
+                  <p className="text-sm mt-1">
+                    You can use the getOnrampBuyUrl utility to generate a URL
+                    client-side that supports Solana.
+                  </p>
+                  <a
+                    href="https://docs.base.org/builderkits/onchainkit/fund/get-onramp-buy-url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:text-blue-800 mt-1 inline-block"
+                  >
+                    Learn more about getOnrampBuyUrl
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+            <pre className="text-xs text-gray-700 overflow-x-auto whitespace-pre-wrap">
+              {previewConfig}
+            </pre>
           </div>
         </div>
       </div>

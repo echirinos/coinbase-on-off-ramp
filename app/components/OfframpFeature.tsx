@@ -57,35 +57,244 @@ interface Network {
   name: string;
 }
 
-export default function OfframpFeature() {
-  // Core states
-  const { address, isConnected } = useAccount();
-  const [selectedAsset, setSelectedAsset] = useState<string>("USDC");
-  const [amount, setAmount] = useState<string>("10");
-  const [selectedNetwork, setSelectedNetwork] = useState<string>("ethereum");
-  const [selectedCashoutMethod, setSelectedCashoutMethod] =
-    useState<string>("ACH_BANK_ACCOUNT");
-  const [activeTab, setActiveTab] = useState<"api" | "url">("api");
+// Define types for cashout method option
+interface CashoutMethodOption {
+  id: string;
+  name: string;
+  limits: Record<string, { min: string; max: string }>;
+}
 
-  // UI states
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+// Define types for fiat currency
+interface FiatCurrency {
+  code: string;
+  name: string;
+  cashout_methods: CashoutMethodOption[];
+}
+
+// Define asset-network compatibility mapping
+const assetNetworkMap: Record<string, string[]> = {
+  ETH: ["ethereum", "base", "optimism", "arbitrum", "polygon"],
+  USDC: [
+    "ethereum",
+    "base",
+    "optimism",
+    "arbitrum",
+    "polygon",
+    "solana",
+    "avalanche-c-chain",
+    "unichain",
+    "aptos",
+    "bnb-chain",
+  ],
+  BTC: ["bitcoin"],
+  SOL: ["solana"],
+  MATIC: ["polygon", "ethereum"],
+  AVAX: ["avalanche-c-chain", "ethereum"],
+  LINK: ["ethereum", "base", "arbitrum"],
+  UNI: ["ethereum", "polygon"],
+  DOGE: ["dogecoin"],
+  SHIB: ["ethereum"],
+  XRP: ["ripple"],
+  LTC: ["litecoin"],
+  BCH: ["bitcoin-cash"],
+};
+
+// Define supported networks (expanded list)
+const networks = [
+  { id: "ethereum", name: "Ethereum" },
+  { id: "base", name: "Base" },
+  { id: "optimism", name: "Optimism" },
+  { id: "polygon", name: "Polygon" },
+  { id: "arbitrum", name: "Arbitrum" },
+  { id: "avalanche-c-chain", name: "Avalanche" },
+  { id: "solana", name: "Solana" },
+  { id: "bitcoin", name: "Bitcoin" },
+  { id: "bitcoin-lightning", name: "Bitcoin Lightning" },
+  { id: "cardano", name: "Cardano" },
+  { id: "polkadot", name: "Polkadot" },
+  { id: "cosmos", name: "Cosmos" },
+  { id: "near", name: "NEAR Protocol" },
+  { id: "flow", name: "Flow" },
+  { id: "hedera", name: "Hedera" },
+  { id: "algorand", name: "Algorand" },
+  { id: "tezos", name: "Tezos" },
+  { id: "stellar", name: "Stellar" },
+  { id: "tron", name: "TRON" },
+  { id: "filecoin", name: "Filecoin" },
+  { id: "binance-smart-chain", name: "BNB Chain" },
+  { id: "bnb-chain", name: "BNB Chain" },
+  { id: "binance-chain", name: "Binance Chain" },
+  { id: "fantom", name: "Fantom" },
+  { id: "cronos", name: "Cronos" },
+  { id: "gnosis", name: "Gnosis" },
+  { id: "celo", name: "Celo" },
+  { id: "moonbeam", name: "Moonbeam" },
+  { id: "harmony", name: "Harmony" },
+  { id: "unichain", name: "Unichain" },
+  { id: "aptos", name: "Aptos" },
+  { id: "ripple", name: "XRP Ledger" },
+  { id: "dogecoin", name: "Dogecoin" },
+  { id: "litecoin", name: "Litecoin" },
+  { id: "bitcoin-cash", name: "Bitcoin Cash" },
+].sort((a, b) => a.name.localeCompare(b.name));
+
+// US States list
+const US_STATES = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+  { code: "DC", name: "District of Columbia" },
+];
+
+export default function OfframpFeature() {
+  const { address, isConnected } = useAccount();
+  const [selectedAsset, setSelectedAsset] = useState("USDC");
+  const [amount, setAmount] = useState("10");
+  const [selectedNetwork, setSelectedNetwork] = useState("base");
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [generatedUrl, setGeneratedUrl] = useState("");
+  const [showUrlModal, setShowUrlModal] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState("US");
+  const [selectedSubdivision, setSelectedSubdivision] = useState("");
+  const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
+  const [availableNetworks, setAvailableNetworks] = useState<Network[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedCashoutCurrency, setSelectedCashoutCurrency] = useState("USD");
+  const [selectedCashoutMethod, setSelectedCashoutMethod] = useState("");
+  const [cashoutMethods, setCashoutMethods] = useState<CashoutMethodOption[]>(
+    []
+  );
+  const [cashoutCurrencies, setCashoutCurrencies] = useState<FiatCurrency[]>(
+    []
+  );
+
+  // Default assets if API fails
+  const defaultAssets: CryptoAsset[] = [
+    {
+      code: "USDC",
+      name: "USD Coin",
+      networks: [
+        { id: "ethereum", name: "Ethereum" },
+        { id: "base", name: "Base" },
+        { id: "optimism", name: "Optimism" },
+        { id: "polygon", name: "Polygon" },
+        { id: "arbitrum", name: "Arbitrum" },
+        { id: "solana", name: "Solana" },
+        { id: "avalanche-c-chain", name: "Avalanche" },
+        { id: "unichain", name: "Unichain" },
+        { id: "aptos", name: "Aptos" },
+        { id: "bnb-chain", name: "BNB Chain" },
+      ],
+    },
+    {
+      code: "ETH",
+      name: "Ethereum",
+      networks: [
+        { id: "ethereum", name: "Ethereum" },
+        { id: "base", name: "Base" },
+        { id: "optimism", name: "Optimism" },
+        { id: "arbitrum", name: "Arbitrum" },
+      ],
+    },
+    {
+      code: "BTC",
+      name: "Bitcoin",
+      networks: [{ id: "bitcoin", name: "Bitcoin" }],
+    },
+  ];
+
+  // Default cashout currencies if API fails
+  const defaultCashoutCurrencies: FiatCurrency[] = [
+    {
+      code: "USD",
+      name: "US Dollar",
+      cashout_methods: [
+        {
+          id: "ACH_BANK_ACCOUNT",
+          name: "Bank Transfer (ACH)",
+          limits: {
+            USD: { min: "10", max: "25000" },
+          },
+        },
+        {
+          id: "PAYPAL",
+          name: "PayPal",
+          limits: {
+            USD: { min: "10", max: "5000" },
+          },
+        },
+      ],
+    },
+    {
+      code: "EUR",
+      name: "Euro",
+      cashout_methods: [
+        {
+          id: "SEPA_BANK_ACCOUNT",
+          name: "SEPA Bank Transfer",
+          limits: {
+            EUR: { min: "10", max: "25000" },
+          },
+        },
+      ],
+    },
+  ];
+
+  // Core states
+  const [activeTab, setActiveTab] = useState<"api" | "url">("api");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [generatedUrl, setGeneratedUrl] = useState<string>("");
   const [showNotification, setShowNotification] = useState<boolean>(false);
 
   // Data states
   const [countries, setCountries] = useState<Country[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState<string>("US");
-  const [selectedSubdivision, setSelectedSubdivision] = useState<string>("CA");
   const [subdivisions, setSubdivisions] = useState<string[]>([]);
-  const [availableAssets, setAvailableAssets] = useState<CryptoAsset[]>([]);
-  const [availableNetworks, setAvailableNetworks] = useState<Network[]>([]);
-  const [cashoutMethods, setCashoutMethods] = useState<CashoutMethod[]>([
-    { id: "ACH_BANK_ACCOUNT", name: "Bank Transfer (ACH)" },
-    { id: "PAYPAL", name: "PayPal" },
-    { id: "FIAT_WALLET", name: "Coinbase Fiat Wallet" },
-  ]);
 
   // Check for status in URL
   const searchParams = useSearchParams();
@@ -98,13 +307,19 @@ export default function OfframpFeature() {
     }
   }, [status]);
 
-  // Fetch countries and cashout methods on component mount
+  // Fetch countries on component mount
   useEffect(() => {
     const fetchCountries = async () => {
       try {
         const config = await fetchSellConfig();
         if (config && config.countries) {
           setCountries(config.countries);
+
+          // Set subdivisions for US
+          const usCountry = config.countries.find((c) => c.code === "US");
+          if (usCountry && usCountry.supported_states) {
+            setSubdivisions(usCountry.supported_states);
+          }
         }
       } catch (error) {
         console.error("Error fetching countries:", error);
@@ -116,71 +331,129 @@ export default function OfframpFeature() {
 
   // Fetch assets and networks when country or subdivision changes
   useEffect(() => {
-    const fetchAssets = async () => {
-      if (!selectedCountry) return;
-
-      try {
-        const options = await fetchSellOptions(
-          selectedCountry,
-          selectedSubdivision
-        );
-        if (options && options.sell_currencies) {
-          setAvailableAssets(options.sell_currencies);
-
-          // Set default asset to USDC if available
-          const usdcAsset = options.sell_currencies.find(
-            (a) => a.code === "USDC"
-          );
-          if (usdcAsset) {
-            setSelectedAsset("USDC");
-
-            // Set available networks for USDC
-            if (usdcAsset.networks && usdcAsset.networks.length > 0) {
-              setAvailableNetworks(usdcAsset.networks);
-
-              // Set default network to base if available
-              const baseNetwork = usdcAsset.networks.find(
-                (n) => n.id === "base"
-              );
-              if (baseNetwork) {
-                setSelectedNetwork("base");
-              } else if (usdcAsset.networks.length > 0) {
-                setSelectedNetwork(usdcAsset.networks[0].id);
-              }
-            }
-          } else if (options.sell_currencies.length > 0) {
-            // Default to first available asset
-            setSelectedAsset(options.sell_currencies[0].code);
-
-            // Set available networks for the selected asset
-            if (
-              options.sell_currencies[0].networks &&
-              options.sell_currencies[0].networks.length > 0
-            ) {
-              setAvailableNetworks(options.sell_currencies[0].networks);
-              setSelectedNetwork(options.sell_currencies[0].networks[0].id);
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching assets:", error);
-      }
-    };
-
+    if (!selectedCountry) return;
     fetchAssets();
   }, [selectedCountry, selectedSubdivision]);
+
+  // Fetch assets and networks from API
+  const fetchAssets = async () => {
+    setIsLoading(true);
+    try {
+      const options = await fetchSellOptions(
+        selectedCountry,
+        selectedSubdivision
+      );
+
+      // Set available assets from API response
+      if (options.sell_currencies && options.sell_currencies.length > 0) {
+        setAvailableAssets(options.sell_currencies);
+
+        // Set initial asset
+        const initialAsset = options.sell_currencies[0].code;
+        setSelectedAsset(initialAsset);
+
+        // Find networks for the selected asset from API response
+        const assetNetworksFromApi =
+          options.sell_currencies.find((a) => a.code === initialAsset)
+            ?.networks || [];
+
+        // Merge API networks with our predefined networks to ensure we have all needed networks
+        const mergedNetworks = networks.filter((network) =>
+          assetNetworkMap[initialAsset]?.includes(network.id)
+        );
+
+        setAvailableNetworks(mergedNetworks);
+
+        // Set initial network that's compatible with the asset
+        if (
+          assetNetworkMap[initialAsset] &&
+          assetNetworkMap[initialAsset].length > 0
+        ) {
+          setSelectedNetwork(assetNetworkMap[initialAsset][0]);
+        } else if (mergedNetworks.length > 0) {
+          setSelectedNetwork(mergedNetworks[0].id);
+        }
+      }
+
+      // Set available cashout methods from API response
+      if (options.cashout_currencies && options.cashout_currencies.length > 0) {
+        setCashoutCurrencies(options.cashout_currencies);
+
+        // Set initial cashout currency
+        const initialCurrency = options.cashout_currencies[0];
+        setSelectedCashoutCurrency(initialCurrency.code);
+
+        // Set available cashout methods for the selected currency
+        if (
+          initialCurrency.cashout_methods &&
+          initialCurrency.cashout_methods.length > 0
+        ) {
+          setCashoutMethods(initialCurrency.cashout_methods);
+          setSelectedCashoutMethod(initialCurrency.cashout_methods[0].id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching sell options:", error);
+      // Use default values if API fails
+      setAvailableAssets(defaultAssets);
+
+      // Set initial asset
+      const initialAsset = defaultAssets[0].code;
+      setSelectedAsset(initialAsset);
+
+      // Set networks for the selected asset
+      const mergedNetworks = networks.filter((network) =>
+        assetNetworkMap[initialAsset]?.includes(network.id)
+      );
+      setAvailableNetworks(mergedNetworks);
+
+      // Set initial network
+      if (mergedNetworks.length > 0) {
+        setSelectedNetwork(mergedNetworks[0].id);
+      }
+
+      // Set default cashout currencies and methods
+      setCashoutCurrencies(defaultCashoutCurrencies);
+      setSelectedCashoutCurrency(defaultCashoutCurrencies[0].code);
+      setCashoutMethods(defaultCashoutCurrencies[0].cashout_methods);
+      setSelectedCashoutMethod(
+        defaultCashoutCurrencies[0].cashout_methods[0].id
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initialize network based on selected asset
+  useEffect(() => {
+    // Ensure the selected network is compatible with the selected asset
+    if (assetNetworkMap[selectedAsset]) {
+      const compatibleNetworks = assetNetworkMap[selectedAsset];
+      if (!compatibleNetworks.includes(selectedNetwork)) {
+        setSelectedNetwork(compatibleNetworks[0]); // Set to first compatible network
+      }
+    }
+  }, [selectedAsset, selectedNetwork]);
 
   // Handle asset change
   const handleAssetChange = (assetCode: string) => {
     setSelectedAsset(assetCode);
 
-    // Update networks for the selected asset
-    const asset = availableAssets.find((a) => a.code === assetCode);
-    if (asset && asset.networks && asset.networks.length > 0) {
-      setAvailableNetworks(asset.networks);
-      setSelectedNetwork(asset.networks[0].id);
-    } else {
-      setAvailableNetworks([]);
+    // Update network based on the selected asset
+    if (assetNetworkMap[assetCode]) {
+      const compatibleNetworks = assetNetworkMap[assetCode];
+
+      // Filter our predefined networks to only include those compatible with the asset
+      const filteredNetworks = networks.filter((network) =>
+        compatibleNetworks.includes(network.id)
+      );
+
+      setAvailableNetworks(filteredNetworks);
+
+      // If current network is not compatible with the new asset, update it
+      if (!compatibleNetworks.includes(selectedNetwork)) {
+        setSelectedNetwork(compatibleNetworks[0]);
+      }
     }
   };
 
@@ -218,7 +491,7 @@ export default function OfframpFeature() {
       // Handle URL based on active tab
       if (activeTab === "url") {
         setGeneratedUrl(url);
-        setShowModal(true);
+        setShowUrlModal(true);
       } else {
         window.open(url, "_blank");
       }
@@ -310,14 +583,18 @@ export default function OfframpFeature() {
               )}
 
               {/* Country Selection */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
                   Country
                 </label>
                 <div className="relative">
                   <select
                     value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
+                    onChange={(e) => {
+                      setSelectedCountry(e.target.value);
+                      // Reset subdivision when country changes
+                      setSelectedSubdivision("");
+                    }}
                     className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
                   >
                     {countries.map((country) => (
@@ -338,9 +615,9 @@ export default function OfframpFeature() {
                 </div>
               </div>
 
-              {/* State Selection (for US) */}
-              {subdivisions.length > 0 && (
-                <div className="mb-4">
+              {/* State Selection - Only show for US */}
+              {selectedCountry === "US" && (
+                <div className="mb-6">
                   <label className="block text-gray-700 mb-2 font-medium">
                     State
                   </label>
@@ -350,9 +627,10 @@ export default function OfframpFeature() {
                       onChange={(e) => setSelectedSubdivision(e.target.value)}
                       className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
                     >
-                      {subdivisions.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
+                      <option value="">Select a state</option>
+                      {US_STATES.map((state) => (
+                        <option key={state.code} value={state.code}>
+                          {state.name}
                         </option>
                       ))}
                     </select>
@@ -370,7 +648,7 @@ export default function OfframpFeature() {
               )}
 
               {/* Asset Selection */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
                   Asset
                 </label>
@@ -399,7 +677,7 @@ export default function OfframpFeature() {
               </div>
 
               {/* Network Selection */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-gray-700 mb-2 font-medium">
                   Network
                 </label>
@@ -409,11 +687,18 @@ export default function OfframpFeature() {
                     onChange={(e) => setSelectedNetwork(e.target.value)}
                     className="block w-full bg-white border border-gray-300 rounded-lg py-3 px-4 pr-8 appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800"
                   >
-                    {availableNetworks.map((network) => (
-                      <option key={network.id} value={network.id}>
-                        {network.name}
-                      </option>
-                    ))}
+                    {/* Filter networks based on selected asset */}
+                    {networks
+                      .filter(
+                        (network) =>
+                          !assetNetworkMap[selectedAsset] ||
+                          assetNetworkMap[selectedAsset].includes(network.id)
+                      )
+                      .map((network) => (
+                        <option key={network.id} value={network.id}>
+                          {network.name}
+                        </option>
+                      ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
@@ -425,10 +710,11 @@ export default function OfframpFeature() {
                     </svg>
                   </div>
                 </div>
-                {availableNetworks.length > 0 && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    {selectedAsset} is available on {availableNetworks.length}{" "}
-                    network{availableNetworks.length > 1 ? "s" : ""}
+                {assetNetworkMap[selectedAsset] && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    {selectedAsset} is available on{" "}
+                    {assetNetworkMap[selectedAsset].length} network
+                    {assetNetworkMap[selectedAsset].length > 1 ? "s" : ""}
                   </p>
                 )}
               </div>
@@ -608,7 +894,7 @@ export default function OfframpFeature() {
       </div>
 
       {/* URL Modal */}
-      {showModal && (
+      {showUrlModal && (
         <SimpleModal
           title="Generated Offramp URL"
           content={
@@ -623,7 +909,7 @@ export default function OfframpFeature() {
               </div>
             </div>
           }
-          onClose={() => setShowModal(false)}
+          onClose={() => setShowUrlModal(false)}
           actions={
             <>
               <button
